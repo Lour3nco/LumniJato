@@ -1,7 +1,7 @@
 # Módulo 1 — Gestão de Finanças · Critérios de aceite e plano de qualidade
 
 Projeto: Lavajato Sistema
-Documento: 05-criterios-aceite.md · Autor: Agente QA · Versão: 9 · Status: **rascunho para revisão** (v2: critérios da nova FIN-US-04.7, filtro por tipo de serviço; D-QA-03 resolvida e D-QA-01 respondida pelo 04-backlog v2 · v3: critérios da FIN-US-02.12 com a regra do dono para E2-04/D-BL-01 — opção a), veículo obrigatório e tipo de serviço opcional · v4: D-QA-13 e D-QA-14 respondidas pelo Orquestrador; opção "Sem tipo de serviço" no filtro do Extrato e abertura da linha correspondente do Resumo · v5: decisões finais do dono (01-visao §9c): F-06 categorias de sistema, F-12 formas de pagamento e Pix no primeiro lançamento, F-13 edição sem troca de tipo, F-15 um celular — FIN-US-07.7 vai para a v1.1 · v6: F-02 MVP completo (M1 → M2 → M3, sem efeito nos critérios), F-03 só Android, F-05 unidade obrigatória também no Pessoal · v7: F-04 APK sem loja, F-08 unidades e formas na implantação, F-09 histórico e lixeira de 90 dias no MVP (FIN-US-06.4 e 06.5), F-10 sem PIN/biometria · v8: histórico, lixeira e exclusão conferidos com o 02-design v7 (TELA-07, TELA-09, TELA-15, TELA-16) · v9: D-QA-15 a D-QA-18 respondidas — histórico só leitura e sempre visível, aparelho/conflito para a v1.1, Desfazer pós-salvar fora da Lixeira)
+Documento: 05-criterios-aceite.md · Autor: Agente QA · Versão: 10 · Status: **rascunho para revisão** (v2: critérios da nova FIN-US-04.7, filtro por tipo de serviço; D-QA-03 resolvida e D-QA-01 respondida pelo 04-backlog v2 · v3: critérios da FIN-US-02.12 com a regra do dono para E2-04/D-BL-01 — opção a), veículo obrigatório e tipo de serviço opcional · v4: D-QA-13 e D-QA-14 respondidas pelo Orquestrador; opção "Sem tipo de serviço" no filtro do Extrato e abertura da linha correspondente do Resumo · v5: decisões finais do dono (01-visao §9c): F-06 categorias de sistema, F-12 formas de pagamento e Pix no primeiro lançamento, F-13 edição sem troca de tipo, F-15 um celular — FIN-US-07.7 vai para a v1.1 · v6: F-02 MVP completo (M1 → M2 → M3, sem efeito nos critérios), F-03 só Android, F-05 unidade obrigatória também no Pessoal · v7: F-04 APK sem loja, F-08 unidades e formas na implantação, F-09 histórico e lixeira de 90 dias no MVP (FIN-US-06.4 e 06.5), F-10 sem PIN/biometria · v8: histórico, lixeira e exclusão conferidos com o 02-design v7 (TELA-07, TELA-09, TELA-15, TELA-16) · v9: D-QA-15 a D-QA-18 respondidas — histórico só leitura e sempre visível, aparelho/conflito para a v1.1, Desfazer pós-salvar fora da Lixeira · v10: D-QA-04 respondida pelo dono — nomes iguais sem diferença de maiúsculas, acentos e espaços nas pontas)
 Fontes: `04-backlog.md` (v2), `03-arquitetura.md` (v1), `02-design.md` (v7), `01-visao.md` (v3, com as seções 9b e 9c). Em caso de conflito, vale a visão.
 
 > Convenção: **[CONFIRMADO]** veio do dono · **[SUPOSIÇÃO]** não validado (entre parênteses, a dúvida que pode mudar o critério) · **[DÚVIDA]** precisa de resposta antes de virar regra.
@@ -186,7 +186,7 @@ A regra de obrigatoriedade de serviço e veículo está na FIN-US-02.12.
 | ID | Dado | Quando | Então |
 |---|---|---|---|
 | CA-02.6.1 | a TELA-02 aberta | o dono toca "+ Novo serviço", digita "Lavagem de motor" e salva | a folha fecha, o serviço novo fica selecionado, entra no fim da ordem e o restante do formulário não se perde |
-| CA-02.6.2 | um serviço ativo "Lavagem simples" | o dono tenta criar "Lavagem simples" | aparece "Já existe um serviço com esse nome." e nada é criado [SUPOSIÇÃO: comparação ignora maiúsculas e espaços nas pontas — D-QA-04] |
+| CA-02.6.2 | um serviço ativo "Lavagem simples" | o dono tenta criar "Lavagem simples" | aparece "Já existe um serviço com esse nome." e nada é criado [CONFIRMADO D-QA-04: a comparação ignora maiúsculas, acentos e espaços nas pontas; "lavagem simples" também é recusado] |
 | CA-02.6.3 | um serviço desativado "Lavagem de motor" | o dono tenta criar "Lavagem de motor" | aparece "'Lavagem de motor' está desativado. [Reativar e usar]"; ao tocar, ele é reativado e selecionado, sem criar outro [SUPOSIÇÃO SUP-D14] |
 | CA-02.6.4 | a folha de novo serviço com o nome vazio ou só com espaços | o dono olha o botão Salvar da folha | está desabilitado |
 
@@ -259,7 +259,7 @@ Regra do dono [CONFIRMADO, E2-04 opção a)]: **numa entrada de serviço, o tipo
 |---|---|---|---|
 | CA-03.1.1 | a TELA-10 | o dono a abre | vê abas Saídas/Entradas, cada uma com a lista de categorias (ícone, cor, chave Ativa) e "+ Nova" |
 | CA-03.1.2 | a aba Saídas | o dono cria "Lanche" com ícone e cor | a categoria aparece na grade da "− Saiu" (respeitando a ordem) com `sistema = false` |
-| CA-03.1.3 | uma categoria de saída ativa "Água" | o dono tenta criar ou renomear outra de saída para "Água" | o app recusa com mensagem junto ao campo [texto SUPOSIÇÃO: "Já existe uma categoria com esse nome."]; com o mesmo nome em Entradas, aceita |
+| CA-03.1.3 | uma categoria de saída ativa "Água" | o dono tenta criar ou renomear outra de saída para "Água", "água" ou "Agua" | o app recusa com mensagem junto ao campo [texto SUPOSIÇÃO: "Já existe uma categoria com esse nome."]; com o mesmo nome em Entradas, aceita [CONFIRMADO D-QA-04] |
 | CA-03.1.4 | lançamentos antigos na categoria "Luz" | o dono a renomeia para "Energia" | o extrato e o resumo passam a mostrar "Energia" também nos antigos |
 | CA-03.1.5 | lançamentos antigos na categoria "Luz" | o dono desliga a chave Ativa | "Luz" some da grade de lançamento, mas os lançamentos antigos continuam no extrato e somados no resumo |
 | CA-03.1.6 | qualquer categoria | o dono procura uma opção de excluir | não existe; só desativar |
@@ -735,7 +735,7 @@ Regra do dono [CONFIRMADO, E2-04 opção a)]: **numa entrada de serviço, o tipo
 | CB-g.4 | "Repetir"/"Mais um igual" de um serviço cujo tipo foi desativado | o dono toca | o formulário abre sem esse tipo marcado [SUPOSIÇÃO] | 02.9, 03.3 |
 | CB-g.5 | qualquer uma das 4 categorias de sistema | o dono tenta desativar pela TELA-10, ou alguém tenta pelo servidor | a chave não muda / o servidor recusa [CONFIRMADO F-06] | 03.2 |
 | CB-g.6 | a categoria de sistema "Serviços" renomeada para "Lavagens" | o dono lança um serviço | o lançamento continua indo para a mesma categoria (pelo id/marca de sistema) [CONFIRMADO F-06: renomear é permitido] | 03.2, 02.5 |
-| CB-g.7 | o nome "Água" ativo | o dono tenta criar "água", " Água " ou "Água" | recusa nos três casos [SUPOSIÇÃO: comparação sem diferença de maiúsculas e espaços nas pontas; acentos contam — D-QA-04] | 03.1, 03.3, 03.4, 02.6, 02.7 |
+| CB-g.7 | o nome "Água" ativo | o dono tenta criar "água", " Água ", "Agua" ou "AGUA" | recusa nos quatro casos, no app e no servidor (a restrição de nome único usa a mesma comparação) [CONFIRMADO D-QA-04: maiúsculas, acentos e espaços nas pontas não diferenciam nomes; regra no servidor: SUPOSIÇÃO] | 03.1, 03.3, 03.4, 02.6, 02.7 |
 | CB-g.8 | dois aparelhos offline criam o mesmo nome "Polimento" | os dois sincronizam | o segundo envio é recusado pela restrição de nome único e vira erro de dado na TELA-12, com opção de corrigir [SUPOSIÇÃO: a regra de resolução não está definida — D-QA-12] | 03.3, 07.6 |
 
 ### h) "Todas as unidades" ao lançar
@@ -951,7 +951,7 @@ Ferramentas sugeridas [SUPOSIÇÃO, decisão da equipe]: Jest para unidade no ap
 
 | # | Suposição |
 |---|---|
-| S-QA-01 | [SUPOSIÇÃO] Comparação de nomes repetidos ignora maiúsculas/minúsculas e espaços nas pontas; acentos contam como diferença ("Agua" ≠ "Água"). |
+| S-QA-01 | ~~Comparação de nomes ignora maiúsculas e espaços, mas acentos contam.~~ **Substituída pela resposta à D-QA-04 [CONFIRMADO]:** a comparação ignora maiúsculas/minúsculas, acentos e espaços nas pontas ("Agua" = "Água" = "água"). |
 | S-QA-02 | [SUPOSIÇÃO] "Acima de R$ 10.000,00" significa estritamente maior; R$ 10.000,00 salva sem perguntar. |
 | S-QA-03 | [SUPOSIÇÃO] Ao passar de R$ 999.999,99, o dígito extra é ignorado em silêncio. |
 | S-QA-04 | [SUPOSIÇÃO] Atalhos de período (Hoje, Semana, Mês) são relativos: se o dia vira com o app aberto, passam a valer para o novo dia. |
@@ -985,7 +985,7 @@ Ferramentas sugeridas [SUPOSIÇÃO, decisão da equipe]: Jest para unidade no ap
 | D-QA-01 | ~~A categoria de sistema "Produtos" é de saída ou de entrada?~~ **Respondida (04-backlog v2, S-BL-09):** "Produtos" é de **saída**; a venda ao cliente é a categoria de **entrada "Venda de produtos"**. Critérios ajustados. | CA-01.6.2, CA-02.4.1 |
 | D-QA-02 | ~~No primeiro lançamento, qual forma de pagamento vem marcada?~~ **Respondida (F-12):** **Pix** no primeiro lançamento; nos seguintes, a última usada; ficam as quatro formas [CONFIRMADO]. | CA-02.2.6, CA-02.2.8 |
 | D-QA-03 | ~~A FIN-US-05.6 abre o Extrato filtrado por tipo de serviço, mas nenhuma história cria esse filtro.~~ **Resolvida (04-backlog v2):** criada a FIN-US-04.7 (filtro por tipo de serviço, MVP), dependência da FIN-US-05.6. | CA-04.7.x, CA-05.6.3 |
-| D-QA-04 | Nome repetido: "água" e "Água" são o mesmo nome? E "Agua" sem acento? Categoria desativada com o mesmo nome também oferece "Reativar"? | CA-02.6.2, CA-03.1.3, CB-g.7 |
+| D-QA-04 | ~~Nome repetido: "água" e "Água" são o mesmo nome? E "Agua" sem acento?~~ **Respondida pelo dono: sim**, são o mesmo nome (maiúsculas, acentos e espaços nas pontas não contam). **Continua aberta** a segunda parte: categoria desativada com o mesmo nome também oferece "Reativar", como os tipos de serviço e de veículo? | CA-02.6.2, CA-03.1.3, CB-g.7 |
 | D-QA-05 | ~~Na edição, dá para trocar o tipo do lançamento?~~ **Respondida (F-13):** não; para trocar, exclui e lança de novo [CONFIRMADO]. | CA-06.2.6, CA-06.2.7 |
 | D-QA-06 | Com **"Todas as unidades"**, o botão "Repetir" aparece? De qual unidade? | CB-h.3 |
 | D-QA-07 | Se a sessão vencer com pendências e **outro usuário** entrar no aparelho, o que acontece com a fila do anterior? | CB-k.5 |
