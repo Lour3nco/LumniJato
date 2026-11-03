@@ -1,8 +1,8 @@
 # Módulo 1 — Gestão de Finanças · Critérios de aceite e plano de qualidade
 
 Projeto: Lavajato Sistema
-Documento: 05-criterios-aceite.md · Autor: Agente QA · Versão: 3 · Status: **rascunho para revisão** (v2: critérios da nova FIN-US-04.7, filtro por tipo de serviço; D-QA-03 resolvida e D-QA-01 respondida pelo 04-backlog v2 · v3: critérios da FIN-US-02.12 com a regra do dono para E2-04/D-BL-01 — opção a), veículo obrigatório e tipo de serviço opcional · v4: D-QA-13 e D-QA-14 respondidas pelo Orquestrador; opção "Sem tipo de serviço" no filtro do Extrato e abertura da linha correspondente do Resumo)
-Fontes: `04-backlog.md` (v2), `03-arquitetura.md` (v1), `02-design.md` (v4), `01-visao.md` (v3). Em caso de conflito, vale a visão.
+Documento: 05-criterios-aceite.md · Autor: Agente QA · Versão: 9 · Status: **rascunho para revisão** (v2: critérios da nova FIN-US-04.7, filtro por tipo de serviço; D-QA-03 resolvida e D-QA-01 respondida pelo 04-backlog v2 · v3: critérios da FIN-US-02.12 com a regra do dono para E2-04/D-BL-01 — opção a), veículo obrigatório e tipo de serviço opcional · v4: D-QA-13 e D-QA-14 respondidas pelo Orquestrador; opção "Sem tipo de serviço" no filtro do Extrato e abertura da linha correspondente do Resumo · v5: decisões finais do dono (01-visao §9c): F-06 categorias de sistema, F-12 formas de pagamento e Pix no primeiro lançamento, F-13 edição sem troca de tipo, F-15 um celular — FIN-US-07.7 vai para a v1.1 · v6: F-02 MVP completo (M1 → M2 → M3, sem efeito nos critérios), F-03 só Android, F-05 unidade obrigatória também no Pessoal · v7: F-04 APK sem loja, F-08 unidades e formas na implantação, F-09 histórico e lixeira de 90 dias no MVP (FIN-US-06.4 e 06.5), F-10 sem PIN/biometria · v8: histórico, lixeira e exclusão conferidos com o 02-design v7 (TELA-07, TELA-09, TELA-15, TELA-16) · v9: D-QA-15 a D-QA-18 respondidas — histórico só leitura e sempre visível, aparelho/conflito para a v1.1, Desfazer pós-salvar fora da Lixeira)
+Fontes: `04-backlog.md` (v2), `03-arquitetura.md` (v1), `02-design.md` (v7), `01-visao.md` (v3, com as seções 9b e 9c). Em caso de conflito, vale a visão.
 
 > Convenção: **[CONFIRMADO]** veio do dono · **[SUPOSIÇÃO]** não validado (entre parênteses, a dúvida que pode mudar o critério) · **[DÚVIDA]** precisa de resposta antes de virar regra.
 > IDs: o critério **CA-02.3.1** pertence à história **FIN-US-02.3**. Casos de borda usam **CB-x.n** (x = letra do item 2 do pedido). Dúvidas novas levantadas por este documento usam **D-QA-nn**.
@@ -12,7 +12,7 @@ Fontes: `04-backlog.md` (v2), `03-arquitetura.md` (v1), `02-design.md` (v4), `01
 
 ## 1. Visão geral
 
-Este documento define **como saber que cada história MVP do 04-backlog está pronta**. O 04-backlog (v2) tem **61 histórias MVP**, e **todas as 61** têm critérios no formato **Dado / Quando / Então** (**263 critérios** no total), cobrindo o caminho feliz e as validações principais. A FIN-US-02.12 deixou de estar bloqueada: o dono respondeu a D-BL-01 (E2-04, opção a): **veículo obrigatório, tipo de serviço opcional**), conforme o 02-design v4 §JOR-b.
+Este documento define **como saber que cada história MVP do 04-backlog está pronta**. Com a decisão **F-15** (o dono usa um só celular), a FIN-US-07.7 (conflito entre aparelhos) saiu do MVP e foi para a **v1.1**: com a **F-09**, a FIN-US-06.4 (histórico) e a FIN-US-06.5 (lixeira) entraram no MVP; o MVP passa a ter **62 histórias**, e **todas as 62** têm critérios no formato **Dado / Quando / Então** (**280 critérios** no total), cobrindo o caminho feliz e as validações principais. Os critérios da FIN-US-07.7 continuam neste documento, marcados como v1.1 e fora da contagem do MVP. A FIN-US-02.12 deixou de estar bloqueada: o dono respondeu a D-BL-01 (E2-04, opção a): **veículo obrigatório, tipo de serviço opcional**), conforme o 02-design v4 §JOR-b.
 
 Depois vêm os **casos de borda** que atravessam várias histórias (valor, centavos, datas, duplicados, conflito, sincronização, cadastros, unidade, Pessoal/Empresa, período e segurança), os **riscos de qualidade**, a **estratégia de testes** (o que automatizar, o que testar à mão e o checklist no celular), as **suposições e dúvidas** e o que fica **fora do escopo**.
 
@@ -54,7 +54,7 @@ Regras de leitura:
 | CA-01.3.2 | a tabela `lancamento` | alguém tenta gravar `valor_centavos` igual a 0, negativo ou com casas decimais | o banco recusa a gravação |
 | CA-01.3.3 | a tabela `lancamento` | alguém tenta gravar `tipo`, `natureza`, `situacao` ou `origem` fora da lista permitida | o banco recusa (restrição `check`) |
 | CA-01.3.4 | uma categoria do tipo `saida` | alguém tenta gravar um lançamento `entrada` com essa categoria | o banco recusa |
-| CA-01.3.5 | um lançamento sem `unidade_id` | alguém tenta gravá-lo | o banco recusa [SUPOSIÇÃO: unidade obrigatória também nos pessoais — pode mudar com D-BL-09] |
+| CA-01.3.5 | um lançamento sem `unidade_id` | alguém tenta gravá-lo | o banco recusa, também quando o lançamento é Pessoal [CONFIRMADO F-05: todo lançamento pertence a uma unidade] |
 | CA-01.3.6 | uma categoria ativa "Água" do tipo `saida` | alguém tenta criar outra categoria ativa "Água" do tipo `saida` na mesma organização | o banco recusa; com tipo `entrada`, ou se a primeira estiver desativada, aceita |
 | CA-01.3.7 | a tabela `lancamento` | a equipe confere a estrutura | não existe campo de CPF, telefone, placa, modelo ou nome de cliente (RNF-24), e **não** existe restrição entre `tipo_servico_id` e `tipo_veiculo_id` (fica para FIN-US-02.12) |
 | CA-01.3.8 | um lançamento novo gravado sem informar os campos reservados | a equipe consulta o registro | `situacao = realizado`, `origem = manual`, `versao = 1`, `excluido_em` nulo |
@@ -88,9 +88,9 @@ Regras de leitura:
 
 | ID | Dado | Quando | Então |
 |---|---|---|---|
-| CA-01.6.1 | um banco recém-migrado | os dados iniciais são carregados | existem 1 organização, as unidades do dono (fuso `America/Sao_Paulo`) e um vínculo `dono` ativo para cada unidade [SUPOSIÇÃO: cadastro na implantação — D-BL-04] |
+| CA-01.6.1 | um banco recém-migrado | os dados iniciais são carregados | existem 1 organização, as unidades do dono (fuso `America/Sao_Paulo`) e um vínculo `dono` ativo para cada unidade; unidades e formas de pagamento são cadastradas pela equipe na implantação, sem tela para isso no app [CONFIRMADO F-08] |
 | CA-01.6.2 | os dados iniciais carregados | a equipe consulta as categorias | as 4 de sistema (Serviços, Produtos, Mão de obra, Reembolso) existem com `sistema = true`, e as demais categorias iniciais com `sistema = false`; "Serviços" é do tipo `entrada`, e "Produtos", "Mão de obra" e "Reembolso" são do tipo `saida`; existe também a categoria de entrada "Venda de produtos" (`sistema = false`) [CONFIRMADO S-BL-09 para Produtos e Venda de produtos] |
-| CA-01.6.3 | os dados iniciais carregados | a equipe consulta os cadastros | existem os tipos de veículo Carro, Moto, SUV, Caminhonete/Picape e Van, cada um com ícone próprio [CONFIRMADO E2-07]; as formas Dinheiro, Pix, Cartão de débito e Cartão de crédito; e os tipos de serviço iniciais (lista depende da dúvida 5a da visão) |
+| CA-01.6.3 | os dados iniciais carregados | a equipe consulta os cadastros | existem os tipos de veículo Carro, Moto, SUV, Caminhonete/Picape e Van, cada um com ícone próprio [CONFIRMADO E2-07]; as formas Dinheiro, Pix, Cartão de débito e Cartão de crédito, todas ativas [CONFIRMADO F-12]; e os tipos de serviço iniciais (lista depende da dúvida 5a da visão) |
 | CA-01.6.4 | os dados iniciais já carregados | a carga é executada de novo | nenhum registro é duplicado [SUPOSIÇÃO] |
 | CA-01.6.5 | o primeiro acesso do dono | ele abre "− Saiu", "+ Entrou" e "+ Carro" | consegue salvar uma saída, uma entrada e um serviço sem criar nenhum cadastro antes |
 
@@ -148,8 +148,9 @@ Regras de leitura:
 | CA-02.2.3 | o seletor de data aberto | o dono olha os dias depois de hoje | estão apagados e não respondem ao toque; dias passados podem ser escolhidos [SUPOSIÇÃO S-05] |
 | CA-02.2.4 | uma unidade específica selecionada no topo | o dono abre um formulário | o campo Unidade vem com essa unidade e pode ser trocado |
 | CA-02.2.5 | "Todas as unidades" selecionado no topo | o dono abre um formulário | o campo Unidade aparece no topo, destacado e vazio, e Salvar fica desabilitado até escolher [SUPOSIÇÃO SUP-D05] |
-| CA-02.2.6 | uma saída anterior paga com "Pix" e uma entrada anterior com "Dinheiro" | o dono abre "− Saiu" e depois "+ Entrou" | a forma vem "Pix" na saída e "Dinheiro" na entrada [SUPOSIÇÃO SUP-D02; primeiro uso sem forma anterior: D-QA-02] |
+| CA-02.2.6 | uma saída anterior paga com "Pix" e uma entrada anterior com "Dinheiro" | o dono abre "− Saiu" e depois "+ Entrou" | a forma vem "Pix" na saída e "Dinheiro" na entrada [CONFIRMADO F-12: nos seguintes, a última usada; SUPOSIÇÃO SUP-D02: a última usada é contada por tipo de lançamento] |
 | CA-02.2.7 | o formulário aberto | o dono olha a descrição | ela vem recolhida; ao abrir, aceita até 200 caracteres e não aceita o 201º [SUPOSIÇÃO de limite] |
+| CA-02.2.8 | nenhum lançamento anterior daquele tipo neste usuário (primeiro lançamento) | o dono abre "− Saiu", "+ Entrou" ou "+ Carro" | a forma de pagamento vem marcada em **Pix**, e as quatro formas (Dinheiro, Pix, Cartão de débito, Cartão de crédito) estão disponíveis para troca [CONFIRMADO F-12] |
 
 **FIN-US-02.3 — Lançar saída**
 
@@ -204,7 +205,7 @@ A regra de obrigatoriedade de serviço e veículo está na FIN-US-02.12.
 |---|---|---|---|
 | CA-02.8.1 | uma saída de R$ 25,00 pronta | o dono toca Salvar | volta à Início com o saldo já atualizado e o aviso "Saída de R$ 25,00 salva · Desfazer" por cerca de 5 s, sem bloquear a tela |
 | CA-02.8.2 | um serviço "Lavagem completa · SUV · R$ 60,00" pronto | o dono toca Salvar | o aviso mostra serviço, veículo e valor, com "Desfazer" e "Mais um igual" |
-| CA-02.8.3 | o aviso visível | o dono toca "Desfazer" | o lançamento some da Início, do extrato e dos totais; no banco fica com `excluido_em` preenchido (exclusão lógica) [SUPOSIÇÃO S-BL-04] |
+| CA-02.8.3 | o aviso visível | o dono toca "Desfazer" | o lançamento some da Início, do extrato e dos totais e **não** aparece na Lixeira (é correção imediata de engano); no banco fica com `excluido_em` preenchido (exclusão lógica) e com o histórico [SUPOSIÇÃO, D-QA-18] |
 | CA-02.8.4 | o aviso exibido há mais de ~5 s | o dono olha a tela | o aviso sumiu e o lançamento continua salvo |
 
 **FIN-US-02.9 — "Mais um igual" e "Repetir"**
@@ -269,8 +270,8 @@ Regra do dono [CONFIRMADO, E2-04 opção a)]: **numa entrada de serviço, o tipo
 |---|---|---|---|
 | CA-03.2.1 | a TELA-10 | o dono olha Serviços, Produtos, Mão de obra e Reembolso | cada uma tem a chave Ativa ligada e travada, com cadeado e o texto "Categoria usada pelo sistema. Pode mudar o nome, mas não pode ser desativada." |
 | CA-03.2.2 | uma categoria de sistema | o dono toca a chave travada | nada muda |
-| CA-03.2.3 | a categoria "Mão de obra" | o dono a renomeia para "Diárias" | o novo nome é aceito e os lançamentos e o comportamento ligados a ela continuam iguais [SUPOSIÇÃO — D-BL-03] |
-| CA-03.2.4 | uma categoria com `sistema = true` | alguém tenta gravar `ativa = false` direto no servidor | o servidor recusa [SUPOSIÇÃO — D-BL-03] |
+| CA-03.2.3 | a categoria "Mão de obra" | o dono a renomeia para "Diárias" | o novo nome é aceito (ícone e cor também podem ser trocados) e os lançamentos e o comportamento ligados a ela continuam iguais [CONFIRMADO F-06] |
+| CA-03.2.4 | uma categoria com `sistema = true` | alguém tenta gravar `ativa = false` direto no servidor | o servidor recusa [CONFIRMADO F-06: não pode ser desativada; a recusa no servidor é a proteção técnica dessa regra] |
 
 **FIN-US-03.3 — Tipos de serviço**
 
@@ -446,15 +447,42 @@ Regra do dono [CONFIRMADO, E2-04 opção a)]: **numa entrada de serviço, o tipo
 | CA-06.2.3 | o formulário de edição | o dono zera o valor ou remove um campo obrigatório | "Salvar alterações" fica desabilitado, como na criação |
 | CA-06.2.4 | um campo alterado | o dono toca "Salvar alterações" | o lançamento atualiza no extrato e nos totais, `alterado_por`/`alterado_em` mudam, o detalhe mostra "Alterado" e, depois da sincronização, o servidor tem `versao` + 1 e uma linha de histórico |
 | CA-06.2.5 | o formulário de edição com mudanças | o dono sai sem salvar e descarta | o lançamento continua como antes |
+| CA-06.2.6 | o detalhe de uma saída, de uma outra entrada ou de um serviço | o dono toca Editar e procura mudar o tipo (saída ↔ entrada, outra entrada ↔ serviço) | não há como: o formulário de edição é o do tipo original (TELA-03, TELA-04 ou TELA-02), sem opção de trocar o tipo; a categoria "Serviços" não aparece na edição de outra entrada, e a edição de serviço não oferece outras categorias. Para trocar, o dono exclui e lança de novo [CONFIRMADO F-13] |
+| CA-06.2.7 | um lançamento já gravado no servidor | chega uma alteração que muda o `tipo` ou que troca a categoria entre "Serviços" e outra (app antigo ou chamada direta) | o servidor recusa; no app, o item vira erro de dado na TELA-12 (FIN-US-07.6) [CONFIRMADO F-13; recusa no servidor: SUPOSIÇÃO de proteção técnica] |
 
 **FIN-US-06.3 — Excluir**
 
 | ID | Dado | Quando | Então |
 |---|---|---|---|
-| CA-06.3.1 | o detalhe de uma saída de R$ 25,00, Alimentação, hoje | o dono toca Excluir | aparece "Excluir esta saída de R$ 25,00 (Alimentação, hoje)? Não dá para desfazer depois.", com "Cancelar" à esquerda e "Excluir" em vermelho |
+| CA-06.3.1 | o detalhe de uma saída de R$ 25,00, Alimentação, hoje | o dono toca Excluir | aparece "Excluir esta saída de R$ 25,00 (Alimentação, hoje)? Ela fica na Lixeira por 90 dias e pode ser recuperada.", com "Cancelar" à esquerda e "Excluir" em vermelho [CONFIRMADO F-09; texto SUPOSIÇÃO, 02-design JOR-h] |
 | CA-06.3.2 | a confirmação | o dono toca Cancelar | nada muda |
-| CA-06.3.3 | a confirmação | o dono toca Excluir | volta à lista com "Lançamento excluído", e o lançamento some de extrato, saldo, resumo e últimos 5 |
+| CA-06.3.3 | a confirmação | o dono toca Excluir | volta à lista com o aviso "Lançamento excluído · Desfazer" por ~5 s; o lançamento some de extrato, saldo, resumo e últimos 5 e passa a aparecer na Lixeira (TELA-16); tocar Desfazer o devolve como estava [02-design JOR-h e §5.6] |
 | CA-06.3.4 | um lançamento excluído e sincronizado | a equipe consulta o servidor | o registro existe com `excluido_em` e `excluido_por` preenchidos e há uma linha `exclusao` no histórico (RNF-15) |
+
+**FIN-US-06.4 — Histórico de alterações** *(MVP pela F-09)*
+
+| ID | Dado | Quando | Então |
+|---|---|---|---|
+| CA-06.4.1 | um lançamento criado, alterado, excluído e restaurado | o dono abre o detalhe (TELA-07) e toca "Ver histórico" | abre a TELA-15, só leitura, com a linha do tempo, mais recente em cima: "Restaurado", "Excluído", "Alterado" e "Criado", cada um com data, hora, quem fez ("por Dono") e o que mudou; o topo mostra o lançamento (ex.: "Alimentação · R$ 35,00 · Hoje"); não há informação de aparelho nem de conflito no MVP [CONFIRMADO F-09; D-QA-16; layout SUPOSIÇÃO, 02-design §4.5] |
+| CA-06.4.2 | uma alteração do valor de R$ 25,00 para R$ 35,00 e da forma de Dinheiro para Pix | o dono olha essa linha na TELA-15 | vê só os campos alterados, com o valor antigo riscado e o novo: "Valor: ~~R$ 25,00~~ → R$ 35,00" e "Pagou com: ~~Dinheiro~~ → Pix" (nunca centavos crus nem nomes de campos do banco); a linha "Criado" mostra os dados iniciais ("R$ 25,00 · Dinheiro · Centro") |
+| CA-06.4.3 | uma linha de alteração no histórico | o dono procura voltar aos valores daquela versão | não há botão de reverter na TELA-15; para corrigir, o dono volta ao detalhe e usa Editar (FIN-US-06.2), o que gera uma nova linha "Alterado" no histórico [D-QA-15] |
+| CA-06.4.4 | o histórico aberto | o dono procura editar ou apagar uma linha | não existe essa opção; o histórico é só leitura (RNF-14) |
+| CA-06.4.5 | o aparelho sem internet | o dono abre o histórico de um lançamento | a TELA-15 abre com as linhas já recebidas do servidor e mostra também, no topo, as alterações feitas no aparelho ainda não enviadas, marcadas como "aguardando envio" [SUPOSIÇÃO do QA: o 02-design v7 não trata o histórico sem internet; o histórico oficial é escrito pelo servidor] |
+| CA-06.4.6 | um lançamento nunca alterado / um lançamento excluído e depois restaurado | o dono abre o detalhe e toca "Ver histórico" | o link "Ver histórico" aparece **sempre**; o primeiro mostra só a linha "Criado" (não existe estado vazio); o segundo mostra também "Excluído" e "Restaurado" [D-QA-17, 02-design TELA-07 e §4.5] |
+
+**FIN-US-06.5 — Lixeira** *(MVP pela F-09)*
+
+| ID | Dado | Quando | Então |
+|---|---|---|---|
+| CA-06.5.1 | lançamentos excluídos nos últimos 90 dias | o dono abre Mais → Lixeira (TELA-16) | vê no topo o aviso "Os lançamentos excluídos ficam aqui por 90 dias. Depois disso, saem da Lixeira." e a lista, do excluído mais recente para o mais antigo, com cada item igual ao do extrato (ícone, título, veículo/forma, unidade, valor com sinal), a linha "Excluído em 03/11 · some em 01/02" e o botão Restaurar [CONFIRMADO F-09; layout SUPOSIÇÃO, 02-design §4.6] |
+| CA-06.5.2 | um lançamento na Lixeira | o dono toca "Restaurar" | sem pedir confirmação, o item sai da Lixeira e aparece o aviso "Lançamento restaurado · Ver" (Ver abre o detalhe); o lançamento volta como estava na hora da exclusão, com a data e a unidade originais, ao extrato, ao saldo e ao resumo, sem duplicar; `excluido_em` volta a nulo e o histórico ganha "Restaurado por Dono em …" (`restauracao`) [02-design JOR-h e §5.6] |
+| CA-06.5.3 | um lançamento excluído há exatamente 90 dias / há 91 dias (contados pela data da exclusão no fuso da unidade) | o dono abre a Lixeira | o de 90 dias aparece / o de 91 dias não aparece e sai sozinho, sem ação do dono; o registro continua no servidor, com exclusão lógica e histórico [CONFIRMADO F-09: 90 dias; contagem inclusiva: SUPOSIÇÃO] |
+| CA-06.5.8 | um item excluído em 03/11 / um item que sai da Lixeira em 3 dias | o dono olha a Lixeira | o primeiro mostra "some em 01/02" (data da exclusão + 90 dias); o segundo mostra "some em 3 dias" em âmbar, porque faltam menos de 7 dias [SUPOSIÇÃO, 02-design TELA-16] |
+| CA-06.5.9 | um lançamento removido pelo "Desfazer" logo após salvar e outro removido por Excluir (com confirmação) | o dono abre a Lixeira | só o removido por Excluir aparece; o desfeito não aparece, mas continua no servidor com exclusão lógica e histórico [SUPOSIÇÃO, D-QA-18] |
+| CA-06.5.4 | o aparelho sem internet | o dono abre a Lixeira e restaura um lançamento | a Lixeira funciona com os dados do aparelho, a restauração vale na hora no extrato e nos totais e fica pendente de envio (relógio), sendo enviada quando houver internet |
+| CA-06.5.5 | a Lixeira | o dono procura "apagar definitivamente" | não existe; apagar de verdade só por procedimento administrativo (RNF-26) |
+| CA-06.5.6 | um lançamento excluído cuja categoria, tipo de serviço ou veículo foi desativado depois | o dono o restaura | ele volta com os mesmos dados, como os lançamentos antigos de cadastros desativados (CB-g.1) [SUPOSIÇÃO, 02-design JOR-h] |
+| CA-06.5.7 | nenhum lançamento excluído nos últimos 90 dias | o dono abre a Lixeira | vê o ícone de lixeira e "A Lixeira está vazia. O que você excluir fica aqui por 90 dias." [02-design §5.5] |
 
 ### FIN-EP-07 — Funcionamento offline e sincronização
 
@@ -512,13 +540,16 @@ Regra do dono [CONFIRMADO, E2-04 opção a)]: **numa entrada de serviço, o tipo
 | CA-07.6.4 | um item recusado por dado inválido | o dono abre o erro na TELA-12 | pode corrigir e reenviar, ou descartar; descartar pede confirmação |
 | CA-07.6.5 | 1 item com erro definitivo e 4 itens válidos na fila | a sincronização roda | os 4 válidos são enviados; só ficam presos os que dependem do item com erro |
 
-**FIN-US-07.7 — Conflito entre aparelhos**
+**FIN-US-07.7 — Conflito entre aparelhos · v1.1 (fora do MVP)**
+
+> [CONFIRMADO F-15] O dono vai usar **um** celular; conforme o roadmap (R-RM-09), esta história saiu do MVP e vai para a **v1.1**. Os critérios ficam guardados aqui para a v1.1 e **não entram na contagem do MVP**. No MVP continuam a `versao` e o histórico no servidor (FIN-US-01.5), que protegem uma troca futura de aparelho (ver CB-e.1 e CB-e.3).
 
 | ID | Dado | Quando | Então |
 |---|---|---|---|
 | CA-07.7.1 | o mesmo lançamento editado offline em A (valor R$ 30,00) e em B (valor R$ 35,00), com B enviando por último | os dois sincronizam | o servidor e os dois aparelhos ficam com R$ 35,00 (registro inteiro de B), e o histórico tem as duas alterações, a segunda com `conflito = true` [SUPOSIÇÃO — D-BL-08] |
 | CA-07.7.2 | um lançamento com alteração em conflito | o dono abre o detalhe | vê "Este lançamento foi alterado em outro aparelho." |
 | CA-07.7.3 | A exclui e B edita o mesmo lançamento offline, em qualquer ordem de envio | os dois sincronizam | o lançamento fica excluído em todos os aparelhos e a edição fica no histórico com `conflito = true` [SUPOSIÇÃO — D-BL-08] |
+| CA-07.7.4 | uma alteração gravada no servidor com `conflito = true` | o dono abre o histórico (TELA-15) | a linha mostra o aparelho e um aviso de que foi feita sobre uma versão antiga, em outro aparelho [movido da FIN-US-06.4 para a v1.1 pela D-QA-16] |
 
 **FIN-US-07.8 — Aviso de pendências antigas**
 
@@ -541,8 +572,8 @@ Regra do dono [CONFIRMADO, E2-04 opção a)]: **numa entrada de serviço, o tipo
 
 | ID | Dado | Quando | Então |
 |---|---|---|---|
-| CA-08.1.1 | a barra inferior | o dono toca "Mais" | vê Categorias, Tipos de serviço, Tipos de veículo, Padrão Pessoal/Empresa, Sincronização, Sobre e Sair |
-| CA-08.1.2 | a TELA-09 | o dono toca cada item | abre a TELA-10, 11, 14, a escolha do padrão, a TELA-12, a tela Sobre e o fluxo de saída (FIN-US-09.1) |
+| CA-08.1.1 | a barra inferior | o dono toca "Mais" | vê Categorias, Tipos de serviço, Tipos de veículo, Padrão Pessoal/Empresa, Lixeira, Sincronização, Sobre e Sair; **não** vê Unidades nem Formas de pagamento [CONFIRMADO F-08, F-09; 02-design TELA-09] |
+| CA-08.1.2 | a TELA-09 | o dono toca cada item | abre a TELA-10, 11, 14, a escolha do padrão, a TELA-16 (Lixeira), a TELA-12, a tela Sobre e o fluxo de saída (FIN-US-09.1) |
 
 **FIN-US-08.2 — Padrão Pessoal/Empresa**
 
@@ -583,7 +614,7 @@ Regra do dono [CONFIRMADO, E2-04 opção a)]: **numa entrada de serviço, o tipo
 
 | ID | Dado | Quando | Então |
 |---|---|---|---|
-| CA-09.2.1 | o ambiente de produção | a equipe consulta as cópias | existe cópia diária com pelo menos 7 dias de retenção [SUPOSIÇÃO — D-BL-07] |
+| CA-09.2.1 | o ambiente de produção | a equipe consulta as cópias | existe cópia diária com pelo menos 7 dias de retenção [SUPOSIÇÃO — custo do plano depende da D-BL-07 parte 2, ainda aberta] |
 | CA-09.2.2 | o ambiente de produção | a equipe consulta o local externo | existe cópia semanal fora do Supabase com 3 meses de retenção [SUPOSIÇÃO] |
 | CA-09.2.3 | uma cópia recente | a equipe a restaura num banco de teste antes de ir para produção | a quantidade de lançamentos e a soma de `valor_centavos` por unidade batem com a origem, e o resultado é registrado |
 
@@ -591,7 +622,7 @@ Regra do dono [CONFIRMADO, E2-04 opção a)]: **numa entrada de serviço, o tipo
 
 | ID | Dado | Quando | Então |
 |---|---|---|---|
-| CA-09.3.1 | o app publicado | o dono abre Mais › Sobre (e a página da loja) | encontra a política de privacidade |
+| CA-09.3.1 | o app instalado | o dono abre Mais › Sobre | encontra a política de privacidade (sem página de loja, F-04) |
 | CA-09.3.2 | o campo descrição aberto em qualquer formulário | o dono olha o campo | vê uma orientação curta para não colocar dados sensíveis (CPF, telefone, placa) |
 
 **FIN-US-09.4 — Revisão de segurança**
@@ -609,13 +640,15 @@ Regra do dono [CONFIRMADO, E2-04 opção a)]: **numa entrada de serviço, o tipo
 | CA-09.5.1 | um Android de entrada com 10.000 lançamentos no banco local | a equipe mede (mediana de 10 repetições [SUPOSIÇÃO]) | salvar ≤ 300 ms; abrir formulário ≤ 1 s; extrato e resumo do mês ≤ 1 s; partida a frio ≤ 3 s |
 | CA-09.5.2 | as medições | a equipe as registra | ficam anotados aparelho, versão e tempos; um tempo acima do limite reprova a versão [SUPOSIÇÃO] |
 
-**FIN-US-09.6 — Publicação**
+**FIN-US-09.6 — Geração e distribuição do APK**
 
 | ID | Dado | Quando | Então |
 |---|---|---|---|
-| CA-09.6.1 | o build de produção | é instalado num Android 8 e num Android recente | o app abre e o fluxo de lançamento funciona |
-| CA-09.6.2 | iPhone incluído (D-BL-07) | o build é instalado num iOS 15+ | o mesmo fluxo funciona [SUPOSIÇÃO] |
+| CA-09.6.1 | o APK de produção gerado pelo EAS Build | é instalado diretamente (instalação de fonte externa) num Android 8 e num Android recente | o app instala, abre e o fluxo de lançamento funciona [CONFIRMADO F-04] |
+| CA-09.6.2 | a configuração de build e distribuição | a equipe confere as plataformas e os canais | só existe build Android, distribuído como APK de instalação direta; não há publicação no Google Play nem iPhone/iOS no MVP [CONFIRMADO F-03, F-04] |
 | CA-09.6.3 | uma correção publicada pelo EAS Update | o dono reabre o app | a correção está ativa sem reinstalar, e os dados locais e pendentes continuam intactos |
+| CA-09.6.4 | o app instalado com lançamentos pendentes | o dono instala um APK de versão nova por cima do antigo (mesma assinatura) | a instalação substitui o app sem desinstalar; dados locais, sessão e pendências continuam intactos e são enviados depois |
+| CA-09.6.5 | um APK assinado com outra chave, ou de versão mais antiga | o dono tenta instalá-lo por cima | o Android recusa a instalação e o app atual continua funcionando com os dados; a equipe guarda a chave de assinatura fora do aparelho [SUPOSIÇÃO] |
 
 ---
 
@@ -669,14 +702,16 @@ Regra do dono [CONFIRMADO, E2-04 opção a)]: **numa entrada de serviço, o tipo
 
 ### e) Conflito entre aparelhos
 
+[CONFIRMADO F-15] Com um só celular, a regra de conflito (FIN-US-07.7) foi para a v1.1. **No MVP valem só CB-e.1 e CB-e.3**, que protegem a **troca de aparelho** (o celular antigo ainda com alterações pendentes quando o novo já está em uso) usando a `versao` e o histórico do servidor (FIN-US-01.5, 07.2, 07.3). Os demais valem na **v1.1**. [SUPOSIÇÃO: essa divisão é interpretação do QA.]
+
 | ID | Dado | Quando | Então | Histórias |
 |---|---|---|---|---|
-| CB-e.1 | o mesmo lançamento editado em A e B sem internet | A sincroniza primeiro, B depois | vale o registro inteiro de B; o histórico guarda A e B, a de B com `conflito = true`; os dois aparelhos convergem para o mesmo valor [SUPOSIÇÃO — D-BL-08] | 07.7, 01.5 |
-| CB-e.2 | A editou só o valor e B editou só a categoria | os dois sincronizam | não há mescla: fica o registro inteiro do último a chegar; o outro campo editado volta ao valor do último envio e fica recuperável no histórico [SUPOSIÇÃO — D-BL-08] | 07.7 |
-| CB-e.3 | os relógios de A e B diferentes (A adiantado 2 h) | os dois enviam edições | a decisão segue a ordem de chegada no servidor, nunca a hora do aparelho | 07.7 |
-| CB-e.4 | A exclui e B edita offline; B envia **depois** de A | os dois sincronizam | o lançamento continua excluído; a edição de B fica no histórico com `conflito = true` [SUPOSIÇÃO] | 07.7, 06.3 |
-| CB-e.5 | A exclui e B edita offline; B envia **antes** de A | os dois sincronizam | o lançamento termina excluído; B, ao receber, retira-o da tela e dos totais | 07.7, 06.3 |
-| CB-e.6 | o lançamento excluído em CB-e.4 | o dono olha o aparelho B | o item some do extrato; não fica "fantasma" nos totais | 07.7, 04.1 |
+| CB-e.1 · **MVP** | o celular antigo com uma edição pendente de um lançamento, e o celular novo já editou e sincronizou o mesmo lançamento (troca de aparelho) | o celular antigo volta a ter internet | nenhuma versão se perde: o servidor aplica as duas na ordem de chegada, `versao` sobe a cada uma e o histórico guarda as duas, a segunda com `conflito = true`; os dois aparelhos terminam iguais ao servidor [qual versão prevalece: SUPOSIÇÃO "última que chega", decisão final na v1.1 — D-BL-08] | 01.5, 07.3 |
+| CB-e.2 · v1.1 | A editou só o valor e B editou só a categoria | os dois sincronizam | não há mescla: fica o registro inteiro do último a chegar; o outro campo editado volta ao valor do último envio e fica recuperável no histórico [SUPOSIÇÃO — D-BL-08] | 07.7 |
+| CB-e.3 · **MVP** | o celular antigo e o novo com relógios diferentes (um adiantado 2 h) | os dois enviam alterações do mesmo lançamento | a ordem de aplicação segue a chegada ao servidor (`recebido_servidor_em`), nunca a hora do aparelho | 01.5, 07.3 |
+| CB-e.4 · v1.1 | A exclui e B edita offline; B envia **depois** de A | os dois sincronizam | o lançamento continua excluído; a edição de B fica no histórico com `conflito = true` [SUPOSIÇÃO] | 07.7, 06.3 |
+| CB-e.5 · v1.1 | A exclui e B edita offline; B envia **antes** de A | os dois sincronizam | o lançamento termina excluído; B, ao receber, retira-o da tela e dos totais | 07.7, 06.3 |
+| CB-e.6 · v1.1 | o lançamento excluído em CB-e.4 | o dono olha o aparelho B | o item some do extrato; não fica "fantasma" nos totais | 07.7, 04.1 |
 
 ### f) Sincronização
 
@@ -698,8 +733,8 @@ Regra do dono [CONFIRMADO, E2-04 opção a)]: **numa entrada de serviço, o tipo
 | CB-g.2 | tipo de serviço "Cera" e tipo de veículo "Van" com lançamentos | o dono os desativa | somem da grade e da fileira; continuam no extrato e no Resumo › Serviços (Por serviço e Por veículo) | 03.3, 03.4, 05.4, 05.5 |
 | CB-g.3 | um lançamento antigo de categoria desativada | o dono o edita | o formulário mostra a categoria atual, e salvar sem trocá-la é permitido [SUPOSIÇÃO — D-QA-09] | 06.2 |
 | CB-g.4 | "Repetir"/"Mais um igual" de um serviço cujo tipo foi desativado | o dono toca | o formulário abre sem esse tipo marcado [SUPOSIÇÃO] | 02.9, 03.3 |
-| CB-g.5 | qualquer uma das 4 categorias de sistema | o dono tenta desativar pela TELA-10, ou alguém tenta pelo servidor | a chave não muda / o servidor recusa | 03.2 |
-| CB-g.6 | a categoria de sistema "Serviços" renomeada para "Lavagens" | o dono lança um serviço | o lançamento continua indo para a mesma categoria (pelo id/marca de sistema) | 03.2, 02.5 |
+| CB-g.5 | qualquer uma das 4 categorias de sistema | o dono tenta desativar pela TELA-10, ou alguém tenta pelo servidor | a chave não muda / o servidor recusa [CONFIRMADO F-06] | 03.2 |
+| CB-g.6 | a categoria de sistema "Serviços" renomeada para "Lavagens" | o dono lança um serviço | o lançamento continua indo para a mesma categoria (pelo id/marca de sistema) [CONFIRMADO F-06: renomear é permitido] | 03.2, 02.5 |
 | CB-g.7 | o nome "Água" ativo | o dono tenta criar "água", " Água " ou "Água" | recusa nos três casos [SUPOSIÇÃO: comparação sem diferença de maiúsculas e espaços nas pontas; acentos contam — D-QA-04] | 03.1, 03.3, 03.4, 02.6, 02.7 |
 | CB-g.8 | dois aparelhos offline criam o mesmo nome "Polimento" | os dois sincronizam | o segundo envio é recusado pela restrição de nome único e vira erro de dado na TELA-12, com opção de corrigir [SUPOSIÇÃO: a regra de resolução não está definida — D-QA-12] | 03.3, 07.6 |
 
@@ -719,7 +754,7 @@ Regra do dono [CONFIRMADO, E2-04 opção a)]: **numa entrada de serviço, o tipo
 | CB-i.2 | o padrão "Empresa" | o dono troca o dropdown para "Pessoal" num lançamento | só esse lançamento é Pessoal; o padrão continua "Empresa" no próximo | 02.2, 08.2 |
 | CB-i.3 | o padrão trocado para "Pessoal" no aparelho A, com B offline | B lança antes de sincronizar | o lançamento de B sai com o padrão antigo; depois de sincronizar, B passa a usar "Pessoal" (comportamento esperado, sem retroagir) | 08.2 |
 | CB-i.4 | um lançamento Pessoal | aparece no Extrato com filtro "Empresa" | não aparece; com "Tudo", aparece com o rótulo "Pessoal" | 04.1, 04.3 |
-| CB-i.5 | lançamento Pessoal | o dono tenta salvar sem unidade | não consegue [SUPOSIÇÃO: unidade obrigatória — D-BL-09] | 02.2 |
+| CB-i.5 | um lançamento Pessoal com o campo Unidade vazio (ex.: "Todas as unidades" no topo) | o dono tenta salvar | não consegue: Salvar fica desabilitado até escolher a unidade, como em qualquer lançamento; o lançamento Pessoal salvo fica na unidade escolhida e entra nos totais dela com o filtro Pessoal ou Tudo [CONFIRMADO F-05] | 02.2, 01.3 |
 
 ### j) Período
 
@@ -759,7 +794,7 @@ Escala: Probabilidade e Impacto em Baixa / Média / Alta.
 | R-03 | Erro de centavos em somas ou na digitação | Baixa | Alta | 02.1, 04.1, 05.1–05.3 | Testes de propriedade (valores aleatórios) comparando com soma inteira; proibir `parseFloat`/divisão em valor monetário por regra de lint [SUPOSIÇÃO]; tabela de digitação da 02-design §5.4 como teste |
 | R-04 | Lançamento no dia errado por causa de fuso (23h30, UTC) | Média | Média | 02.2, 04.1, 04.2, 05.1 | Testes de unidade com relógio simulado em 23h30/00h30 e fusos diferentes no aparelho (CB-c.4 a CB-c.7) |
 | R-05 | Vazamento entre unidades/organizações por falha de RLS | Baixa | Alta | 01.4, 07.1 | Testes automáticos de RLS com dois usuários e duas organizações em toda migração (CA-01.4.x, CB-k.1, CB-k.2); revisão 09.4 |
-| R-06 | Conflito entre aparelhos sobrescreve dados sem o dono perceber | Média | Média | 07.7 | Integração com dois clientes simulados editando offline; conferir histórico com `conflito` e aviso na TELA-07 (CB-e.x) |
+| R-06 | Conflito entre aparelhos sobrescreve dados sem o dono perceber | Baixa (um só celular, F-15) | Média | 01.5 (MVP); 07.7 (v1.1) | MVP: integração simulando a troca de aparelho com pendência no celular antigo (CB-e.1, CB-e.3). v1.1: dois clientes editando offline, histórico com `conflito` e aviso na TELA-07 (CB-e.2, e.4 a e.6) |
 | R-07 | Somas do extrato e do resumo divergem do servidor | Média | Alta | 04.1, 05.1–05.5, 07.3 | Teste de reconciliação: após sincronizar, total por unidade/dia no aparelho = total no servidor |
 | R-08 | Sessão vencida apaga a fila ou bloqueia o uso offline | Média | Alta | 01.7, 07.6, 09.1 | E2E com token expirado em modo avião (CB-k.4, CB-k.5) |
 | R-09 | Lentidão em aparelho de entrada com muitos dados | Média | Média | 04.1, 05.3, 09.5 | Medição automatizada com 10.000 lançamentos de teste em Android de entrada (CA-09.5.1) |
@@ -767,8 +802,9 @@ Escala: Probabilidade e Impacto em Baixa / Média / Alta.
 | R-11 | Veículo pré-selecionado errado salvo sem perceber | Alta | Baixa | 02.5, 02.9 | Teste manual do destaque visual sob sol; aviso pós-salvar mostra o veículo (CA-02.8.2) |
 | R-12 | Lançamento na unidade errada | Média | Média | 02.2, 08.3 | E2E de CB-h.1 e CB-h.2; teste manual do contraste da cor do topo |
 | R-13 | Desativar cadastro some com dados antigos dos relatórios | Baixa | Média | 03.1, 03.3, 03.4, 05.x | Integração: desativar e conferir extrato/resumo antes e depois (CB-g.1, CB-g.2) |
-| R-14 | Mudança de regra pendente (D-BL-02, D-BL-08) exige retrabalho | Média | Média | 07.7, 08.4 | Isolar a regra em uma função/restrição com teste próprio, para trocar só ela quando o dono responder |
-| R-15 | Atualização do app (EAS Update) quebra o banco local ou a fila | Baixa | Alta | 09.6, 07.1 | Teste de atualização com pendências na fila antes de cada publicação (CA-09.6.3) |
+| R-14 | Mudança de regra pendente (D-BL-02) exige retrabalho | Média | Média | 08.4 | Isolar a regra em uma função/restrição com teste próprio, para trocar só ela quando o dono responder |
+| R-15 | Atualização do app (EAS Update ou APK novo) quebra o banco local ou a fila; perda da chave de assinatura impede atualizar sem reinstalar | Baixa | Alta | 09.6, 07.1 | Teste de atualização pelos dois caminhos com pendências na fila antes de cada versão (CA-09.6.3, CA-09.6.4); teste de APK com outra assinatura (CA-09.6.5) |
+| R-17 | Restauração pela lixeira duplica o lançamento ou o devolve na data errada; corte de 90 dias errado por fuso | Baixa | Média | 06.5, 06.4 | Unidade: corte de 90 dias com relógio simulado; integração: restaurar e conferir 1 registro, `restauracao` no histórico e totais do dia original (CA-06.5.2, CA-06.5.3) |
 | R-16 | Restauração de backup não funciona quando precisar | Baixa | Alta | 09.2 | Restauração de teste antes de produção e depois a cada 3 meses [SUPOSIÇÃO] (CA-09.2.3) |
 
 ---
@@ -791,6 +827,7 @@ Ferramentas sugeridas [SUPOSIÇÃO, decisão da equipe]: Jest para unidade no ap
 | "Hoje" no fuso da unidade e bloqueio de futuro | CB-c.1 a c.7 (relógio e fuso simulados) |
 | Validações do formulário (Salvar habilitado/desabilitado) | CA-02.2.5, 02.3.2, 02.4.3, 06.2.3, CB-h.1 |
 | Regras de nome repetido e reativação | CA-02.6.2, 02.6.3, 02.7.2, 02.7.3, 03.1.3, CB-g.7 |
+| Corte de 90 dias da Lixeira e montagem do histórico em linguagem simples | CA-06.5.3, CA-06.4.2 |
 | Regra "Repetir" / "Mais um igual" | CA-02.9.1 a 02.9.4, CB-g.4 |
 | Filtros do Extrato e totais | CA-04.3.x, 04.4.x, 04.5.x, 04.7.x, CB-i.1, CB-i.4 |
 | Regra serviço × veículo no formulário | CA-02.12.1 a 02.12.4, 02.12.7 |
@@ -801,10 +838,11 @@ Ferramentas sugeridas [SUPOSIÇÃO, decisão da equipe]: Jest para unidade no ap
 |---|---|
 | Esquema e restrições do banco | CA-01.3.1 a 01.3.8, CA-02.12.8 a 02.12.10, CB-a.3 |
 | RLS com 2 usuários, 2 unidades, 2 organizações | CA-01.4.1 a 01.4.10, CB-k.1, k.2, k.6 |
-| Gatilhos de histórico e versão | CA-01.5.1 a 01.5.5, CB-d.3 |
+| Gatilhos de histórico e versão | CA-01.5.1 a 01.5.5, CB-d.3, CA-06.5.2, CA-06.4.3, CA-06.5.9 |
 | Idempotência do envio | CA-07.2.3, CB-d.2, CB-d.3 |
 | Fila com falha no meio, retomada e erros | CA-07.6.1 a 07.6.5, CB-f.1, f.2, f.7, CB-k.3 |
-| Conflito com dois clientes | CA-07.7.1 a 07.7.3, CB-e.1 a e.5 |
+| Troca de aparelho com pendência no celular antigo (MVP) | CB-e.1, CB-e.3 |
+| Conflito com dois clientes (v1.1) | CA-07.7.1 a 07.7.3, CB-e.2, e.4 a e.6 |
 | Regras de sincronização por unidade | CA-07.1.2, 07.1.3 |
 | Reconciliação de totais aparelho × servidor | CB-b.2, R-07 |
 | Dados iniciais idempotentes | CA-01.6.1 a 01.6.4 |
@@ -820,6 +858,7 @@ Ferramentas sugeridas [SUPOSIÇÃO, decisão da equipe]: Jest para unidade no ap
 | "Todas as unidades" ao lançar | CB-h.1, CB-h.2 |
 | Extrato com período, filtros e ida do Resumo para o Extrato | CA-04.2.3, 04.2.4, 05.6.1, 08.4.1, 08.4.2 |
 | Editar e excluir | CA-06.2.4, 06.3.3 |
+| Excluir → Lixeira → Restaurar (online e offline) e ver o histórico | CA-06.5.2, 06.5.4, 06.4.1 |
 | Offline → fechar à força → reabrir → online | CA-07.1.4, CB-f.2 |
 | Sessão expirada offline | CB-k.4 |
 | Sair da conta com pendências | CA-09.1.2, 09.1.3 |
@@ -827,23 +866,31 @@ Ferramentas sugeridas [SUPOSIÇÃO, decisão da equipe]: Jest para unidade no ap
 ### 5.2 O que pode ser só manual
 
 - Aparência e leitura sob sol, uso com uma mão, tamanho das áreas de toque na prática (RNF-01).
-- Leitor de tela (TalkBack/VoiceOver) e fonte grande (CA-01.9.4, CA-01.9.5).
+- Leitor de tela (TalkBack) e fonte grande (CA-01.9.4, CA-01.9.5).
 - Destaque do veículo pré-selecionado e cor do topo por unidade (R-11, R-12).
 - Desempenho medido em aparelho real (CA-09.5.1) — pode ser semiautomático.
 - Roteiro de resiliência com reinício real do aparelho (CA-07.9.x).
-- Dois aparelhos reais em conflito (complementa a integração).
-- Backup e restauração (CA-09.2.x), revisão de segurança (CA-09.4.x), política de privacidade (CA-09.3.1), publicação e atualização (CA-09.6.x).
+- Troca de aparelho real com pendência no celular antigo (MVP); dois aparelhos em conflito fica para a v1.1.
+- Backup e restauração (CA-09.2.x), revisão de segurança (CA-09.4.x), política de privacidade (CA-09.3.1), instalação do APK e atualização por APK novo e pelo próprio app (CA-09.6.x), sem loja.
 - Teste de usabilidade com o dono: 10 lançamentos reais medindo ≤ 15 s e ≤ 4 toques (OBJ-01).
 
 ### 5.3 Checklist de teste manual no celular
 
-**Aparelhos**
+**Aparelhos** — só Android [CONFIRMADO F-03]; iPhone fora do MVP
+
+**Instalação e atualização (APK, sem loja) [CONFIRMADO F-04]**
+
+- [ ] Instalar o APK direto no celular (permitindo instalação de fonte externa) em Android 8 e recente
+- [ ] Instalar um APK de versão nova por cima, com pendências → dados e pendências continuam
+- [ ] Receber correção pelo próprio app (EAS Update) com pendências → dados e pendências continuam
+- [ ] APK com outra assinatura é recusado pelo Android e o app atual segue funcionando
+
+**Aparelhos para os testes**
 
 - [ ] Android de entrada (2 GB RAM, Android 8 ou o mais antigo disponível)
 - [ ] Android intermediário recente
-- [ ] iPhone com iOS 15+ (se D-BL-07 incluir iOS)
 - [ ] Tela pequena (≈ 360 × 640 dp ou 5")
-- [ ] Fonte do sistema no maior tamanho em pelo menos um aparelho
+- [ ] Fonte do sistema no maior tamanho em pelo menos um Android
 
 **Com internet**
 
@@ -867,6 +914,7 @@ Ferramentas sugeridas [SUPOSIÇÃO, decisão da equipe]: Jest para unidade no ap
 - [ ] Período igual no Extrato e no Resumo; barra do Resumo abre Extrato filtrado
 - [ ] Resumo › Gastos e › Serviços (Por serviço e Por veículo)
 - [ ] Detalhe, editar (data futura bloqueada), excluir com confirmação
+- [ ] Excluir avisa dos 90 dias; excluído aparece na Lixeira com "some em …" (âmbar nos últimos 7 dias); Restaurar sem confirmação devolve ao dia e à unidade originais com "Lançamento restaurado · Ver"; "Ver histórico" sempre visível, só leitura, com valor antigo riscado; Desfazer logo após salvar não vai para a Lixeira
 - [ ] Categorias: criar, renomear, desativar, reordenar; 4 de sistema travadas
 - [ ] Tipos de serviço e de veículo: criar, renomear, desativar, reordenar
 - [ ] Padrão Pessoal/Empresa trocado em um aparelho chega ao outro
@@ -882,10 +930,12 @@ Ferramentas sugeridas [SUPOSIÇÃO, decisão da equipe]: Jest para unidade no ap
 - [ ] Relógio nos itens pendentes; contagem bate com o indicador
 - [ ] "Sincronizar agora" mostra que os dados estão seguros no celular
 - [ ] Fechar o app à força e reiniciar o aparelho → pendentes continuam
+- [ ] Lixeira e histórico abrem sem internet; restaurar offline fica pendente e é enviado depois
 - [ ] Reconectar → tudo chega ao servidor, sem duplicar; indicador volta a ✓
 - [ ] Pendência com mais de 24 h mostra aviso (ajustar data do aparelho ou usar build de teste)
-- [ ] Mesmo lançamento editado em dois aparelhos offline → aviso de conflito no detalhe
-- [ ] Um aparelho exclui e o outro edita offline → fica excluído
+- [ ] Troca de aparelho: celular antigo com alteração pendente sincroniza depois do novo → nada se perde (CB-e.1)
+- [ ] *(v1.1)* Mesmo lançamento editado em dois aparelhos offline → aviso de conflito no detalhe
+- [ ] *(v1.1)* Um aparelho exclui e o outro edita offline → fica excluído
 - [ ] Sair da conta com pendências → aviso explícito com a quantidade
 
 **Rede ruim**
@@ -911,7 +961,7 @@ Ferramentas sugeridas [SUPOSIÇÃO, decisão da equipe]: Jest para unidade no ap
 | S-QA-08 | [SUPOSIÇÃO] O valor máximo também é garantido por restrição no banco, não só no app. |
 | S-QA-09 | [SUPOSIÇÃO] Formulário com só os valores pré-preenchidos fecha sem perguntar "Descartar?". |
 | S-QA-10 | [SUPOSIÇÃO] Tempos de desempenho medidos pela mediana de 10 repetições; tempo acima do limite reprova a versão. |
-| S-QA-11 | Mantidas todas as suposições do 03-arquitetura e do 04-backlog (limites de valor, 30 dias offline, ~5 min, 24 h, espera crescente, conflito, excluir vence editar, unidade obrigatória, período inicial "Hoje", aba Hoje no cartão). |
+| S-QA-11 | Mantidas todas as suposições do 03-arquitetura e do 04-backlog (limites de valor, 30 dias offline, ~5 min, 24 h, espera crescente, conflito, excluir vence editar, período inicial "Hoje", aba Hoje no cartão). |
 
 ### 6.2 Dúvidas que mudam critérios (já abertas no 04-backlog)
 
@@ -919,13 +969,13 @@ Ferramentas sugeridas [SUPOSIÇÃO, decisão da equipe]: Jest para unidade no ap
 |---|---|
 | ~~D-BL-01 (serviço × veículo)~~ | **Respondida pelo dono: opção a), veículo obrigatório e tipo de serviço opcional.** Aplicada em CA-02.12.x, CA-02.5.4, CA-04.7.1, CA-04.7.7, CA-04.7.8, CA-05.4.4, CA-05.4.5, CA-05.5.2 e CA-05.6.4 |
 | D-BL-02 (período padrão) | CA-08.4.3, CA-04.3.4, CB-j.8 |
-| D-BL-03 (categorias de sistema) | CA-03.2.3, CA-03.2.4, CB-g.5, CB-g.6 |
-| D-BL-04 (cadastro de unidades e formas) | CA-01.6.1 |
-| D-BL-05 (histórico e lixeira) | Nenhum MVP; se entrar, 06.4 e 06.5 ganham critérios |
-| D-BL-06 (PIN/biometria) | Nenhum MVP; se entrar, 09.7 ganha critérios |
-| D-BL-07 (custo, Android/iOS) | CA-09.2.1, CA-09.6.2, checklist de aparelhos |
-| D-BL-08 (conflito) | CA-07.7.1 a 07.7.3, CB-e.1 a e.5 |
-| D-BL-09 (Pessoal pertence a unidade) | CA-01.3.5, CB-i.5 |
+| ~~D-BL-03 (categorias de sistema)~~ | **Respondida (F-06):** renomear (nome, ícone, cor) sim, desativar não [CONFIRMADO]. CA-03.2.3, CA-03.2.4, CB-g.5, CB-g.6 |
+| ~~D-BL-04 (cadastro de unidades e formas)~~ | **Respondida (F-08):** cadastradas pela equipe na implantação, sem telas no MVP [CONFIRMADO]. CA-01.6.1 |
+| ~~D-BL-05 (histórico e lixeira)~~ | **Respondida (F-09):** sim, histórico e lixeira no app, com 90 dias na lixeira [CONFIRMADO]. FIN-US-06.4 e 06.5 entraram no MVP: CA-06.4.x, CA-06.5.x e CA-06.3.1 |
+| ~~D-BL-06 (PIN/biometria)~~ | **Respondida (F-10):** não haverá PIN nem biometria; o app abre direto (vale o bloqueio de tela do celular) [CONFIRMADO]. FIN-US-09.7 saiu do roadmap; nenhum critério |
+| D-BL-07 (custo, ~~Android/iOS~~) | **Parte 1 respondida (F-03): só Android** [CONFIRMADO] — CA-09.6.2 e checklist de aparelhos. **Parte 2 (aceitar plano pago do Supabase/PowerSync) continua aberta** — CA-09.2.1 |
+| D-BL-08 (conflito) | **Sai do MVP (F-15):** a FIN-US-07.7 foi para a v1.1; a dúvida volta na v1.1. Afeta CA-07.7.x e CB-e.2, e.4 a e.6; no MVP, só a parte "qual versão prevalece" de CB-e.1 |
+| ~~D-BL-09 (Pessoal pertence a unidade)~~ | **Respondida (F-05):** todo lançamento, inclusive o Pessoal, pertence a uma unidade [CONFIRMADO]. CA-01.3.5, CB-i.5. A parte da dúvida 13 (categorias separadas Pessoal/Empresa) segue com a FIN-US-03.7, fora do MVP |
 | D-BL-10 (aba padrão do cartão) | CA-05.1.2 |
 
 ### 6.3 Dúvidas novas levantadas pelo QA
@@ -933,10 +983,10 @@ Ferramentas sugeridas [SUPOSIÇÃO, decisão da equipe]: Jest para unidade no ap
 | # | Dúvida | Critérios afetados |
 |---|---|---|
 | D-QA-01 | ~~A categoria de sistema "Produtos" é de saída ou de entrada?~~ **Respondida (04-backlog v2, S-BL-09):** "Produtos" é de **saída**; a venda ao cliente é a categoria de **entrada "Venda de produtos"**. Critérios ajustados. | CA-01.6.2, CA-02.4.1 |
-| D-QA-02 | No **primeiro lançamento** (sem "última forma usada"), qual forma de pagamento vem marcada: nenhuma (exigindo escolha) ou a primeira da lista? | CA-02.2.6 |
+| D-QA-02 | ~~No primeiro lançamento, qual forma de pagamento vem marcada?~~ **Respondida (F-12):** **Pix** no primeiro lançamento; nos seguintes, a última usada; ficam as quatro formas [CONFIRMADO]. | CA-02.2.6, CA-02.2.8 |
 | D-QA-03 | ~~A FIN-US-05.6 abre o Extrato filtrado por tipo de serviço, mas nenhuma história cria esse filtro.~~ **Resolvida (04-backlog v2):** criada a FIN-US-04.7 (filtro por tipo de serviço, MVP), dependência da FIN-US-05.6. | CA-04.7.x, CA-05.6.3 |
 | D-QA-04 | Nome repetido: "água" e "Água" são o mesmo nome? E "Agua" sem acento? Categoria desativada com o mesmo nome também oferece "Reativar"? | CA-02.6.2, CA-03.1.3, CB-g.7 |
-| D-QA-05 | Na edição, dá para trocar o **tipo** do lançamento (saída ↔ entrada, ou outra entrada ↔ serviço), ou só os campos? | CA-06.2.x |
+| D-QA-05 | ~~Na edição, dá para trocar o tipo do lançamento?~~ **Respondida (F-13):** não; para trocar, exclui e lança de novo [CONFIRMADO]. | CA-06.2.6, CA-06.2.7 |
 | D-QA-06 | Com **"Todas as unidades"**, o botão "Repetir" aparece? De qual unidade? | CB-h.3 |
 | D-QA-07 | Se a sessão vencer com pendências e **outro usuário** entrar no aparelho, o que acontece com a fila do anterior? | CB-k.5 |
 | D-QA-08 | Se o aparelho estiver em **fuso diferente** do da unidade, "hoje" é o da unidade mesmo quando isso adianta a data para o dono? | CB-c.6 |
@@ -946,6 +996,10 @@ Ferramentas sugeridas [SUPOSIÇÃO, decisão da equipe]: Jest para unidade no ap
 | D-QA-12 | Dois aparelhos offline criam o **mesmo nome** de cadastro: recusar o segundo (erro na TELA-12) ou juntar os dois? | CB-g.8 |
 | D-QA-13 | ~~"Entrada de serviço" passa a ser a entrada da categoria "Serviços"?~~ **Respondida pelo Orquestrador (E2-04 a)):** sim, entrada de serviço = entrada da categoria de sistema "Serviços", e não mais "entrada com tipo de serviço preenchido". | CA-02.12.1, 02.12.8 a 02.12.10 |
 | D-QA-14 | ~~O filtro por tipo de serviço precisa da opção "Sem tipo de serviço"?~~ **Respondida pelo Orquestrador:** o filtro da FIN-US-04.7 ganha a opção "Sem tipo de serviço" [SUPOSIÇÃO], para a FIN-US-05.6 abrir a linha correspondente do Resumo. | CA-04.7.1, 04.7.7, 04.7.8, CA-05.6.4 |
+| D-QA-15 | ~~Reverter pelo histórico entra no MVP?~~ **Respondida pelo Orquestrador:** não; a TELA-15 é só leitura e a correção é pelo Editar. | CA-06.4.3 |
+| D-QA-16 | ~~Mostrar aparelho e conflito no histórico?~~ **Respondida pelo Orquestrador:** vão para a v1.1, com a FIN-US-07.7; no MVP o histórico mostra data, hora, quem e o que mudou. | CA-06.4.1, CA-07.7.4 (v1.1) |
+| D-QA-17 | ~~Quando aparece "Ver histórico" e o estado vazio da TELA-15?~~ **Respondida pelo Orquestrador:** o link aparece sempre; o estado vazio saiu; excluídos e restaurados mostram essas ações. | CA-06.4.6 |
+| D-QA-18 | ~~O Desfazer pós-salvar vai para a Lixeira?~~ **Respondida pelo Orquestrador:** não [SUPOSIÇÃO]; o registro continua no servidor. | CA-02.8.3, CA-06.5.9 |
 
 ---
 
@@ -953,7 +1007,10 @@ Ferramentas sugeridas [SUPOSIÇÃO, decisão da equipe]: Jest para unidade no ap
 
 Não recebem critérios neste documento:
 
-- **Histórias Pós-MVP** do 04-backlog: FIN-US-01.10 (eventos), 03.6 (formas de pagamento), 03.7 (categorias por Pessoal/Empresa), 05.7 (cruzamento serviço × veículo), 06.4 (histórico no app), 06.5 (lixeira), 08.5 (cadastro de unidades), 09.7 (PIN/biometria), 09.8 (exclusão LGPD). Ganham critérios se alguma dúvida as trouxer para o MVP.
+- **FIN-US-07.7 (conflito entre aparelhos)**: movida para a **v1.1** pela decisão F-15. Os critérios (CA-07.7.x) e os casos CB-e.2, e.4 a e.6 ficam registrados para a v1.1.
+- **Histórias Pós-MVP** do 04-backlog: FIN-US-01.10 (eventos), 03.6 (formas de pagamento — sem tela no MVP pela F-08), 03.7 (categorias por Pessoal/Empresa), 05.7 (cruzamento serviço × veículo), 08.5 (cadastro de unidades — feito na implantação pela F-08), 09.8 (exclusão LGPD). Ganham critérios se alguma decisão as trouxer para o MVP.
+- **FIN-US-09.7 (PIN/biometria):** **saiu do roadmap** pela F-10; o app abre direto e vale o bloqueio de tela do celular.
+- **Publicação em loja (Google Play):** fica como evolução pela F-04; no MVP o app é distribuído por APK.
 - **Outros módulos:** lançamento automático pelo atendimento/fila, placa, modelo e cliente (PIF-01, PIF-04); saída automática pela compra de estoque (PIF-02); mão de obra e reembolso por funcionário (PIF-03); gerentes, funcionários, papéis, convites e visibilidade de itens Pessoais (PIF-05); contas a pagar/receber, vencimento e recorrentes (PIF-06); regra de alteração de lançamentos com `origem ≠ manual`.
 - **Fora do sistema por ora:** integração bancária, Pix automático, conciliação, nota fiscal, impostos, contabilidade, folha de pagamento, agendamento.
 - **Evoluções não pedidas:** foto do comprovante, exportação para o contador, painel web, notificações, histórico de alterações dos cadastros, modo escuro.
@@ -973,28 +1030,29 @@ Não recebem critérios neste documento:
 | FIN-US-01.7 | 5 | | FIN-US-05.5 | 2 |
 | FIN-US-01.8 | 5 | | FIN-US-05.6 | 4 |
 | FIN-US-01.9 | 5 | | FIN-US-06.1 | 3 |
-| FIN-US-02.1 | 8 | | FIN-US-06.2 | 5 |
-| FIN-US-02.2 | 7 | | FIN-US-06.3 | 4 |
-| FIN-US-02.3 | 4 | | FIN-US-07.1 | 4 |
-| FIN-US-02.4 | 3 | | FIN-US-07.2 | 3 |
-| FIN-US-02.5 | 5 | | FIN-US-07.3 | 4 |
-| FIN-US-02.6 | 4 | | FIN-US-07.4 | 4 |
-| FIN-US-02.7 | 4 | | FIN-US-07.5 | 4 |
-| FIN-US-02.8 | 4 | | FIN-US-07.6 | 5 |
-| FIN-US-02.9 | 4 | | FIN-US-07.7 | 3 |
-| FIN-US-02.10 | 4 | | FIN-US-07.8 | 3 |
-| FIN-US-02.11 | 2 | | FIN-US-07.9 | 2 |
-| FIN-US-02.12 *(desbloqueada na v3)* | 11 | | FIN-US-08.1 | 2 |
-| FIN-US-03.1 | 6 | | FIN-US-08.2 | 4 |
-| FIN-US-03.2 | 4 | | FIN-US-08.3 | 3 |
-| FIN-US-03.3 | 4 | | FIN-US-08.4 | 3 |
-| FIN-US-03.4 | 4 | | FIN-US-09.1 | 3 |
-| FIN-US-03.5 | 3 | | FIN-US-09.2 | 3 |
-| FIN-US-04.1 | 5 | | FIN-US-09.3 | 2 |
-| FIN-US-04.2 | 9 | | FIN-US-09.4 | 3 |
-| FIN-US-04.3 | 5 | | FIN-US-09.5 | 2 |
-| FIN-US-04.4 | 2 | | FIN-US-09.6 | 3 |
-| FIN-US-04.5 | 3 | |  |  |
+| FIN-US-02.1 | 8 | | FIN-US-06.2 | 7 |
+| FIN-US-02.2 | 8 | | FIN-US-06.3 | 4 |
+| FIN-US-02.3 | 4 | | FIN-US-06.4 *(MVP na v7, F-09)* | 6 |
+| FIN-US-02.4 | 3 | | FIN-US-06.5 *(MVP na v7, F-09)* | 9 |
+| FIN-US-02.5 | 5 | | FIN-US-07.1 | 4 |
+| FIN-US-02.6 | 4 | | FIN-US-07.2 | 3 |
+| FIN-US-02.7 | 4 | | FIN-US-07.3 | 4 |
+| FIN-US-02.8 | 4 | | FIN-US-07.4 | 4 |
+| FIN-US-02.9 | 4 | | FIN-US-07.5 | 4 |
+| FIN-US-02.10 | 4 | | FIN-US-07.6 | 5 |
+| FIN-US-02.11 | 2 | | FIN-US-07.8 | 3 |
+| FIN-US-02.12 *(desbloqueada na v3)* | 11 | | FIN-US-07.9 | 2 |
+| FIN-US-03.1 | 6 | | FIN-US-08.1 | 2 |
+| FIN-US-03.2 | 4 | | FIN-US-08.2 | 4 |
+| FIN-US-03.3 | 4 | | FIN-US-08.3 | 3 |
+| FIN-US-03.4 | 4 | | FIN-US-08.4 | 3 |
+| FIN-US-03.5 | 3 | | FIN-US-09.1 | 3 |
+| FIN-US-04.1 | 5 | | FIN-US-09.2 | 3 |
+| FIN-US-04.2 | 9 | | FIN-US-09.3 | 2 |
+| FIN-US-04.3 | 5 | | FIN-US-09.4 | 3 |
+| FIN-US-04.4 | 2 | | FIN-US-09.5 | 2 |
+| FIN-US-04.5 | 3 | | FIN-US-09.6 | 5 |
 
-**Totais:** 61 histórias MVP; **61 com critérios**, somando **263 critérios**, mais **70 casos de borda** (CB-a a CB-k).
+**Totais do MVP:** 62 histórias MVP; **62 com critérios**, somando **280 critérios**, mais **66 casos de borda** que valem no MVP.
 **História MVP sem critério:** nenhuma.
+**Fora da contagem do MVP (v1.1, decisão F-15):** FIN-US-07.7, com 4 critérios (CA-07.7.1 a 07.7.4), e 4 casos de borda (CB-e.2, e.4, e.5, e.6). No documento inteiro: 284 critérios e 70 casos de borda.
