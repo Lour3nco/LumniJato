@@ -1,8 +1,8 @@
 # Módulo 1 — Gestão de Finanças · Critérios de aceite e plano de qualidade
 
 Projeto: Lavajato Sistema
-Documento: 05-criterios-aceite.md · Autor: Agente QA · Versão: 10 · Status: **rascunho para revisão** (v2: critérios da nova FIN-US-04.7, filtro por tipo de serviço; D-QA-03 resolvida e D-QA-01 respondida pelo 04-backlog v2 · v3: critérios da FIN-US-02.12 com a regra do dono para E2-04/D-BL-01 — opção a), veículo obrigatório e tipo de serviço opcional · v4: D-QA-13 e D-QA-14 respondidas pelo Orquestrador; opção "Sem tipo de serviço" no filtro do Extrato e abertura da linha correspondente do Resumo · v5: decisões finais do dono (01-visao §9c): F-06 categorias de sistema, F-12 formas de pagamento e Pix no primeiro lançamento, F-13 edição sem troca de tipo, F-15 um celular — FIN-US-07.7 vai para a v1.1 · v6: F-02 MVP completo (M1 → M2 → M3, sem efeito nos critérios), F-03 só Android, F-05 unidade obrigatória também no Pessoal · v7: F-04 APK sem loja, F-08 unidades e formas na implantação, F-09 histórico e lixeira de 90 dias no MVP (FIN-US-06.4 e 06.5), F-10 sem PIN/biometria · v8: histórico, lixeira e exclusão conferidos com o 02-design v7 (TELA-07, TELA-09, TELA-15, TELA-16) · v9: D-QA-15 a D-QA-18 respondidas — histórico só leitura e sempre visível, aparelho/conflito para a v1.1, Desfazer pós-salvar fora da Lixeira · v10: D-QA-04 respondida pelo dono — nomes iguais sem diferença de maiúsculas, acentos e espaços nas pontas)
-Fontes: `04-backlog.md` (v2), `03-arquitetura.md` (v1), `02-design.md` (v7), `01-visao.md` (v3, com as seções 9b e 9c). Em caso de conflito, vale a visão.
+Documento: 05-criterios-aceite.md · Autor: Agente QA · Versão: 11 · Status: **rascunho para revisão** (v2: critérios da nova FIN-US-04.7, filtro por tipo de serviço; D-QA-03 resolvida e D-QA-01 respondida pelo 04-backlog v2 · v3: critérios da FIN-US-02.12 com a regra do dono para E2-04/D-BL-01 — opção a), veículo obrigatório e tipo de serviço opcional · v4: D-QA-13 e D-QA-14 respondidas pelo Orquestrador; opção "Sem tipo de serviço" no filtro do Extrato e abertura da linha correspondente do Resumo · v5: decisões finais do dono (01-visao §9c): F-06 categorias de sistema, F-12 formas de pagamento e Pix no primeiro lançamento, F-13 edição sem troca de tipo, F-15 um celular — FIN-US-07.7 vai para a v1.1 · v6: F-02 MVP completo (M1 → M2 → M3, sem efeito nos critérios), F-03 só Android, F-05 unidade obrigatória também no Pessoal · v7: F-04 APK sem loja, F-08 unidades e formas na implantação, F-09 histórico e lixeira de 90 dias no MVP (FIN-US-06.4 e 06.5), F-10 sem PIN/biometria · v8: histórico, lixeira e exclusão conferidos com o 02-design v7 (TELA-07, TELA-09, TELA-15, TELA-16) · v9: D-QA-15 a D-QA-18 respondidas — histórico só leitura e sempre visível, aparelho/conflito para a v1.1, Desfazer pós-salvar fora da Lixeira · v10: D-QA-04 respondida pelo dono — nomes iguais sem diferença de maiúsculas, acentos e espaços nas pontas · v11: nova stack (NestJS com DDD e monólito modular, sincronização pelo NestJS, só planos gratuitos) — critérios das histórias novas e reescritas do 04-backlog v8, F-03b, F-14, F-16; painel web registrado como Pós-MVP)
+Fontes: `04-backlog.md` (v8), `03-arquitetura.md` (v2, nova stack), `02-design.md` (v7), `01-visao.md` (v3, com as seções 9b, 9c e 9d). Em caso de conflito, vale a visão.
 
 > Convenção: **[CONFIRMADO]** veio do dono · **[SUPOSIÇÃO]** não validado (entre parênteses, a dúvida que pode mudar o critério) · **[DÚVIDA]** precisa de resposta antes de virar regra.
 > IDs: o critério **CA-02.3.1** pertence à história **FIN-US-02.3**. Casos de borda usam **CB-x.n** (x = letra do item 2 do pedido). Dúvidas novas levantadas por este documento usam **D-QA-nn**.
@@ -12,7 +12,7 @@ Fontes: `04-backlog.md` (v2), `03-arquitetura.md` (v1), `02-design.md` (v7), `01
 
 ## 1. Visão geral
 
-Este documento define **como saber que cada história MVP do 04-backlog está pronta**. Com a decisão **F-15** (o dono usa um só celular), a FIN-US-07.7 (conflito entre aparelhos) saiu do MVP e foi para a **v1.1**: com a **F-09**, a FIN-US-06.4 (histórico) e a FIN-US-06.5 (lixeira) entraram no MVP; o MVP passa a ter **62 histórias**, e **todas as 62** têm critérios no formato **Dado / Quando / Então** (**280 critérios** no total), cobrindo o caminho feliz e as validações principais. Os critérios da FIN-US-07.7 continuam neste documento, marcados como v1.1 e fora da contagem do MVP. A FIN-US-02.12 deixou de estar bloqueada: o dono respondeu a D-BL-01 (E2-04, opção a): **veículo obrigatório, tipo de serviço opcional**), conforme o 02-design v4 §JOR-b.
+Este documento define **como saber que cada história MVP do 04-backlog está pronta**. Com a **nova stack** [CONFIRMADO ST-01 a ST-07] — app React Native/Expo, back-end **NestJS com DDD, Clean Architecture e monólito modular**, Supabase (Postgres) com a API pública fechada, toda escrita do celular passando pelo NestJS e **só planos gratuitos** (F-03b) — o 04-backlog v8 tem **73 histórias MVP**, e **todas as 73** têm critérios no formato **Dado / Quando / Então** (**354 critérios** no total), cobrindo o caminho feliz e as validações principais. As regras de domínio (E2-04, F-06, F-09, F-13, F-16) agora são verificadas **no back-end** (FIN-US-01.14 a 01.16) e por **testes de API** (FIN-US-01.18). A FIN-US-07.7 (conflito entre aparelhos) é da **v1.1** pela F-15: os critérios dela continuam neste documento, fora da contagem do MVP. O **painel web** Next.js (FIN-EP-10, 8 histórias, Pós-MVP, ST-06/ST-07) ainda **não tem critérios** (ver §7), e a FIN-US-07.12 (sincronização própria) é **contingência**: só ganha critérios se a prova de conceito do PowerSync reprovar.
 
 Depois vêm os **casos de borda** que atravessam várias histórias (valor, centavos, datas, duplicados, conflito, sincronização, cadastros, unidade, Pessoal/Empresa, período e segurança), os **riscos de qualidade**, a **estratégia de testes** (o que automatizar, o que testar à mão e o checklist no celular), as **suposições e dúvidas** e o que fica **fora do escopo**.
 
@@ -42,55 +42,51 @@ Regras de leitura:
 
 | ID | Dado | Quando | Então |
 |---|---|---|---|
-| CA-01.2.1 | o projeto Supabase criado | a equipe consulta a configuração do projeto | a região é São Paulo (sa-east-1) (RNF-23) |
-| CA-01.2.2 | um banco Postgres vazio | as migrações do repositório são aplicadas em ordem | o esquema resultante é idêntico ao de produção, sem nenhum passo manual |
+| CA-01.2.1 | o projeto Supabase criado | a equipe consulta a configuração | o plano é o **gratuito** e a região é São Paulo (sa-east-1) [CONFIRMADO F-03b; RNF-23] |
+| CA-01.2.2 | um banco Postgres vazio | as migrações de `infra/supabase/migrations` são aplicadas em ordem | surgem os schemas `identidade` e `financas` com todas as tabelas, sem nenhum passo manual |
 | CA-01.2.3 | uma mudança de estrutura necessária | a equipe a aplica | ela existe como nova migração versionada no repositório; a comparação entre o esquema de produção e o gerado pelas migrações não mostra diferença (RNF-27) |
 
 **FIN-US-01.3 — Esquema do banco**
 
 | ID | Dado | Quando | Então |
 |---|---|---|---|
-| CA-01.3.1 | as migrações aplicadas | a equipe lista as tabelas | existem as 12 tabelas da 03-arquitetura §3.2 com os campos, tipos, chaves e índices descritos |
-| CA-01.3.2 | a tabela `lancamento` | alguém tenta gravar `valor_centavos` igual a 0, negativo ou com casas decimais | o banco recusa a gravação |
-| CA-01.3.3 | a tabela `lancamento` | alguém tenta gravar `tipo`, `natureza`, `situacao` ou `origem` fora da lista permitida | o banco recusa (restrição `check`) |
-| CA-01.3.4 | uma categoria do tipo `saida` | alguém tenta gravar um lançamento `entrada` com essa categoria | o banco recusa |
-| CA-01.3.5 | um lançamento sem `unidade_id` | alguém tenta gravá-lo | o banco recusa, também quando o lançamento é Pessoal [CONFIRMADO F-05: todo lançamento pertence a uma unidade] |
-| CA-01.3.6 | uma categoria ativa "Água" do tipo `saida` | alguém tenta criar outra categoria ativa "Água" do tipo `saida` na mesma organização | o banco recusa; com tipo `entrada`, ou se a primeira estiver desativada, aceita |
-| CA-01.3.7 | a tabela `lancamento` | a equipe confere a estrutura | não existe campo de CPF, telefone, placa, modelo ou nome de cliente (RNF-24), e **não** existe restrição entre `tipo_servico_id` e `tipo_veiculo_id` (fica para FIN-US-02.12) |
+| CA-01.3.1 | as migrações aplicadas | a equipe lista as tabelas | `identidade` tem organizacao, unidade, usuario, usuario_unidade e dispositivo; `financas` tem categoria, tipo_servico, tipo_veiculo, forma_pagamento, lancamento, lancamento_historico e preferencia_usuario, com os campos, tipos, chaves e índices da 03-arquitetura §3 |
+| CA-01.3.2 | a tabela `lancamento` | alguém grava direto no banco `valor_centavos` igual a 0, negativo ou com casas decimais | o banco recusa (última barreira, mesmo que o domínio já valide) |
+| CA-01.3.3 | a tabela `lancamento` | alguém grava `tipo`, `natureza`, `situacao` ou `origem` fora da lista permitida | o banco recusa (restrição `check`) |
+| CA-01.3.4 | uma categoria ativa "Água" do tipo `saida` | alguém insere direto no banco outra categoria ativa " agua " ou "ÁGUA" do tipo `saida` na mesma organização | `nome_chave` das duas é `agua` e o banco recusa pelo índice único parcial; com tipo `entrada`, ou com a primeira desativada, aceita; vale o mesmo para tipo_servico e tipo_veiculo [CONFIRMADO F-16] |
+| CA-01.3.5 | um lançamento sem `unidade_id` | alguém tenta gravá-lo | o banco recusa, também quando o lançamento é Pessoal [CONFIRMADO F-05] |
+| CA-01.3.6 | as categorias de sistema | a equipe consulta `categoria.codigo` | as 4 têm `codigo` (`servicos`, `produtos`, `mao_de_obra`, `reembolso`), único por organização; as categorias criadas pelo dono têm `codigo` nulo |
+| CA-01.3.7 | a estrutura do banco | a equipe confere tabelas e gatilhos | não existe campo de CPF, telefone, placa, modelo ou nome de cliente (RNF-24), e **não** existe gatilho nem política com regra de domínio (E2-04, F-06, F-13, lixeira): essas regras ficam no back-end (FIN-US-01.14 e 01.16) [ST-04] |
 | CA-01.3.8 | um lançamento novo gravado sem informar os campos reservados | a equipe consulta o registro | `situacao = realizado`, `origem = manual`, `versao = 1`, `excluido_em` nulo |
+| CA-01.3.9 | um lançamento que aponta para categoria, tipo de serviço, tipo de veículo, forma de pagamento ou unidade inexistentes | alguém tenta gravá-lo direto no banco | o banco recusa pela chave estrangeira |
 
-**FIN-US-01.4 — RLS**
-
-| ID | Dado | Quando | Então |
-|---|---|---|---|
-| CA-01.4.1 | as migrações aplicadas | a equipe consulta o catálogo do Postgres | **todas** as tabelas do esquema público têm RLS ligada |
-| CA-01.4.2 | o usuário A com vínculo ativo de `dono` só na unidade U1, e lançamentos em U1 e U2 | A consulta `lancamento` | recebe só os lançamentos de U1 |
-| CA-01.4.3 | o mesmo usuário A | A tenta inserir ou alterar um lançamento em U2 | o servidor recusa |
-| CA-01.4.4 | um usuário dono com vínculo na unidade | ele tenta apagar fisicamente (DELETE) um lançamento ou um cadastro | o servidor recusa; só a exclusão lógica é possível |
-| CA-01.4.5 | um usuário autenticado | ele tenta inserir um lançamento com `criado_por` diferente do seu próprio id | o servidor recusa |
-| CA-01.4.6 | um vínculo `usuario_unidade` com `ativo = false` | o usuário consulta ou grava dados daquela unidade | não lê nem grava nada dela |
-| CA-01.4.7 | uma chamada sem login (só com a chave pública) | ela consulta qualquer tabela | não recebe nenhuma linha |
-| CA-01.4.8 | dois usuários, cada um em uma organização | um consulta categorias, tipos de serviço, tipos de veículo e formas de pagamento | vê só os da própria organização |
-| CA-01.4.9 | qualquer usuário do app | ele tenta inserir, alterar ou apagar `lancamento_historico`, ou ler/alterar a `preferencia_usuario` de outro usuário | o servidor recusa |
-| CA-01.4.10 | o pipeline de testes | um teste automatizado com dois usuários de unidades diferentes roda | o teste passa e roda a cada mudança de migração (RNF-19) |
-
-**FIN-US-01.5 — Gatilhos de auditoria e histórico**
+**FIN-US-01.4 — Acesso direto ao banco fechado**
 
 | ID | Dado | Quando | Então |
 |---|---|---|---|
-| CA-01.5.1 | um lançamento novo enviado pelo app | o servidor o recebe | `recebido_servidor_em` é preenchido com a hora do servidor (mesmo que o app envie outro valor), `versao = 1` e o histórico ganha uma linha `criacao` com `dados_antes` nulo |
+| CA-01.4.1 | as migrações aplicadas | a equipe consulta o catálogo do Postgres | **todas** as tabelas de todos os schemas dos módulos têm RLS ligada e **nenhuma política** para os papéis `anon` e `authenticated` |
+| CA-01.4.2 | a API pública do Supabase (PostgREST) e a chave anônima | alguém tenta ler ou gravar qualquer tabela | não recebe nenhuma linha e nenhuma gravação acontece |
+| CA-01.4.3 | o token (JWT) válido do dono | alguém usa esse token direto na API pública do Supabase | também não lê nem grava nada: o dono só chega aos dados pelo NestJS e pela sincronização (RNF-18) |
+| CA-01.4.4 | o papel `api_lavajato` da API e o papel de replicação do PowerSync | a equipe confere as permissões | `api_lavajato` só tem acesso aos schemas dos módulos (`identidade`, `financas`); o papel de replicação só lê: qualquer INSERT, UPDATE ou DELETE com ele é recusado |
+| CA-01.4.5 | a integração contínua | o teste automatizado de "API pública fechada" roda a cada mudança de migração | o teste passa; uma migração que crie política aberta para `anon` ou `authenticated` faz o teste falhar |
+
+**FIN-US-01.5 — Versão e histórico gravados pelo back-end**
+
+| ID | Dado | Quando | Então |
+|---|---|---|---|
+| CA-01.5.1 | um lançamento novo enviado pelo app | o NestJS o aceita | `recebido_servidor_em` tem a hora do servidor (mesmo que o app envie outro valor), `versao = 1` e o histórico ganha uma linha `criacao` com `dados_antes` nulo, gravada **na mesma transação** |
 | CA-01.5.2 | um lançamento na versão N | uma alteração é aceita | `versao` passa a N+1 e o histórico ganha uma linha `alteracao` com antes, depois, `campos_alterados`, quem, quando e aparelho |
-| CA-01.5.3 | um lançamento ativo | `excluido_em` é preenchido | o histórico ganha uma linha `exclusao` |
-| CA-01.5.4 | um lançamento excluído | `excluido_em` volta a nulo | o histórico ganha uma linha `restauracao` |
-| CA-01.5.5 | o app com token de usuário | ele tenta gravar no histórico diretamente | o servidor recusa; o histórico só é escrito pelo gatilho (RNF-14) |
+| CA-01.5.3 | um lançamento ativo / excluído | uma exclusão / restauração é aceita | o histórico ganha uma linha `exclusao` / `restauracao` |
+| CA-01.5.4 | uma falha simulada ao gravar a linha do histórico | o caso de uso tenta salvar a alteração | nada é gravado (nem o lançamento, nem o histórico); a operação volta como erro temporário e o app tenta de novo [SUPOSIÇÃO: erro 5xx tratado como temporário] |
+| CA-01.5.5 | o app ou qualquer cliente com token de usuário | tenta gravar, alterar ou apagar `lancamento_historico` (por upload de sincronização ou chamada à API) | é recusado e nada muda: não existe caso de uso que escreva histórico a pedido do cliente (RNF-14) |
 
 **FIN-US-01.6 — Dados iniciais**
 
 | ID | Dado | Quando | Então |
 |---|---|---|---|
 | CA-01.6.1 | um banco recém-migrado | os dados iniciais são carregados | existem 1 organização, as unidades do dono (fuso `America/Sao_Paulo`) e um vínculo `dono` ativo para cada unidade; unidades e formas de pagamento são cadastradas pela equipe na implantação, sem tela para isso no app [CONFIRMADO F-08] |
-| CA-01.6.2 | os dados iniciais carregados | a equipe consulta as categorias | as 4 de sistema (Serviços, Produtos, Mão de obra, Reembolso) existem com `sistema = true`, e as demais categorias iniciais com `sistema = false`; "Serviços" é do tipo `entrada`, e "Produtos", "Mão de obra" e "Reembolso" são do tipo `saida`; existe também a categoria de entrada "Venda de produtos" (`sistema = false`) [CONFIRMADO S-BL-09 para Produtos e Venda de produtos] |
-| CA-01.6.3 | os dados iniciais carregados | a equipe consulta os cadastros | existem os tipos de veículo Carro, Moto, SUV, Caminhonete/Picape e Van, cada um com ícone próprio [CONFIRMADO E2-07]; as formas Dinheiro, Pix, Cartão de débito e Cartão de crédito, todas ativas [CONFIRMADO F-12]; e os tipos de serviço iniciais (lista depende da dúvida 5a da visão) |
+| CA-01.6.2 | os dados iniciais carregados | a equipe consulta as categorias | as 4 de sistema existem com `sistema = true` e `codigo` (`servicos`, `produtos`, `mao_de_obra`, `reembolso`), e as demais categorias iniciais com `sistema = false`; "Serviços" é do tipo `entrada`, e "Produtos", "Mão de obra" e "Reembolso" são do tipo `saida`; existe também a categoria de entrada "Venda de produtos" [CONFIRMADO S-BL-09] |
+| CA-01.6.3 | os dados iniciais carregados | a equipe consulta os cadastros | existem os tipos de serviço **Lavagem rápida, Lavagem completa, Polimento, Higienização interna e Cristalização** [CONFIRMADO F-14]; os tipos de veículo Carro, Moto, SUV, Caminhonete/Picape e Van, cada um com ícone próprio [CONFIRMADO E2-07]; e as formas Dinheiro, Pix, Cartão de débito e Cartão de crédito, todas ativas [CONFIRMADO F-12]; nenhum `nome_chave` se repete |
 | CA-01.6.4 | os dados iniciais já carregados | a carga é executada de novo | nenhum registro é duplicado [SUPOSIÇÃO] |
 | CA-01.6.5 | o primeiro acesso do dono | ele abre "− Saiu", "+ Entrou" e "+ Carro" | consegue salvar uma saída, uma entrada e um serviço sem criar nenhum cadastro antes |
 
@@ -103,6 +99,7 @@ Regras de leitura:
 | CA-01.7.3 | o primeiro acesso, sem internet | ele toca Entrar | vê uma mensagem dizendo que o primeiro acesso precisa de internet; nada trava |
 | CA-01.7.4 | o dono já entrou uma vez | fecha o app, liga o modo avião e o abre de novo | o app abre direto na Início, sem pedir login, por pelo menos 30 dias [SUPOSIÇÃO de prazo, RNF-04] |
 | CA-01.7.5 | a configuração do Supabase Auth | alguém cria ou troca senha com menos de 8 caracteres | é recusada (RNF-21) |
+| CA-01.7.6 | o dono conectado e com internet | o app chama a API NestJS e o PowerSync | os dois aceitam o **mesmo** token do Supabase Auth; com o token perto de vencer, o app o renova sozinho antes da chamada, sem pedir login (o NestJS não tem login próprio) |
 
 **FIN-US-01.8 — Primeiro uso**
 
@@ -123,6 +120,100 @@ Regras de leitura:
 | CA-01.9.3 | lançamentos de hoje, de ontem e de 03/11 (no fuso da unidade) | aparecem em listas | os rótulos de data são "Hoje", "Ontem" e "03/11" |
 | CA-01.9.4 | o leitor de tela do aparelho ligado | o foco passa pelos botões principais | cada um é lido com rótulo próprio (ex.: "Adicionar carro", "Registrar saída") |
 | CA-01.9.5 | a fonte do sistema no maior tamanho | as telas principais são exibidas | nenhum texto é cortado a ponto de esconder valor ou botão |
+
+**FIN-US-01.11 — Monorepo e integração contínua** *(nova na v11)*
+
+| ID | Dado | Quando | Então |
+|---|---|---|---|
+| CA-01.11.1 | o repositório | a equipe confere a estrutura | existem `apps/mobile`, `apps/api`, `packages/dominio-compartilhado`, `packages/contratos` e `infra/` (`supabase/`, `powersync/`, `backup/`); `apps/painel` **não** existe no MVP |
+| CA-01.11.2 | uma mudança enviada ao repositório | a integração contínua roda | executa lint, verificação de tipos e testes de app, API e pacotes; qualquer falha reprova a mudança [SUPOSIÇÃO: reprovação bloqueia a junção] |
+| CA-01.11.3 | um arquivo do módulo Finanças que importa algo interno do módulo Identidade e Acesso (fora da interface pública) | o lint de fronteiras roda | o lint falha e aponta a importação proibida |
+| CA-01.11.4 | uma mudança em `packages/contratos` incompatível com o app ou com a API | a verificação de tipos roda | falha nos dois lados que usam o contrato |
+
+**FIN-US-01.12 — Base da API NestJS** *(nova na v11)*
+
+| ID | Dado | Quando | Então |
+|---|---|---|---|
+| CA-01.12.1 | a API no ar | alguém chama a rota de saúde sem token | recebe resposta de sucesso com o estado da conexão com o banco [nome da rota: SUPOSIÇÃO] |
+| CA-01.12.2 | uma chamada com corpo fora do esquema (campo faltando, tipo errado) | a validação de entrada (zod) roda | a chamada é recusada antes de chegar ao domínio, com o campo e o motivo, sem gravar nada [código de validação: SUPOSIÇÃO] |
+| CA-01.12.3 | um erro de domínio / de autorização / de conflito | a API responde | o código é 422 / 403 / 409, com código de erro e mensagem simples no corpo; nunca rastreio de pilha nem SQL |
+| CA-01.12.4 | um caso de uso com duas gravações na unidade de trabalho, e a segunda falha | o caso de uso termina | nenhuma das duas fica gravada (transação desfeita) |
+| CA-01.12.5 | uma variável de ambiente obrigatória ausente (ex.: conexão com o banco) | a API sobe | não sobe e mostra qual variável falta; nenhuma credencial está no repositório |
+| CA-01.12.6 | a API conectada ao Postgres | a equipe confere a conexão | ela usa o papel `api_lavajato`, nunca `postgres` nem a chave `service_role` |
+| CA-01.12.7 | o kernel compartilhado (`Id`, `Dinheiro`, `DataLocal`, `Resultado`) | os testes unitários rodam | `Id` gera UUID v7 ordenável; `Dinheiro` só aceita centavos inteiros e soma sem perda; `DataLocal` calcula "hoje" no fuso informado |
+
+**FIN-US-01.13 — Identidade e Acesso** *(nova na v11)*
+
+| ID | Dado | Quando | Então |
+|---|---|---|---|
+| CA-01.13.1 | uma chamada à API sem token, com token vencido ou com assinatura inválida | o guard global valida | a chamada é recusada com 401 e nada é lido nem gravado (só a rota de saúde é pública) |
+| CA-01.13.2 | um token válido do dono | o guard valida | o `usuario` e seus vínculos **ativos** com papel são carregados para os casos de uso |
+| CA-01.13.3 | o usuário A com vínculo `dono` só na unidade U1 | A cria, edita, exclui ou restaura um lançamento de U2 pela API | recebe 403 e nada muda em U2 |
+| CA-01.13.4 | um vínculo `usuario_unidade` com `ativo = false` | o usuário grava dados daquela unidade | recebe 403 |
+| CA-01.13.5 | uma operação de criação com `criado_por` diferente do usuário do token | o NestJS a recebe | é recusada (403); o autor gravado é sempre o do token |
+| CA-01.13.6 | uma instalação nova do app | ela sincroniza pela primeira vez, e depois de novo | o `dispositivo` é registrado uma vez, ligado ao usuário do token, sem duplicar |
+| CA-01.13.7 | a integração contínua | o teste com dois usuários de unidades diferentes roda | nenhum lê nem altera dado do outro **pela API** (RNF-19) |
+
+**FIN-US-01.14 — Domínio do lançamento** *(nova na v11)*
+
+Critérios verificados por testes unitários do agregado `Lancamento`, em TypeScript puro.
+
+| ID | Dado | Quando | Então |
+|---|---|---|---|
+| CA-01.14.1 | valores de 0, −1, 1, 99999999 e 100000000 centavos | o agregado é criado | 1 e 99999999 são aceitos; os demais geram erro de domínio |
+| CA-01.14.2 | a unidade em `America/Sao_Paulo` e o relógio do servidor em 04/11 02h30 UTC (03/11 23h30 em São Paulo) | um lançamento com data 03/11 / 04/11 é criado | 03/11 é aceito; 04/11 é recusado como data futura (§5.2) |
+| CA-01.14.3 | uma categoria de tipo diferente do lançamento, ou desativada | um lançamento novo é criado com ela | é recusado; editar um lançamento antigo cuja categoria foi desativada depois continua permitido [SUPOSIÇÃO, D-QA-09] |
+| CA-01.14.4 | a categoria de código `servicos` (mesmo renomeada) | o lançamento tem veículo e não tem tipo de serviço / não tem veículo | é aceito / é recusado; numa saída ou entrada de outra categoria, veículo ou tipo de serviço preenchido é recusado [CONFIRMADO E2-04 a)] |
+| CA-01.14.5 | um lançamento existente | a edição tenta trocar o `tipo`, ou passar de outra categoria de entrada para "Serviços" (ou o contrário) | é recusada [CONFIRMADO F-13] |
+| CA-01.14.6 | um lançamento excluído | alguém tenta editá-lo | é recusado; só restaurar é permitido [SUPOSIÇÃO] |
+| CA-01.14.7 | um lançamento excluído há 90 dias / há 91 dias, pela hora do servidor | alguém tenta restaurá-lo | é aceito / é recusado [CONFIRMADO F-09; contagem inclusiva SUPOSIÇÃO] |
+| CA-01.14.8 | operações aceitas e recusadas | o agregado termina | criar emite `LancamentoRegistrado`; editar emite `LancamentoAlterado` com os campos alterados; excluir e restaurar emitem `LancamentoExcluido` e `LancamentoRestaurado`; operação recusada não emite nada |
+| CA-01.14.9 | o código do domínio de Finanças | a equipe confere as importações e roda os testes | não há importação de NestJS, driver de banco nem HTTP; os testes rodam sem banco e cobrem cada invariante desta lista |
+
+**FIN-US-01.15 — Casos de uso do lançamento** *(nova na v11)*
+
+| ID | Dado | Quando | Então |
+|---|---|---|---|
+| CA-01.15.1 | um lançamento válido do dono na sua unidade | `RegistrarLancamento` roda | o lançamento e a linha `criacao` do histórico são gravados na mesma transação e a resposta é "aceita" |
+| CA-01.15.2 | um usuário sem papel `dono` na unidade do lançamento | qualquer dos 4 casos de uso roda | é recusado (403) antes de tocar no banco |
+| CA-01.15.3 | uma categoria, tipo de serviço, tipo de veículo ou forma de pagamento de outra organização | o lançamento é registrado ou editado com essa referência | é recusado e nada é gravado [código: SUPOSIÇÃO 422] |
+| CA-01.15.4 | uma criação já aceita | a mesma criação (mesmo id, mesmo conteúdo) chega de novo | é aceita sem duplicar o lançamento nem criar outra linha de histórico; com o mesmo id e conteúdo diferente, é recusada como conflito (409) [SUPOSIÇÃO] |
+| CA-01.15.5 | um lançamento ativo | `EditarLancamento`, `ExcluirLancamento` e `RestaurarLancamento` rodam | cada um aplica as regras do domínio (CA-01.14.x), grava o histórico na mesma transação e devolve "aceita"; excluir de novo um lançamento já excluído é aceito sem nova linha de histórico [SUPOSIÇÃO] |
+| CA-01.15.6 | uma exclusão vinda do "Desfazer" logo após salvar e outra vinda do Excluir | as duas são gravadas | o servidor guarda a diferença entre as duas, para a Lixeira mostrar só a segunda também depois de reinstalar o app [SUPOSIÇÃO; a forma de guardar fica com a Arquitetura, D-QA-18] |
+
+**FIN-US-01.16 — Cadastros e preferências no back-end** *(nova na v11)*
+
+| ID | Dado | Quando | Então |
+|---|---|---|---|
+| CA-01.16.1 | uma categoria, tipo de serviço ou tipo de veículo ativo "Água" / "Polimento" / "Moto" | alguém cria ou renomeia outro (do mesmo tipo, no caso da categoria) para "agua", " POLIMENTO " ou "moto" | é recusado com 422 "nome repetido", mesmo vindo de app desatualizado [CONFIRMADO F-16] |
+| CA-01.16.2 | um tipo de serviço desativado "Cera" | alguém o reativa / reativa enquanto já existe outro ativo "cera" | é reativado / é recusado com 422 "nome repetido" |
+| CA-01.16.3 | uma categoria de sistema | alguém troca nome, ícone e cor / tenta desativá-la | é aceito / é recusado com 422 [CONFIRMADO F-06] |
+| CA-01.16.4 | qualquer categoria | alguém tenta trocar o tipo dela (saída ↔ entrada) | é recusado [SUPOSIÇÃO, 03-arquitetura §9.3] |
+| CA-01.16.5 | um tipo de veículo criado sem ícone | é gravado | recebe o ícone genérico |
+| CA-01.16.6 | qualquer operação que crie ou altere forma de pagamento | chega à API | é recusada (formas só pelos dados iniciais) [CONFIRMADO F-08] |
+| CA-01.16.7 | a preferência Pessoal/Empresa | o dono a troca / alguém tenta trocar a de outro usuário / envia um valor fora de `empresa` e `pessoal` | é aceita / recusada com 403 / recusada com 422 |
+| CA-01.16.8 | o código dos agregados `Categoria`, `TipoServico`, `TipoVeiculo` e do objeto `NomeNormalizado` | os testes unitários rodam | cobrem nome repetido, reativação, categoria de sistema, troca de tipo e ícone genérico |
+
+**FIN-US-01.17 — Pacotes compartilhados** *(nova na v11)*
+
+| ID | Dado | Quando | Então |
+|---|---|---|---|
+| CA-01.17.1 | os nomes " Água ", "ÁGUA", "Higienização interna" e "Caminhonete/Picape" | `normalizarNome` roda | devolve "agua", "agua", "higienizacao interna" e "caminhonete/picape" (só tira acentos, maiúsculas e espaços das pontas) [CONFIRMADO F-16] |
+| CA-01.17.2 | uma tabela de nomes de teste com ç, ã, é, ü e espaços | o resultado de `normalizarNome` é comparado com o `nome_chave` gerado pelo Postgres | os dois são iguais em todos os casos (o app e o banco decidem igual) |
+| CA-01.17.3 | o aparelho sem internet e um tipo de serviço ativo "Polimento" | o dono tenta criar "polimento" | o app avisa "Já existe um serviço com esse nome." antes de salvar, usando o pacote compartilhado |
+| CA-01.17.4 | os esquemas zod de `packages/contratos` | o app monta uma operação de sincronização e a API a recebe | os dois usam o mesmo esquema; uma resposta da API fora do contrato faz o teste de contrato falhar (CA-01.18.7) |
+
+**FIN-US-01.18 — Testes de API** *(nova na v11)*
+
+| ID | Dado | Quando | Então |
+|---|---|---|---|
+| CA-01.18.1 | a integração contínua | uma mudança é enviada | a suíte de testes de API roda contra um Postgres de teste criado do zero pelas migrações; uma falha reprova a mudança |
+| CA-01.18.2 | um lote enviado a `POST /sync/upload` com uma operação inválida de cada tipo: sem veículo em "Serviços" (E2-04), troca de tipo (F-13), nome repetido (F-16), desativar categoria de sistema (F-06), data futura, valor zero, restaurar após 90 dias | a API responde | cada operação volta **recusada com 422** e um motivo próprio; as operações válidas do mesmo lote voltam **aceitas** |
+| CA-01.18.3 | uma operação para unidade sem vínculo / uma chamada sem token | a API responde | 403 na operação / 401 na chamada |
+| CA-01.18.4 | o mesmo lote enviado duas vezes | a API processa | o estado final do banco é igual ao de um envio só: sem lançamento nem linha de histórico duplicados |
+| CA-01.18.5 | uma falha injetada na gravação do histórico | a operação é processada | nem o lançamento nem o histórico ficam gravados (CA-01.5.4) |
+| CA-01.18.6 | dois usuários de unidades diferentes | cada um tenta ler e alterar dados do outro pela API | todas as tentativas são recusadas |
+| CA-01.18.7 | as respostas de `POST /sync/upload` (e de `/sync/push` e `/sync/pull`, se a contingência for acionada) | o teste de contrato roda | toda resposta valida contra o esquema de `packages/contratos` |
 
 ### FIN-EP-02 — Lançamentos
 
@@ -186,7 +277,7 @@ A regra de obrigatoriedade de serviço e veículo está na FIN-US-02.12.
 | ID | Dado | Quando | Então |
 |---|---|---|---|
 | CA-02.6.1 | a TELA-02 aberta | o dono toca "+ Novo serviço", digita "Lavagem de motor" e salva | a folha fecha, o serviço novo fica selecionado, entra no fim da ordem e o restante do formulário não se perde |
-| CA-02.6.2 | um serviço ativo "Lavagem simples" | o dono tenta criar "Lavagem simples" | aparece "Já existe um serviço com esse nome." e nada é criado [CONFIRMADO D-QA-04: a comparação ignora maiúsculas, acentos e espaços nas pontas; "lavagem simples" também é recusado] |
+| CA-02.6.2 | um serviço ativo "Lavagem rápida" | o dono tenta criar "Lavagem rápida", "lavagem rapida" ou " LAVAGEM RÁPIDA " | aparece "Já existe um serviço com esse nome." e nada é criado [CONFIRMADO F-16: acentos, maiúsculas e espaços nas pontas não diferenciam nomes] |
 | CA-02.6.3 | um serviço desativado "Lavagem de motor" | o dono tenta criar "Lavagem de motor" | aparece "'Lavagem de motor' está desativado. [Reativar e usar]"; ao tocar, ele é reativado e selecionado, sem criar outro [SUPOSIÇÃO SUP-D14] |
 | CA-02.6.4 | a folha de novo serviço com o nome vazio ou só com espaços | o dono olha o botão Salvar da folha | está desabilitado |
 
@@ -246,9 +337,9 @@ Regra do dono [CONFIRMADO, E2-04 opção a)]: **numa entrada de serviço, o tipo
 | CA-02.12.5 | um serviço salvo sem tipo de serviço, em SUV, pago com Pix | ele aparece no aviso pós-salvar, no Extrato, nos últimos 5 da Início e no detalhe | é mostrado como "Serviço · SUV · Pix" (com o valor), no lugar do nome do tipo de serviço [SUPOSIÇÃO de texto, 02-design] |
 | CA-02.12.6 | um serviço salvo sem tipo de serviço | o dono toca "Mais um igual" ou "Repetir" | a TELA-02 abre com o mesmo veículo e a mesma forma, **sem** tipo de serviço marcado e com o valor vazio |
 | CA-02.12.7 | a edição de um serviço com tipo de serviço e veículo | o dono desmarca o tipo de serviço / tenta deixar sem veículo | "Salvar alterações" continua habilitado / fica desabilitado com "Escolha o veículo" |
-| CA-02.12.8 | o servidor | chega uma entrada da categoria "Serviços" **sem** `tipo_veiculo_id` (app antigo ou chamada direta) | o servidor recusa; no app, o item vira erro de dado na TELA-12, com opção de corrigir (FIN-US-07.6) |
-| CA-02.12.9 | o servidor | chega uma entrada da categoria "Serviços" com `tipo_veiculo_id` e sem `tipo_servico_id` | o servidor aceita |
-| CA-02.12.10 | o servidor | chega uma saída, ou uma entrada de outra categoria, com `tipo_veiculo_id` ou `tipo_servico_id` preenchido | o servidor recusa [SUPOSIÇÃO: a 03-arquitetura diz que o veículo deve ser nulo fora das entradas de serviço; aqui vale o mesmo para o tipo de serviço] |
+| CA-02.12.8 | o NestJS | chega uma entrada da categoria de código `servicos` **sem** `tipo_veiculo_id` (app antigo ou chamada direta) | o domínio recusa com 422; no app, o item vira erro de dado na TELA-12, com opção de corrigir (FIN-US-07.6) |
+| CA-02.12.9 | o NestJS | chega uma entrada da categoria `servicos` com `tipo_veiculo_id` e sem `tipo_servico_id` | é aceita |
+| CA-02.12.10 | o NestJS | chega uma saída, ou uma entrada de outra categoria, com `tipo_veiculo_id` ou `tipo_servico_id` preenchido | o domínio recusa com 422 (CA-01.14.4) |
 | CA-02.12.11 | serviços com e sem tipo de serviço no período | o dono abre Resumo › Serviços em "Por serviço" e em "Por veículo" | em "Por serviço", os sem tipo aparecem numa linha "Sem tipo de serviço"; em "Por veículo", entram normalmente no seu veículo (ver CA-05.4.4 e CA-05.5.2) [SUPOSIÇÃO de texto, 02-design] |
 
 ### FIN-EP-03 — Cadastros
@@ -259,7 +350,7 @@ Regra do dono [CONFIRMADO, E2-04 opção a)]: **numa entrada de serviço, o tipo
 |---|---|---|---|
 | CA-03.1.1 | a TELA-10 | o dono a abre | vê abas Saídas/Entradas, cada uma com a lista de categorias (ícone, cor, chave Ativa) e "+ Nova" |
 | CA-03.1.2 | a aba Saídas | o dono cria "Lanche" com ícone e cor | a categoria aparece na grade da "− Saiu" (respeitando a ordem) com `sistema = false` |
-| CA-03.1.3 | uma categoria de saída ativa "Água" | o dono tenta criar ou renomear outra de saída para "Água", "água" ou "Agua" | o app recusa com mensagem junto ao campo [texto SUPOSIÇÃO: "Já existe uma categoria com esse nome."]; com o mesmo nome em Entradas, aceita [CONFIRMADO D-QA-04] |
+| CA-03.1.3 | uma categoria de saída ativa "Água" | o dono tenta criar ou renomear outra de saída para "Água", "água", "Agua" ou " ÁGUA " | o app recusa com mensagem junto ao campo [texto SUPOSIÇÃO: "Já existe uma categoria com esse nome."]; com o mesmo nome em Entradas, aceita [CONFIRMADO F-16] |
 | CA-03.1.4 | lançamentos antigos na categoria "Luz" | o dono a renomeia para "Energia" | o extrato e o resumo passam a mostrar "Energia" também nos antigos |
 | CA-03.1.5 | lançamentos antigos na categoria "Luz" | o dono desliga a chave Ativa | "Luz" some da grade de lançamento, mas os lançamentos antigos continuam no extrato e somados no resumo |
 | CA-03.1.6 | qualquer categoria | o dono procura uma opção de excluir | não existe; só desativar |
@@ -271,7 +362,7 @@ Regra do dono [CONFIRMADO, E2-04 opção a)]: **numa entrada de serviço, o tipo
 | CA-03.2.1 | a TELA-10 | o dono olha Serviços, Produtos, Mão de obra e Reembolso | cada uma tem a chave Ativa ligada e travada, com cadeado e o texto "Categoria usada pelo sistema. Pode mudar o nome, mas não pode ser desativada." |
 | CA-03.2.2 | uma categoria de sistema | o dono toca a chave travada | nada muda |
 | CA-03.2.3 | a categoria "Mão de obra" | o dono a renomeia para "Diárias" | o novo nome é aceito (ícone e cor também podem ser trocados) e os lançamentos e o comportamento ligados a ela continuam iguais [CONFIRMADO F-06] |
-| CA-03.2.4 | uma categoria com `sistema = true` | alguém tenta gravar `ativa = false` direto no servidor | o servidor recusa [CONFIRMADO F-06: não pode ser desativada; a recusa no servidor é a proteção técnica dessa regra] |
+| CA-03.2.4 | uma categoria de sistema | chega à API uma operação que a desativa (app antigo ou chamada direta) | o domínio recusa com 422 (CA-01.16.3) [CONFIRMADO F-06] |
 
 **FIN-US-03.3 — Tipos de serviço**
 
@@ -491,9 +582,10 @@ Regra do dono [CONFIRMADO, E2-04 opção a)]: **numa entrada de serviço, o tipo
 | ID | Dado | Quando | Então |
 |---|---|---|---|
 | CA-07.1.1 | o app em modo avião após o primeiro acesso | o dono lança, edita, exclui, vê extrato e resumo e mexe nos cadastros | tudo funciona usando o banco local (RNF-03) |
-| CA-07.1.2 | o usuário A ligado só à unidade U1 | a sincronização baixa os dados | o banco local de A contém só os lançamentos de U1 e os cadastros da própria organização |
-| CA-07.1.3 | um envio do aparelho | ele chega ao Supabase | é feito com o token do usuário, e a RLS é aplicada (um envio para unidade sem vínculo é recusado) |
+| CA-07.1.2 | o usuário A ligado só à unidade U1 | o PowerSync baixa os dados | o banco local de A contém só as unidades com vínculo ativo, os lançamentos e o histórico de U1, os cadastros da própria organização e a própria preferência (sync rules filtradas pelo token) |
+| CA-07.1.3 | alterações feitas no aparelho | o conector de envio as manda | vão para `POST /sync/upload` do NestJS com o JWT; o app não tem credencial para gravar no Postgres e nunca grava direto nele; uma operação para unidade sem vínculo volta recusada (403) |
 | CA-07.1.4 | lançamentos salvos no aparelho | o app é fechado à força e o aparelho reiniciado | os lançamentos continuam lá |
+| CA-07.1.5 | as sync rules | a equipe procura e altera as regras | elas estão versionadas em `infra/powersync/`; uma mudança passa pelo repositório, nunca só pelo painel do serviço [SUPOSIÇÃO] |
 
 **FIN-US-07.2 — IDs no aparelho e envio sem duplicar**
 
@@ -501,7 +593,7 @@ Regra do dono [CONFIRMADO, E2-04 opção a)]: **numa entrada de serviço, o tipo
 |---|---|---|---|
 | CA-07.2.1 | um lançamento salvo offline | a equipe consulta o banco local | ele já tem um `id` UUID v7 gerado no aparelho |
 | CA-07.2.2 | uma instalação nova | ocorre a primeira sincronização | o servidor passa a ter um registro em `dispositivo` com o id da instalação, e os lançamentos carregam esse `dispositivo_id` |
-| CA-07.2.3 | uma operação de criação já gravada no servidor | a mesma operação é enviada de novo | o servidor fica com um só registro e não devolve erro (inserir ou ignorar) |
+| CA-07.2.3 | uma operação de criação já aceita pelo NestJS | a mesma operação é enviada de novo | o servidor fica com um só registro e responde "aceita" (repetição, CA-01.15.4) |
 
 **FIN-US-07.3 — Sincronização automática**
 
@@ -536,8 +628,8 @@ Regra do dono [CONFIRMADO, E2-04 opção a)]: **numa entrada de serviço, o tipo
 |---|---|---|---|
 | CA-07.6.1 | o servidor fora do ar | um envio falha | o item fica na fila e há novas tentativas com espera crescente (5 s, 15 s, 1 min, 5 min… até 30 min) [SUPOSIÇÃO de intervalos] |
 | CA-07.6.2 | o token vencido e internet | o app vai enviar | renova o token sozinho; se não conseguir, pede login **sem apagar** a fila, e após o login envia tudo |
-| CA-07.6.3 | um vínculo com a unidade removido no servidor | o app envia um lançamento dessa unidade | o item é marcado como erro, continua no aparelho e nunca é descartado sozinho |
-| CA-07.6.4 | um item recusado por dado inválido | o dono abre o erro na TELA-12 | pode corrigir e reenviar, ou descartar; descartar pede confirmação |
+| CA-07.6.3 | um vínculo com a unidade removido no servidor | o app envia um lançamento dessa unidade | a API recusa com 403; o item é marcado como erro de permissão, continua no aparelho e nunca é descartado sozinho |
+| CA-07.6.4 | um item recusado por regra de domínio (422) | o dono abre o erro na TELA-12 | vê o motivo em linguagem simples e pode corrigir e reenviar, ou descartar; descartar pede confirmação |
 | CA-07.6.5 | 1 item com erro definitivo e 4 itens válidos na fila | a sincronização roda | os 4 válidos são enviados; só ficam presos os que dependem do item com erro |
 
 **FIN-US-07.7 — Conflito entre aparelhos · v1.1 (fora do MVP)**
@@ -565,6 +657,30 @@ Regra do dono [CONFIRMADO, E2-04 opção a)]: **numa entrada de serviço, o tipo
 |---|---|---|---|
 | CA-07.9.1 | o repositório | a equipe procura o roteiro | existe um roteiro escrito com: modo avião → lançar 5 itens → fechar à força → reiniciar o aparelho → reconectar → conferir no servidor |
 | CA-07.9.2 | uma versão candidata a publicação | o roteiro é executado | o resultado (aparelho, versão, data, aprovado/reprovado) fica registrado; qualquer perda reprova a versão |
+
+**FIN-US-07.10 — Prova de conceito do PowerSync no plano gratuito** *(nova na v11)*
+
+| ID | Dado | Quando | Então |
+|---|---|---|---|
+| CA-07.10.1 | o início do M1 | a prova de conceito termina | existe no repositório um registro da decisão com o resultado de cada critério (a) a (d), medições, data, a decisão (PowerSync ou sincronização própria) e a hospedagem gratuita escolhida para a API [CONFIRMADO F-03b] |
+| CA-07.10.2 | o volume do MVP simulado (S-01: até ~9.000 lançamentos/mês e o histórico) | a equipe compara com os limites do plano gratuito | o uso fica abaixo dos limites com folga registrada [critério (a); folga mínima: SUPOSIÇÃO de 50%] |
+| CA-07.10.3 | as regras de inatividade do plano gratuito (PowerSync e Supabase) | a equipe as confere com o uso diário do dono | o uso diário não deixa o serviço pausar, ou a pausa não impede lançar e sincronizar depois [critério (b)] |
+| CA-07.10.4 | 50 lançamentos feitos em modo avião | o aparelho volta a ter internet | os 50 chegam ao Postgres passando por `POST /sync/upload`, sem perda nem duplicado [critério (c)] |
+| CA-07.10.5 | o mesmo JWT do Supabase Auth | ele é usado no PowerSync e no NestJS / um token vencido é usado | os dois aceitam / os dois recusam [critério (d)] |
+| CA-07.10.6 | qualquer critério (a) a (d) reprovado | a decisão é registrada | a decisão é "sincronização própria": a FIN-US-07.12 substitui a 07.1 e o backlog é atualizado (+3 pontos) |
+
+**FIN-US-07.11 — Módulo Sincronização no NestJS** *(nova na v11)*
+
+| ID | Dado | Quando | Então |
+|---|---|---|---|
+| CA-07.11.1 | um lote enviado a `POST /sync/upload` sem token / com token válido | a API recebe | recusa com 401 / processa as operações |
+| CA-07.11.2 | um lote com a criação de um lançamento seguida da edição do mesmo lançamento | a API processa | aplica as duas **na ordem** e o histórico fica com `criacao` e depois `alteracao` |
+| CA-07.11.3 | operações de `lancamento` de criação, de alteração que preenche `excluido_em`, de alteração que o limpa e de alteração comum | a API processa | chama `RegistrarLancamento`, `ExcluirLancamento`, `RestaurarLancamento` e `EditarLancamento`, respectivamente (conferido pela ação gravada no histórico); operações de cadastros e da preferência vão para os casos de uso da FIN-US-01.16 |
+| CA-07.11.4 | um lote com uma operação inválida no meio de operações válidas | a API responde | o resultado vem **por operação** (aceita, ou recusada com motivo e código 422/403); as válidas independentes são aplicadas; a que depende de uma recusada (ex.: edição de uma criação recusada) também é recusada |
+| CA-07.11.5 | uma operação sobre tabela sem manipulador (ex.: `lancamento_historico`, `forma_pagamento`, `unidade`) | a API processa | a operação é recusada e nada muda |
+| CA-07.11.6 | o código do módulo Sincronização | o lint de fronteiras e a revisão rodam | o módulo só usa a interface pública dos manipuladores de cada módulo e não contém regra de negócio |
+| CA-07.11.7 | o banco indisponível durante o lote | a API responde | responde erro temporário (5xx) sem gravar parte da operação que falhou; o app tenta de novo (CA-07.6.1) [SUPOSIÇÃO] |
+| CA-07.11.8 | uma operação aceita | o recebimento seguinte chega ao aparelho | o registro vem com a `versao` e o `recebido_servidor_em` do servidor |
 
 ### FIN-EP-08 — Ajustes e preferências
 
@@ -610,13 +726,16 @@ Regra do dono [CONFIRMADO, E2-04 opção a)]: **numa entrada de serviço, o tipo
 | CA-09.1.2 | 3 itens pendentes | o dono toca Sair | vê um aviso explícito com a quantidade ("3 lançamentos ainda não foram enviados e serão perdidos"), com a opção de sincronizar antes; cancelar mantém tudo |
 | CA-09.1.3 | a saída concluída | outro usuário entra no mesmo aparelho | não vê nenhum dado do usuário anterior |
 
-**FIN-US-09.2 — Cópias de segurança**
+**FIN-US-09.2 — Backup próprio semanal**
 
 | ID | Dado | Quando | Então |
 |---|---|---|---|
-| CA-09.2.1 | o ambiente de produção | a equipe consulta as cópias | existe cópia diária com pelo menos 7 dias de retenção [SUPOSIÇÃO — custo do plano depende da D-BL-07 parte 2, ainda aberta] |
-| CA-09.2.2 | o ambiente de produção | a equipe consulta o local externo | existe cópia semanal fora do Supabase com 3 meses de retenção [SUPOSIÇÃO] |
-| CA-09.2.3 | uma cópia recente | a equipe a restaura num banco de teste antes de ir para produção | a quantidade de lançamentos e a soma de `valor_centavos` por unidade batem com a origem, e o resultado é registrado |
+| CA-09.2.1 | o agendador gratuito configurado (ex.: GitHub Actions) | chega o dia da semana programado | roda `pg_dump` do banco do Supabase e registra data, duração e tamanho da cópia [CONFIRMADO F-03b] |
+| CA-09.2.2 | uma cópia gerada | a equipe tenta abri-la sem a chave | não consegue: o arquivo está criptografado; a chave fica fora do repositório e fora do Supabase |
+| CA-09.2.3 | as cópias guardadas | a equipe confere o local | ficam **fora do Supabase**; com mais de 3 meses de cópias, as mais antigas são apagadas e ficam cerca de 13 [SUPOSIÇÃO de retenção] |
+| CA-09.2.4 | uma falha da rotina (ex.: credencial errada ou destino cheio) | o agendador termina | a equipe recebe um aviso por e-mail [SUPOSIÇÃO] |
+| CA-09.2.5 | uma cópia recente | a equipe a restaura num banco de teste antes de ir para produção | a quantidade de lançamentos e a soma de `valor_centavos` por unidade batem com a origem, e o resultado é registrado |
+| CA-09.2.6 | a rotina de backup em produção | a equipe confere os serviços usados | todos estão em plano gratuito, sem custo [CONFIRMADO F-03b] |
 
 **FIN-US-09.3 — Privacidade (LGPD)**
 
@@ -629,9 +748,11 @@ Regra do dono [CONFIRMADO, E2-04 opção a)]: **numa entrada de serviço, o tipo
 
 | ID | Dado | Quando | Então |
 |---|---|---|---|
-| CA-09.4.1 | o pacote do app gerado | a equipe procura chaves no pacote | não há chave `service_role` (só a chave pública) |
-| CA-09.4.2 | o tráfego do app | a equipe o inspeciona | todas as chamadas são HTTPS |
-| CA-09.4.3 | a versão candidata | a revisão é feita | há um checklist assinado com: chaves, HTTPS, senha mínima de 8, teste de RLS (CA-01.4.10) passando |
+| CA-09.4.1 | o APK de produção | a equipe procura segredos no pacote | não há credencial do Postgres, chave `service_role` nem chave privada do PowerSync; só os endereços públicos e a chave pública do Supabase |
+| CA-09.4.2 | a API pública do Supabase | a revisão roda os testes de CA-01.4.2 e CA-01.4.3 | ela continua fechada |
+| CA-09.4.3 | todas as rotas do NestJS | um teste percorre a lista de rotas | todas, menos a de saúde, exigem JWT válido [SUPOSIÇÃO: teste automático que lista as rotas] |
+| CA-09.4.4 | o tráfego do app e da API | a equipe o inspeciona | todas as chamadas são HTTPS; chamada HTTP à API é recusada ou redirecionada |
+| CA-09.4.5 | a versão candidata | a revisão termina | há um checklist assinado com os itens acima, a senha mínima de 8 caracteres e os testes de isolamento (CA-01.13.7, CA-01.18.6) passando |
 
 **FIN-US-09.5 — Desempenho medido**
 
@@ -650,6 +771,17 @@ Regra do dono [CONFIRMADO, E2-04 opção a)]: **numa entrada de serviço, o tipo
 | CA-09.6.4 | o app instalado com lançamentos pendentes | o dono instala um APK de versão nova por cima do antigo (mesma assinatura) | a instalação substitui o app sem desinstalar; dados locais, sessão e pendências continuam intactos e são enviados depois |
 | CA-09.6.5 | um APK assinado com outra chave, ou de versão mais antiga | o dono tenta instalá-lo por cima | o Android recusa a instalação e o app atual continua funcionando com os dados; a equipe guarda a chave de assinatura fora do aparelho [SUPOSIÇÃO] |
 
+
+**FIN-US-09.9 — Hospedagem da API** *(nova na v11)*
+
+| ID | Dado | Quando | Então |
+|---|---|---|---|
+| CA-09.9.1 | a API publicada na hospedagem gratuita escolhida na prova de conceito | alguém chama a rota de saúde por HTTPS | ela responde com sucesso |
+| CA-09.9.2 | a configuração da hospedagem | a equipe confere | credenciais só em variáveis de ambiente da hospedagem, nunca no repositório |
+| CA-09.9.3 | uma mudança aprovada no ramo principal | a publicação automática roda | as migrações são aplicadas **antes** da nova versão da API; se uma migração falha, a nova versão não entra no ar e a anterior continua [SUPOSIÇÃO] |
+| CA-09.9.4 | a hospedagem "dormindo" por falta de uso | o app sincroniza | salvar continua instantâneo; o indicador mostra "Enviando…" enquanto a API acorda, e o envio termina sem erro para o dono |
+| CA-09.9.5 | os termos da hospedagem escolhida | a equipe os confere | permitem uso comercial no plano gratuito, e isso fica registrado [SUPOSIÇÃO] |
+
 ---
 
 ## 3. Casos de borda
@@ -660,7 +792,7 @@ Regra do dono [CONFIRMADO, E2-04 opção a)]: **numa entrada de serviço, o tipo
 |---|---|---|---|---|
 | CB-a.1 | o campo em R$ 0,00 (valor vazio ou zerado por ⌫) | o dono tenta salvar | Salvar está desabilitado; nada é gravado | 02.1, 02.3, 02.4, 02.5, 06.2 |
 | CB-a.2 | o campo em R$ 999.999,99 | o dono digita outro dígito | o valor não passa do máximo [SUPOSIÇÃO — D-QA-10] | 02.1, 06.2 |
-| CB-a.3 | um valor que chegue ao servidor acima de 99999999 centavos (ex.: app antigo ou chamada direta) | o servidor recebe | recusa e o item vira erro de dado na TELA-12 [SUPOSIÇÃO: restrição também no banco] | 01.3, 07.6 |
+| CB-a.3 | um valor acima de 99999999 centavos que chegue à API (app antigo ou chamada direta) | o NestJS recebe | o domínio recusa com 422 e o item vira erro de dado na TELA-12 (CA-01.14.1) | 01.14, 07.6 |
 | CB-a.4 | R$ 10.000,00 exatos / R$ 10.000,01 | o dono toca Salvar | salva direto / pede "Confere? R$ 10.000,01" [SUPOSIÇÃO: "acima de" = estritamente maior] | 02.1, 06.2 |
 | CB-a.5 | o "Confere?" aberto | o dono toca Salvar duas vezes seguidas na confirmação | é gravado um único lançamento | 02.1, 07.2 |
 | CB-a.6 | o campo zerado | o dono digita `2` `5` | aparece R$ 0,25 e, se salvo, grava 25 centavos | 02.1 |
@@ -724,6 +856,7 @@ Regra do dono [CONFIRMADO, E2-04 opção a)]: **numa entrada de serviço, o tipo
 | CB-f.5 | outro aparelho alterou cadastros durante os 7 dias | o aparelho volta a ficar online | recebe as mudanças e mantém a referência dos seus lançamentos (ex.: categoria renomeada aparece com o nome novo) | 07.3, 03.1 |
 | CB-f.6 | pendências | o dono olha a Início e o Extrato | o número do indicador é igual à quantidade de itens com relógio no Extrato (incluindo edições e exclusões pendentes, contadas por operação) [SUPOSIÇÃO] | 07.4 |
 | CB-f.7 | um lançamento criado offline e depois editado e excluído, ainda sem envio | a sincronização roda | o servidor termina com o lançamento excluído e o histórico com as 3 ações, na ordem | 07.3, 01.5 |
+| CB-f.8 | o servidor restaurado de um backup de 5 dias atrás, e o celular com lançamentos já enviados depois disso | o celular sincroniza | **[DÚVIDA D-QA-19]** os lançamentos feitos depois do backup precisam voltar ao servidor sem perda nem duplicado; o procedimento (reenvio a partir do celular, sem que o recebimento apague os dados locais) ainda não está definido | 09.2, 07.1 |
 
 ### g) Cadastros desativados, sistema e nomes repetidos
 
@@ -735,8 +868,8 @@ Regra do dono [CONFIRMADO, E2-04 opção a)]: **numa entrada de serviço, o tipo
 | CB-g.4 | "Repetir"/"Mais um igual" de um serviço cujo tipo foi desativado | o dono toca | o formulário abre sem esse tipo marcado [SUPOSIÇÃO] | 02.9, 03.3 |
 | CB-g.5 | qualquer uma das 4 categorias de sistema | o dono tenta desativar pela TELA-10, ou alguém tenta pelo servidor | a chave não muda / o servidor recusa [CONFIRMADO F-06] | 03.2 |
 | CB-g.6 | a categoria de sistema "Serviços" renomeada para "Lavagens" | o dono lança um serviço | o lançamento continua indo para a mesma categoria (pelo id/marca de sistema) [CONFIRMADO F-06: renomear é permitido] | 03.2, 02.5 |
-| CB-g.7 | o nome "Água" ativo | o dono tenta criar "água", " Água ", "Agua" ou "AGUA" | recusa nos quatro casos, no app e no servidor (a restrição de nome único usa a mesma comparação) [CONFIRMADO D-QA-04: maiúsculas, acentos e espaços nas pontas não diferenciam nomes; regra no servidor: SUPOSIÇÃO] | 03.1, 03.3, 03.4, 02.6, 02.7 |
-| CB-g.8 | dois aparelhos offline criam o mesmo nome "Polimento" | os dois sincronizam | o segundo envio é recusado pela restrição de nome único e vira erro de dado na TELA-12, com opção de corrigir [SUPOSIÇÃO: a regra de resolução não está definida — D-QA-12] | 03.3, 07.6 |
+| CB-g.7 | o nome "Água" ativo | o dono tenta criar "água", " Água ", "Agua" ou "AGUA" | recusa nos quatro casos: no app (pacote compartilhado), na API (422) e no banco (`nome_chave` com índice único) [CONFIRMADO F-16] | 03.1, 03.3, 03.4, 02.6, 02.7, 01.16, 01.17 |
+| CB-g.8 | dois aparelhos offline criam "Polimento" e "polimento" | os dois sincronizam | o segundo envio é recusado com 422 "nome repetido" e vira erro de dado na TELA-12, com opção de corrigir [SUPOSIÇÃO: não junta os dois — D-QA-12] | 03.3, 07.6, 01.16 |
 
 ### h) "Todas as unidades" ao lançar
 
@@ -773,13 +906,14 @@ Regra do dono [CONFIRMADO, E2-04 opção a)]: **numa entrada de serviço, o tipo
 
 | ID | Dado | Quando | Então | Histórias |
 |---|---|---|---|---|
-| CB-k.1 | o usuário A sem vínculo com a unidade U2 | A tenta ler ou gravar em U2 (pelo app ou chamando a API direto com seu token) | o servidor não devolve nada / recusa | 01.4, 07.1 |
-| CB-k.2 | um usuário de outra organização | ele tenta ler cadastros ou lançamentos da organização do dono | não recebe nenhuma linha | 01.4 |
+| CB-k.1 | o usuário A sem vínculo com a unidade U2 | A tenta ler ou gravar em U2 (pelo app ou chamando a API direto com seu token) | a API recusa (403) e as sync rules não entregam nada de U2 ao aparelho | 01.13, 07.1 |
+| CB-k.2 | um usuário de outra organização | ele tenta ler ou usar cadastros ou lançamentos da organização do dono | não recebe nada pela sincronização e a API recusa as referências | 01.13, 01.15 |
 | CB-k.3 | o vínculo de A com U1 desativado enquanto A tem lançamentos de U1 pendentes | A sincroniza | os pendentes viram erro de permissão, ficam no aparelho e não são descartados sozinhos | 07.6, 01.4 |
 | CB-k.4 | a sessão expirada e o aparelho sem internet | o dono abre o app | o app abre normalmente, permite lançar e consultar; não pede login nem apaga nada até haver internet | 01.7, 07.6 |
 | CB-k.5 | a sessão de CB-k.4 e a internet de volta, com renovação impossível | o app pede login | após o login do **mesmo** usuário, a fila é enviada; com outro usuário, ver D-QA-07 [regra não definida] | 07.6, 09.1 |
-| CB-k.6 | um token adulterado ou de usuário removido | o app chama o servidor | o servidor recusa; o app trata como sessão inválida, sem apagar a fila | 01.4, 07.6 |
-| CB-k.7 | o pacote do app | a equipe procura segredos | não há `service_role` nem outra chave secreta | 09.4 |
+| CB-k.6 | um token adulterado ou de usuário removido | o app chama a API ou o PowerSync | os dois recusam (401); o app trata como sessão inválida, sem apagar a fila | 01.13, 07.6 |
+| CB-k.7 | o APK | a equipe procura segredos | não há `service_role`, credencial do Postgres nem chave privada do PowerSync | 09.4 |
+| CB-k.8 | alguém com a chave pública do Supabase (que está no APK) | chama a API pública do Supabase (PostgREST) direto | não lê nem grava nada (RLS sem políticas) | 01.4 |
 
 ---
 
@@ -793,7 +927,7 @@ Escala: Probabilidade e Impacto em Baixa / Média / Alta.
 | R-02 | Lançamento duplicado (toque duplo ou reenvio) | Média | Alta | 02.3–02.5, 07.2 | Teste de unidade do botão com trava; integração reenviando a mesma operação 3 vezes e conferindo 1 registro (CB-d.1 a CB-d.3) |
 | R-03 | Erro de centavos em somas ou na digitação | Baixa | Alta | 02.1, 04.1, 05.1–05.3 | Testes de propriedade (valores aleatórios) comparando com soma inteira; proibir `parseFloat`/divisão em valor monetário por regra de lint [SUPOSIÇÃO]; tabela de digitação da 02-design §5.4 como teste |
 | R-04 | Lançamento no dia errado por causa de fuso (23h30, UTC) | Média | Média | 02.2, 04.1, 04.2, 05.1 | Testes de unidade com relógio simulado em 23h30/00h30 e fusos diferentes no aparelho (CB-c.4 a CB-c.7) |
-| R-05 | Vazamento entre unidades/organizações por falha de RLS | Baixa | Alta | 01.4, 07.1 | Testes automáticos de RLS com dois usuários e duas organizações em toda migração (CA-01.4.x, CB-k.1, CB-k.2); revisão 09.4 |
+| R-05 | Vazamento entre unidades/organizações por falha de autorização no NestJS, nas sync rules ou por API pública do Supabase aberta | Baixa | Alta | 01.4, 01.13, 07.1 | Testes de API com dois usuários e duas organizações (CA-01.13.7, CA-01.18.6), teste de API pública fechada (CA-01.4.5) e das sync rules (CA-07.1.2); revisão 09.4 |
 | R-06 | Conflito entre aparelhos sobrescreve dados sem o dono perceber | Baixa (um só celular, F-15) | Média | 01.5 (MVP); 07.7 (v1.1) | MVP: integração simulando a troca de aparelho com pendência no celular antigo (CB-e.1, CB-e.3). v1.1: dois clientes editando offline, histórico com `conflito` e aviso na TELA-07 (CB-e.2, e.4 a e.6) |
 | R-07 | Somas do extrato e do resumo divergem do servidor | Média | Alta | 04.1, 05.1–05.5, 07.3 | Teste de reconciliação: após sincronizar, total por unidade/dia no aparelho = total no servidor |
 | R-08 | Sessão vencida apaga a fila ou bloqueia o uso offline | Média | Alta | 01.7, 07.6, 09.1 | E2E com token expirado em modo avião (CB-k.4, CB-k.5) |
@@ -806,6 +940,10 @@ Escala: Probabilidade e Impacto em Baixa / Média / Alta.
 | R-15 | Atualização do app (EAS Update ou APK novo) quebra o banco local ou a fila; perda da chave de assinatura impede atualizar sem reinstalar | Baixa | Alta | 09.6, 07.1 | Teste de atualização pelos dois caminhos com pendências na fila antes de cada versão (CA-09.6.3, CA-09.6.4); teste de APK com outra assinatura (CA-09.6.5) |
 | R-17 | Restauração pela lixeira duplica o lançamento ou o devolve na data errada; corte de 90 dias errado por fuso | Baixa | Média | 06.5, 06.4 | Unidade: corte de 90 dias com relógio simulado; integração: restaurar e conferir 1 registro, `restauracao` no histórico e totais do dia original (CA-06.5.2, CA-06.5.3) |
 | R-16 | Restauração de backup não funciona quando precisar | Baixa | Alta | 09.2 | Restauração de teste antes de produção e depois a cada 3 meses [SUPOSIÇÃO] (CA-09.2.3) |
+| R-18 | O app e o banco normalizam nomes de forma diferente (acentos raros, ç, espaços), e um nome aceito no app é recusado no servidor ou o contrário | Média | Média | 01.16, 01.17, 03.x | Teste com a mesma tabela de nomes no `normalizarNome` e no `nome_chave` do Postgres (CA-01.17.2) |
+| R-19 | Backup só semanal: uma restauração volta o servidor até 7 dias, e o recebimento apaga do celular lançamentos já enviados | Baixa | Alta | 09.2, 07.1 | Ensaio de restauração com celular de teste (CB-f.8); procedimento definido antes de produção (D-QA-19) |
+| R-20 | Limites ou pausa por inatividade dos planos gratuitos (PowerSync, Supabase, hospedagem) interrompem a sincronização | Média | Média | 07.10, 09.9 | Prova de conceito com critérios medidos (CA-07.10.x); app continua salvando offline (RNF-03) |
+| R-21 | Regra de domínio diferente entre o app (pacote compartilhado) e a API, gerando muitos erros 422 depois de salvar | Média | Média | 01.14, 01.17, 02.x | Os mesmos casos de teste de invariantes rodam no pacote compartilhado e no domínio da API; testes de contrato (CA-01.18.7) |
 
 ---
 
@@ -813,7 +951,7 @@ Escala: Probabilidade e Impacto em Baixa / Média / Alta.
 
 ### 5.1 Testes automatizados
 
-Ferramentas sugeridas [SUPOSIÇÃO, decisão da equipe]: Jest para unidade no app; pgTAP ou testes SQL contra um Supabase local para banco e RLS; Maestro (ou Detox) para ponta a ponta em emulador.
+Ferramentas sugeridas [SUPOSIÇÃO, decisão da equipe]: Jest para unidade no app, nos pacotes compartilhados e no domínio do NestJS; Jest + Supertest contra um Postgres de teste (ex.: Supabase local ou contêiner) para integração e testes de API; testes SQL para esquema, `nome_chave` e API pública fechada; Maestro (ou Detox) para ponta a ponta em emulador Android.
 
 **Unidade (rodam a cada commit)**
 
@@ -832,18 +970,31 @@ Ferramentas sugeridas [SUPOSIÇÃO, decisão da equipe]: Jest para unidade no ap
 | Filtros do Extrato e totais | CA-04.3.x, 04.4.x, 04.5.x, 04.7.x, CB-i.1, CB-i.4 |
 | Regra serviço × veículo no formulário | CA-02.12.1 a 02.12.4, 02.12.7 |
 
+**Testes de API do NestJS (rodam a cada mudança, na integração contínua — FIN-US-01.18)**
+
+| Nível | Alvo | Casos |
+|---|---|---|
+| Unidade de domínio (sem banco) | Agregado `Lancamento` e suas invariantes | CA-01.14.1 a 01.14.9 |
+| Unidade de domínio (sem banco) | Agregados de cadastro e `NomeNormalizado` | CA-01.16.8, CA-01.17.1 |
+| Unidade de domínio (sem banco) | Kernel compartilhado | CA-01.12.7 |
+| Integração com Postgres | Casos de uso, transação e histórico | CA-01.15.1 a 01.15.6, CA-01.5.1 a 01.5.5, CA-01.12.4 |
+| Integração com Postgres | Autorização e isolamento | CA-01.13.1 a 01.13.7, CA-01.18.3, 01.18.6, CB-k.1, k.2, k.6 |
+| Integração com Postgres | Cadastros (F-06, F-08, F-16) | CA-01.16.1 a 01.16.7, CB-g.7, g.8 |
+| Contrato dos endpoints de sincronização | `POST /sync/upload` (e `/sync/push`, `/sync/pull` na contingência) | CA-01.18.2, 01.18.4, 01.18.7, CA-07.11.1 a 07.11.7 |
+| Banco | Esquema, `nome_chave`, API pública fechada | CA-01.3.1 a 01.3.9, CA-01.4.1 a 01.4.5, CA-01.17.2 |
+
 **Integração (rodam a cada mudança de migração ou de sincronização)**
 
 | Alvo | Casos |
 |---|---|
-| Esquema e restrições do banco | CA-01.3.1 a 01.3.8, CA-02.12.8 a 02.12.10, CB-a.3 |
-| RLS com 2 usuários, 2 unidades, 2 organizações | CA-01.4.1 a 01.4.10, CB-k.1, k.2, k.6 |
-| Gatilhos de histórico e versão | CA-01.5.1 a 01.5.5, CB-d.3, CA-06.5.2, CA-06.4.3, CA-06.5.9 |
+| Esquema e restrições do banco | CA-01.3.1 a 01.3.9 |
+| API pública do Supabase fechada e sync rules por usuário | CA-01.4.1 a 01.4.5, CA-07.1.2, CB-k.8 |
+| Histórico e versão gravados pelo back-end | CA-01.5.1 a 01.5.5, CB-d.3, CA-06.5.2, CA-06.4.3, CA-06.5.9 |
 | Idempotência do envio | CA-07.2.3, CB-d.2, CB-d.3 |
 | Fila com falha no meio, retomada e erros | CA-07.6.1 a 07.6.5, CB-f.1, f.2, f.7, CB-k.3 |
 | Troca de aparelho com pendência no celular antigo (MVP) | CB-e.1, CB-e.3 |
 | Conflito com dois clientes (v1.1) | CA-07.7.1 a 07.7.3, CB-e.2, e.4 a e.6 |
-| Regras de sincronização por unidade | CA-07.1.2, 07.1.3 |
+| Prova de conceito do PowerSync (uma vez, no início do M1) | CA-07.10.2 a 07.10.5 |
 | Reconciliação de totais aparelho × servidor | CB-b.2, R-07 |
 | Dados iniciais idempotentes | CA-01.6.1 a 01.6.4 |
 
@@ -871,7 +1022,7 @@ Ferramentas sugeridas [SUPOSIÇÃO, decisão da equipe]: Jest para unidade no ap
 - Desempenho medido em aparelho real (CA-09.5.1) — pode ser semiautomático.
 - Roteiro de resiliência com reinício real do aparelho (CA-07.9.x).
 - Troca de aparelho real com pendência no celular antigo (MVP); dois aparelhos em conflito fica para a v1.1.
-- Backup e restauração (CA-09.2.x), revisão de segurança (CA-09.4.x), política de privacidade (CA-09.3.1), instalação do APK e atualização por APK novo e pelo próprio app (CA-09.6.x), sem loja.
+- Backup semanal e restauração (CA-09.2.x), hospedagem da API (CA-09.9.x), revisão de segurança (CA-09.4.x), política de privacidade (CA-09.3.1), instalação do APK e atualização por APK novo e pelo próprio app (CA-09.6.x), sem loja.
 - Teste de usabilidade com o dono: 10 lançamentos reais medindo ≤ 15 s e ≤ 4 toques (OBJ-01).
 
 ### 5.3 Checklist de teste manual no celular
@@ -951,14 +1102,14 @@ Ferramentas sugeridas [SUPOSIÇÃO, decisão da equipe]: Jest para unidade no ap
 
 | # | Suposição |
 |---|---|
-| S-QA-01 | ~~Comparação de nomes ignora maiúsculas e espaços, mas acentos contam.~~ **Substituída pela resposta à D-QA-04 [CONFIRMADO]:** a comparação ignora maiúsculas/minúsculas, acentos e espaços nas pontas ("Agua" = "Água" = "água"). |
+| S-QA-01 | ~~Comparação de nomes ignora maiúsculas e espaços, mas acentos contam.~~ **Substituída pela F-16 [CONFIRMADO]:** a comparação de nomes de categoria, tipo de serviço e tipo de veículo ignora maiúsculas, acentos e espaços nas pontas ("água" = "Água" = "Agua"), ao criar e ao renomear, no app, na API e no banco (`nome_chave`). |
 | S-QA-02 | [SUPOSIÇÃO] "Acima de R$ 10.000,00" significa estritamente maior; R$ 10.000,00 salva sem perguntar. |
 | S-QA-03 | [SUPOSIÇÃO] Ao passar de R$ 999.999,99, o dígito extra é ignorado em silêncio. |
 | S-QA-04 | [SUPOSIÇÃO] Atalhos de período (Hoje, Semana, Mês) são relativos: se o dia vira com o app aberto, passam a valer para o novo dia. |
 | S-QA-05 | [SUPOSIÇÃO] Intervalos de período são inclusivos nas duas pontas. |
 | S-QA-06 | [SUPOSIÇÃO] O indicador de pendências conta operações (criação, edição, exclusão), e cada lançamento com operação pendente tem o relógio no Extrato. |
 | S-QA-07 | [SUPOSIÇÃO] Envio de alteração também é idempotente (não cria versão nem histórico em dobro). |
-| S-QA-08 | [SUPOSIÇÃO] O valor máximo também é garantido por restrição no banco, não só no app. |
+| S-QA-08 | O valor máximo é garantido no domínio do NestJS (CA-01.14.1); no banco fica só `valor_centavos > 0` [SUPOSIÇÃO: a 03-arquitetura não prevê `check` de máximo]. |
 | S-QA-09 | [SUPOSIÇÃO] Formulário com só os valores pré-preenchidos fecha sem perguntar "Descartar?". |
 | S-QA-10 | [SUPOSIÇÃO] Tempos de desempenho medidos pela mediana de 10 repetições; tempo acima do limite reprova a versão. |
 | S-QA-11 | Mantidas todas as suposições do 03-arquitetura e do 04-backlog (limites de valor, 30 dias offline, ~5 min, 24 h, espera crescente, conflito, excluir vence editar, período inicial "Hoje", aba Hoje no cartão). |
@@ -973,7 +1124,7 @@ Ferramentas sugeridas [SUPOSIÇÃO, decisão da equipe]: Jest para unidade no ap
 | ~~D-BL-04 (cadastro de unidades e formas)~~ | **Respondida (F-08):** cadastradas pela equipe na implantação, sem telas no MVP [CONFIRMADO]. CA-01.6.1 |
 | ~~D-BL-05 (histórico e lixeira)~~ | **Respondida (F-09):** sim, histórico e lixeira no app, com 90 dias na lixeira [CONFIRMADO]. FIN-US-06.4 e 06.5 entraram no MVP: CA-06.4.x, CA-06.5.x e CA-06.3.1 |
 | ~~D-BL-06 (PIN/biometria)~~ | **Respondida (F-10):** não haverá PIN nem biometria; o app abre direto (vale o bloqueio de tela do celular) [CONFIRMADO]. FIN-US-09.7 saiu do roadmap; nenhum critério |
-| D-BL-07 (custo, ~~Android/iOS~~) | **Parte 1 respondida (F-03): só Android** [CONFIRMADO] — CA-09.6.2 e checklist de aparelhos. **Parte 2 (aceitar plano pago do Supabase/PowerSync) continua aberta** — CA-09.2.1 |
+| ~~D-BL-07 (custo, Android/iOS)~~ | **Respondida.** Parte 1 (F-03): só Android — CA-09.6.2. Parte 2 (F-03b): **só planos gratuitos**, PowerSync se a prova de conceito aprovar, backup próprio semanal — CA-01.2.1, CA-07.10.x, CA-09.2.x [CONFIRMADO] |
 | D-BL-08 (conflito) | **Sai do MVP (F-15):** a FIN-US-07.7 foi para a v1.1; a dúvida volta na v1.1. Afeta CA-07.7.x e CB-e.2, e.4 a e.6; no MVP, só a parte "qual versão prevalece" de CB-e.1 |
 | ~~D-BL-09 (Pessoal pertence a unidade)~~ | **Respondida (F-05):** todo lançamento, inclusive o Pessoal, pertence a uma unidade [CONFIRMADO]. CA-01.3.5, CB-i.5. A parte da dúvida 13 (categorias separadas Pessoal/Empresa) segue com a FIN-US-03.7, fora do MVP |
 | D-BL-10 (aba padrão do cartão) | CA-05.1.2 |
@@ -985,7 +1136,7 @@ Ferramentas sugeridas [SUPOSIÇÃO, decisão da equipe]: Jest para unidade no ap
 | D-QA-01 | ~~A categoria de sistema "Produtos" é de saída ou de entrada?~~ **Respondida (04-backlog v2, S-BL-09):** "Produtos" é de **saída**; a venda ao cliente é a categoria de **entrada "Venda de produtos"**. Critérios ajustados. | CA-01.6.2, CA-02.4.1 |
 | D-QA-02 | ~~No primeiro lançamento, qual forma de pagamento vem marcada?~~ **Respondida (F-12):** **Pix** no primeiro lançamento; nos seguintes, a última usada; ficam as quatro formas [CONFIRMADO]. | CA-02.2.6, CA-02.2.8 |
 | D-QA-03 | ~~A FIN-US-05.6 abre o Extrato filtrado por tipo de serviço, mas nenhuma história cria esse filtro.~~ **Resolvida (04-backlog v2):** criada a FIN-US-04.7 (filtro por tipo de serviço, MVP), dependência da FIN-US-05.6. | CA-04.7.x, CA-05.6.3 |
-| D-QA-04 | ~~Nome repetido: "água" e "Água" são o mesmo nome? E "Agua" sem acento?~~ **Respondida pelo dono: sim**, são o mesmo nome (maiúsculas, acentos e espaços nas pontas não contam). **Continua aberta** a segunda parte: categoria desativada com o mesmo nome também oferece "Reativar", como os tipos de serviço e de veículo? | CA-02.6.2, CA-03.1.3, CB-g.7 |
+| D-QA-04 | ~~Nome repetido: "água" e "Água" são o mesmo nome? E "Agua" sem acento?~~ **Respondida (F-16):** sim, são o mesmo nome. **Continua aberta** a segunda parte: na tela de Categorias, criar um nome igual ao de uma categoria desativada oferece "Reativar", como nos tipos de serviço e de veículo? (a API já permite reativar, CA-01.16.2) | CA-02.6.2, CA-03.1.3, CB-g.7 |
 | D-QA-05 | ~~Na edição, dá para trocar o tipo do lançamento?~~ **Respondida (F-13):** não; para trocar, exclui e lança de novo [CONFIRMADO]. | CA-06.2.6, CA-06.2.7 |
 | D-QA-06 | Com **"Todas as unidades"**, o botão "Repetir" aparece? De qual unidade? | CB-h.3 |
 | D-QA-07 | Se a sessão vencer com pendências e **outro usuário** entrar no aparelho, o que acontece com a fila do anterior? | CB-k.5 |
@@ -1000,6 +1151,7 @@ Ferramentas sugeridas [SUPOSIÇÃO, decisão da equipe]: Jest para unidade no ap
 | D-QA-16 | ~~Mostrar aparelho e conflito no histórico?~~ **Respondida pelo Orquestrador:** vão para a v1.1, com a FIN-US-07.7; no MVP o histórico mostra data, hora, quem e o que mudou. | CA-06.4.1, CA-07.7.4 (v1.1) |
 | D-QA-17 | ~~Quando aparece "Ver histórico" e o estado vazio da TELA-15?~~ **Respondida pelo Orquestrador:** o link aparece sempre; o estado vazio saiu; excluídos e restaurados mostram essas ações. | CA-06.4.6 |
 | D-QA-18 | ~~O Desfazer pós-salvar vai para a Lixeira?~~ **Respondida pelo Orquestrador:** não [SUPOSIÇÃO]; o registro continua no servidor. | CA-02.8.3, CA-06.5.9 |
+| D-QA-19 | Com backup só semanal (F-03b), se o servidor for restaurado, como os lançamentos já enviados depois do backup voltam do celular ao servidor, sem que o recebimento os apague do aparelho? | CB-f.8, CA-09.2.x |
 
 ---
 
@@ -1007,6 +1159,9 @@ Ferramentas sugeridas [SUPOSIÇÃO, decisão da equipe]: Jest para unidade no ap
 
 Não recebem critérios neste documento:
 
+- **Painel web Next.js (FIN-EP-10, FIN-US-10.1 a 10.8, 24 pontos):** Pós-MVP [CONFIRMADO ST-06, ST-07: só consulta, só o dono, mesma conta do app]. **Sem critérios nesta versão**; serão escritos quando o painel entrar no planejamento.
+- **FIN-US-07.12 (sincronização própria, contingência):** só ganha critérios se a prova de conceito reprovar o PowerSync (CA-07.10.6).
+- **FIN-US-01.10 (outbox de eventos):** Pós-MVP; no MVP os eventos só alimentam o histórico (CA-01.14.8).
 - **FIN-US-07.7 (conflito entre aparelhos)**: movida para a **v1.1** pela decisão F-15. Os critérios (CA-07.7.x) e os casos CB-e.2, e.4 a e.6 ficam registrados para a v1.1.
 - **Histórias Pós-MVP** do 04-backlog: FIN-US-01.10 (eventos), 03.6 (formas de pagamento — sem tela no MVP pela F-08), 03.7 (categorias por Pessoal/Empresa), 05.7 (cruzamento serviço × veículo), 08.5 (cadastro de unidades — feito na implantação pela F-08), 09.8 (exclusão LGPD). Ganham critérios se alguma decisão as trouxer para o MVP.
 - **FIN-US-09.7 (PIN/biometria):** **saiu do roadmap** pela F-10; o app abre direto e vale o bloqueio de tela do celular.
@@ -1021,38 +1176,44 @@ Não recebem critérios neste documento:
 
 | História MVP | Critérios | | História MVP | Critérios |
 |---|---|---|---|---|
-| FIN-US-01.1 | 4 | | FIN-US-04.6 | 4 |
-| FIN-US-01.2 | 3 | | FIN-US-04.7 *(nova na v2)* | 8 |
-| FIN-US-01.3 | 8 | | FIN-US-05.1 | 5 |
-| FIN-US-01.4 | 10 | | FIN-US-05.2 | 3 |
-| FIN-US-01.5 | 5 | | FIN-US-05.3 | 5 |
-| FIN-US-01.6 | 5 | | FIN-US-05.4 | 5 |
-| FIN-US-01.7 | 5 | | FIN-US-05.5 | 2 |
-| FIN-US-01.8 | 5 | | FIN-US-05.6 | 4 |
-| FIN-US-01.9 | 5 | | FIN-US-06.1 | 3 |
-| FIN-US-02.1 | 8 | | FIN-US-06.2 | 7 |
-| FIN-US-02.2 | 8 | | FIN-US-06.3 | 4 |
-| FIN-US-02.3 | 4 | | FIN-US-06.4 *(MVP na v7, F-09)* | 6 |
-| FIN-US-02.4 | 3 | | FIN-US-06.5 *(MVP na v7, F-09)* | 9 |
-| FIN-US-02.5 | 5 | | FIN-US-07.1 | 4 |
-| FIN-US-02.6 | 4 | | FIN-US-07.2 | 3 |
-| FIN-US-02.7 | 4 | | FIN-US-07.3 | 4 |
-| FIN-US-02.8 | 4 | | FIN-US-07.4 | 4 |
-| FIN-US-02.9 | 4 | | FIN-US-07.5 | 4 |
-| FIN-US-02.10 | 4 | | FIN-US-07.6 | 5 |
-| FIN-US-02.11 | 2 | | FIN-US-07.8 | 3 |
-| FIN-US-02.12 *(desbloqueada na v3)* | 11 | | FIN-US-07.9 | 2 |
-| FIN-US-03.1 | 6 | | FIN-US-08.1 | 2 |
-| FIN-US-03.2 | 4 | | FIN-US-08.2 | 4 |
-| FIN-US-03.3 | 4 | | FIN-US-08.3 | 3 |
-| FIN-US-03.4 | 4 | | FIN-US-08.4 | 3 |
-| FIN-US-03.5 | 3 | | FIN-US-09.1 | 3 |
-| FIN-US-04.1 | 5 | | FIN-US-09.2 | 3 |
-| FIN-US-04.2 | 9 | | FIN-US-09.3 | 2 |
-| FIN-US-04.3 | 5 | | FIN-US-09.4 | 3 |
-| FIN-US-04.4 | 2 | | FIN-US-09.5 | 2 |
-| FIN-US-04.5 | 3 | | FIN-US-09.6 | 5 |
+| FIN-US-01.1 | 4 | | FIN-US-04.4 | 2 |
+| FIN-US-01.2 | 3 | | FIN-US-04.5 | 3 |
+| FIN-US-01.3 | 9 | | FIN-US-04.6 | 4 |
+| FIN-US-01.4 | 5 | | FIN-US-04.7 *(nova na v2)* | 8 |
+| FIN-US-01.5 | 5 | | FIN-US-05.1 | 5 |
+| FIN-US-01.6 | 5 | | FIN-US-05.2 | 3 |
+| FIN-US-01.7 | 6 | | FIN-US-05.3 | 5 |
+| FIN-US-01.8 | 5 | | FIN-US-05.4 | 5 |
+| FIN-US-01.9 | 5 | | FIN-US-05.5 | 2 |
+| FIN-US-01.11 *(nova na v11)* | 4 | | FIN-US-05.6 | 4 |
+| FIN-US-01.12 *(nova na v11)* | 7 | | FIN-US-06.1 | 3 |
+| FIN-US-01.13 *(nova na v11)* | 7 | | FIN-US-06.2 | 7 |
+| FIN-US-01.14 *(nova na v11)* | 9 | | FIN-US-06.3 | 4 |
+| FIN-US-01.15 *(nova na v11)* | 6 | | FIN-US-06.4 *(MVP na v7, F-09)* | 6 |
+| FIN-US-01.16 *(nova na v11)* | 8 | | FIN-US-06.5 *(MVP na v7, F-09)* | 9 |
+| FIN-US-01.17 *(nova na v11)* | 4 | | FIN-US-07.1 | 5 |
+| FIN-US-01.18 *(nova na v11)* | 7 | | FIN-US-07.2 | 3 |
+| FIN-US-02.1 | 8 | | FIN-US-07.3 | 4 |
+| FIN-US-02.2 | 8 | | FIN-US-07.4 | 4 |
+| FIN-US-02.3 | 4 | | FIN-US-07.5 | 4 |
+| FIN-US-02.4 | 3 | | FIN-US-07.6 | 5 |
+| FIN-US-02.5 | 5 | | FIN-US-07.8 | 3 |
+| FIN-US-02.6 | 4 | | FIN-US-07.9 | 2 |
+| FIN-US-02.7 | 4 | | FIN-US-07.10 *(nova na v11)* | 6 |
+| FIN-US-02.8 | 4 | | FIN-US-07.11 *(nova na v11)* | 8 |
+| FIN-US-02.9 | 4 | | FIN-US-08.1 | 2 |
+| FIN-US-02.10 | 4 | | FIN-US-08.2 | 4 |
+| FIN-US-02.11 | 2 | | FIN-US-08.3 | 3 |
+| FIN-US-02.12 *(desbloqueada na v3)* | 11 | | FIN-US-08.4 | 3 |
+| FIN-US-03.1 | 6 | | FIN-US-09.1 | 3 |
+| FIN-US-03.2 | 4 | | FIN-US-09.2 | 6 |
+| FIN-US-03.3 | 4 | | FIN-US-09.3 | 2 |
+| FIN-US-03.4 | 4 | | FIN-US-09.4 | 5 |
+| FIN-US-03.5 | 3 | | FIN-US-09.5 | 2 |
+| FIN-US-04.1 | 5 | | FIN-US-09.6 | 5 |
+| FIN-US-04.2 | 9 | | FIN-US-09.9 *(nova na v11)* | 5 |
+| FIN-US-04.3 | 5 | |  |  |
 
-**Totais do MVP:** 62 histórias MVP; **62 com critérios**, somando **280 critérios**, mais **66 casos de borda** que valem no MVP.
+**Totais do MVP:** 73 histórias MVP; **73 com critérios**, somando **354 critérios**, mais **68 casos de borda** que valem no MVP.
 **História MVP sem critério:** nenhuma.
-**Fora da contagem do MVP (v1.1, decisão F-15):** FIN-US-07.7, com 4 critérios (CA-07.7.1 a 07.7.4), e 4 casos de borda (CB-e.2, e.4, e.5, e.6). No documento inteiro: 284 critérios e 70 casos de borda.
+**Fora da contagem do MVP (v1.1, decisão F-15):** FIN-US-07.7, com 4 critérios (CA-07.7.1 a 07.7.4), e 4 casos de borda (CB-e.2, e.4, e.5, e.6). No documento inteiro: 358 critérios e 72 casos de borda.
