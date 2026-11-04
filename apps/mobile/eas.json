@@ -1,0 +1,33 @@
+{
+  "cli": {
+    "version": ">= 16.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "base": {
+      "android": {
+        "buildType": "apk",
+        "credentialsSource": "remote"
+      }
+    },
+    "teste": {
+      "extends": "base",
+      "distribution": "internal",
+      "channel": "teste",
+      "environment": "preview",
+      "env": {
+        "APP_VARIANTE": "teste"
+      }
+    },
+    "dono": {
+      "extends": "base",
+      "distribution": "internal",
+      "channel": "dono",
+      "environment": "production",
+      "autoIncrement": true,
+      "env": {
+        "APP_VARIANTE": "dono"
+      }
+    }
+  }
+}

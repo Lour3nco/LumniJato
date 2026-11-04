@@ -118,6 +118,15 @@ Estas etapas usam a **conta do dono** e só ele faz. Ninguém do time cria conta
    continuam entrando normalmente. (No banco local isso já vem desligado pelo
    `infra/supabase/config.toml`, com `enable_signup = false`; o `db push` não muda essa
    opção na nuvem, por isso o passo é manual.)
+8. **Senha mínima de 8 caracteres** (RNF-21, CA-01.7.5): em **Authentication → Sign In /
+   Providers → Email**, ponha **Minimum password length = 8** e salve. (No local já vem do
+   `config.toml`.)
+9. **Criar a conta do dono** (não há tela de cadastro, ST-07): em **Authentication → Users →
+   Add user → Create new user**, informe o e-mail e uma senha de 8+ caracteres e marque
+   **Auto Confirm User**. Os dados iniciais (organização, unidades, vínculo) entram na FIN-US-01.6.
+10. **Não compartilhe a senha do banco** em chat, e-mail ou mensagem. Ela só é digitada por você,
+   quando o `pnpm supabase link` pedir. Se ela já foi mostrada a alguém, troque em
+   **Project Settings → Database → Reset database password**.
 
 ### Onde colocar as chaves
 
@@ -134,7 +143,15 @@ Preencha `apps/api/.env`:
 |---|---|---|
 | `PORTA` | não vem do Supabase; deixe `3000` | já |
 | `SUPABASE_URL` | **Project Settings → API → Project URL** | FIN-US-01.13 (login) |
-| `DATABASE_URL` | **Connect → Connection string** (com o usuário próprio da API, criado na FIN-US-01.4) | FIN-US-01.12 |
+| `DATABASE_URL` | **Connect → Connection string**, com o usuário próprio da API `api_lavajato` (criado na FIN-US-01.4). A API **recusa** o usuário `postgres` fora do Supabase local | FIN-US-01.12 |
+
+Para o app de celular, copie também `apps/mobile/.env.example` para `apps/mobile/.env`:
+
+| Variável | Onde achar | Observação |
+|---|---|---|
+| `EXPO_PUBLIC_SUPABASE_URL` | **Project Settings → API → Project URL** | vai dentro do APK (é pública) |
+| `EXPO_PUBLIC_SUPABASE_ANON_KEY` | **Project Settings → API Keys → anon / publishable** | pública; **nunca** a service_role |
+| `EAS_PROJECT_ID` | criado no `eas init` ([apk.md](apk.md)) | liga as atualizações pelo app |
 
 Regras:
 
@@ -144,3 +161,8 @@ Regras:
 - Se uma chave vazar, gere outra no painel do Supabase na hora.
 - No GitHub, quando o deploy automático existir, as chaves vão em
   **Settings → Secrets and variables → Actions**, nunca no `ci.yml`.
+
+## 6. Outros guias
+
+- [apk.md](apk.md): gerar, instalar e atualizar o APK; guardar a chave de assinatura.
+- [adr-001-query-builder.md](adr-001-query-builder.md): por que a API usa o Kysely.

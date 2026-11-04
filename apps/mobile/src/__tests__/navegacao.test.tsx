@@ -7,6 +7,13 @@ import Extrato from '../app/(abas)/extrato';
 import Inicio from '../app/(abas)/index';
 import Mais from '../app/(abas)/mais';
 import Resumo from '../app/(abas)/resumo';
+import TelaEntrar from '../app/entrar';
+
+// O dono já entrou neste aparelho: as abas ficam acessíveis.
+jest.mock('../sessao/servico-padrao', () => {
+  const apoio = jest.requireActual('../testes/apoio/sessao-falsa');
+  return { servicoDeSessao: apoio.criarSessaoFalsa(apoio.SESSAO_DO_DONO).servico };
+});
 
 const rotas = {
   _layout: LayoutRaiz,
@@ -15,6 +22,7 @@ const rotas = {
   '(abas)/extrato': Extrato,
   '(abas)/resumo': Resumo,
   '(abas)/mais': Mais,
+  entrar: TelaEntrar,
 };
 
 const itensDaBarra = ['Início', 'Extrato', 'Resumo', 'Mais'];

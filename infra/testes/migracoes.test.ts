@@ -1,23 +1,31 @@
-import { readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { PGlite } from '@electric-sql/pglite';
-import { describe, expect, it } from 'vitest';
+import type { PGlite } from '@electric-sql/pglite';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { criarBancoMigrado, migracoesEmOrdem } from './banco-de-teste';
 
-const pastaMigracoes = join(__dirname, '..', 'supabase', 'migrations');
+const TABELAS_ESPERADAS = {
+  identidade: ['dispositivo', 'organizacao', 'unidade', 'usuario', 'usuario_unidade'],
+  financas: [
+    'categoria',
+    'forma_pagamento',
+    'lancamento',
+    'lancamento_historico',
+    'preferencia_usuario',
+    'tipo_servico',
+    'tipo_veiculo',
+  ],
+};
 
-/** Arquivos de migração na ordem em que o Supabase os aplica (pelo prefixo de data e hora). */
-function migracoesEmOrdem(): string[] {
-  return readdirSync(pastaMigracoes)
-    .filter((arquivo) => arquivo.endsWith('.sql'))
-    .sort();
-}
-
-/**
- * CA-01.2.2: as migrações de `infra/supabase/migrations`, aplicadas em ordem num Postgres
- * vazio, criam a estrutura sem passo manual. Usa um Postgres em memória (PGlite) para rodar
- * no CI sem Docker; a validação contra o Supabase de verdade é feita com `pnpm db:resetar`.
- */
 describe('migrações do banco', () => {
+  let banco: PGlite;
+
+  beforeAll(async () => {
+    banco = await criarBancoMigrado();
+  });
+
+  afterAll(async () => {
+    await banco.close();
+  });
+
   it('seguem o padrão de nome <AAAAMMDDHHMMSS>_<descricao>.sql', () => {
     const arquivos = migracoesEmOrdem();
     expect(arquivos.length).toBeGreaterThan(0);
@@ -26,19 +34,16 @@ describe('migrações do banco', () => {
     }
   });
 
-  it('aplicam em ordem num Postgres vazio e criam os schemas identidade e financas', async () => {
-    const banco = new PGlite();
-    try {
-      for (const arquivo of migracoesEmOrdem()) {
-        await banco.exec(readFileSync(join(pastaMigracoes, arquivo), 'utf8'));
-      }
-
-      const { rows } = await banco.query<{ nspname: string }>(
-        "select nspname from pg_namespace where nspname in ('identidade', 'financas') order by nspname",
-      );
-      expect(rows.map((linha) => linha.nspname)).toEqual(['financas', 'identidade']);
-    } finally {
-      await banco.close();
-    }
+  // CA-01.2.2 e CA-01.3.1
+  it('aplicam em ordem num Postgres vazio e criam os schemas com todas as tabelas', async () => {
+    const { rows } = await banco.query<{ schema: string; tabela: string }>(
+      `select table_schema as schema, table_name as tabela
+         from information_schema.tables
+        where table_schema in ('identidade', 'financas') and table_type = 'BASE TABLE'
+        order by 1, 2`,
+    );
+    const porSchema = { identidade: [] as string[], financas: [] as string[] };
+    for (const { schema, tabela } of rows) porSchema[schema as keyof typeof porSchema].push(tabela);
+    expect(porSchema).toEqual(TABELAS_ESPERADAS);
   });
 });

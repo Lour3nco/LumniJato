@@ -15,6 +15,9 @@ ios/
 *.aab
 *.jks
 *.keystore
+# Credenciais de assinatura baixadas do EAS (docs/dev/apk.md): guardar FORA do repositório
+credentials.json
+credentials/
 
 # Variáveis de ambiente (NUNCA versionar chaves): só o .env.example vai para o git
 .env
