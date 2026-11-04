@@ -121,12 +121,36 @@ Estas etapas usam a **conta do dono** e só ele faz. Ninguém do time cria conta
 8. **Senha mínima de 8 caracteres** (RNF-21, CA-01.7.5): em **Authentication → Sign In /
    Providers → Email**, ponha **Minimum password length = 8** e salve. (No local já vem do
    `config.toml`.)
-9. **Criar a conta do dono** (não há tela de cadastro, ST-07): em **Authentication → Users →
+9. **API pública fechada — não exponha os schemas** (FIN-US-01.4): em **Project Settings →
+   Data API → Exposed schemas**, deixe só os que já vêm (`public`, `graphql_public`). **Não
+   acrescente `identidade` nem `financas`.** As migrações já ligam a RLS sem nenhuma política e
+   tiram todo privilégio de `anon` e `authenticated` nesses schemas; não expor é a camada a mais.
+10. **Chaves de assinatura do login (JWT)**: em **Project Settings → JWT Keys**, confira que o
+   projeto usa as **chaves assimétricas** ("JWT Signing Keys", padrão dos projetos novos). A API
+   valida o token pelas chaves públicas do projeto (`<URL>/auth/v1/.well-known/jwks.json`).
+   Se aparecer só o "Legacy JWT secret", clique para migrar para as chaves novas.
+11. **Senhas dos papéis da API e da replicação** (criados SEM senha pela migração de acesso).
+   No **SQL Editor**, troque o texto entre aspas por uma senha forte gerada no gerenciador de
+   senhas (uma diferente para cada) e rode — **não salve esse SQL em lugar nenhum**:
+
+   ```sql
+   alter role api_lavajato with password 'COLE-AQUI-UMA-SENHA-FORTE';
+   alter role powersync_replicacao with password 'COLE-AQUI-OUTRA-SENHA-FORTE'; -- só se usar o PowerSync
+   ```
+
+12. **Criar a conta do dono** (não há tela de cadastro, ST-07): em **Authentication → Users →
    Add user → Create new user**, informe o e-mail e uma senha de 8+ caracteres e marque
-   **Auto Confirm User**. Os dados iniciais (organização, unidades, vínculo) entram na FIN-US-01.6.
-10. **Não compartilhe a senha do banco** em chat, e-mail ou mensagem. Ela só é digitada por você,
-   quando o `pnpm supabase link` pedir. Se ela já foi mostrada a alguém, troque em
-   **Project Settings → Database → Reset database password**.
+   **Auto Confirm User**. Copie o **User UID** que aparece na lista.
+13. **Implantação: organização, unidades e vínculo do dono + cadastros iniciais** (FIN-US-01.6,
+   F-08). Copie `infra/implantacao/implantacao.exemplo.sql` para
+   `infra/implantacao/implantacao.local.sql` (este nome não vai para o git), troque os valores
+   fictícios pelos reais — **nome do lava-jato, nomes das unidades, User UID, nome e e-mail do
+   dono** — e rode o conteúdo no SQL Editor. Pode rodar de novo sem duplicar nada; unidade nova
+   na lista é acrescentada. Isso também carrega categorias, tipos de serviço, tipos de veículo e
+   formas de pagamento.
+14. **Não compartilhe senhas** do banco, dos papéis ou do dono em chat, e-mail ou mensagem. Se
+   alguma foi mostrada a alguém, troque na hora (senha do banco: **Project Settings → Database →
+   Reset database password**; papéis: rode de novo o passo 11).
 
 ### Onde colocar as chaves
 
@@ -142,8 +166,8 @@ Preencha `apps/api/.env`:
 | Variável | Onde achar no painel do Supabase | Quando passa a ser usada |
 |---|---|---|
 | `PORTA` | não vem do Supabase; deixe `3000` | já |
-| `SUPABASE_URL` | **Project Settings → API → Project URL** | FIN-US-01.13 (login) |
-| `DATABASE_URL` | **Connect → Connection string**, com o usuário próprio da API `api_lavajato` (criado na FIN-US-01.4). A API **recusa** o usuário `postgres` fora do Supabase local | FIN-US-01.12 |
+| `SUPABASE_URL` | **Project Settings → API → Project URL** | obrigatória: a API não sobe sem ela (valida o login, FIN-US-01.13) |
+| `DATABASE_URL` | **Connect → Session pooler** (o endereço direto do plano gratuito pode exigir IPv6). Troque o usuário por `api_lavajato.<project-ref>` e use a senha do passo 11: `postgresql://api_lavajato.<project-ref>:<senha>@<host-do-pooler>:5432/postgres`. Fora do computador local a API **só aceita** o usuário `api_lavajato` | obrigatória |
 
 Para o app de celular, copie também `apps/mobile/.env.example` para `apps/mobile/.env`:
 
@@ -166,3 +190,5 @@ Regras:
 
 - [apk.md](apk.md): gerar, instalar e atualizar o APK; guardar a chave de assinatura.
 - [adr-001-query-builder.md](adr-001-query-builder.md): por que a API usa o Kysely.
+- [adr-002-sincronizacao.md](adr-002-sincronizacao.md): PowerSync × sincronização própria (rascunho).
+- [../../infra/powersync/prova-de-conceito.md](../../infra/powersync/prova-de-conceito.md): roteiro da prova do PowerSync.

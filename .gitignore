@@ -24,6 +24,9 @@ credentials/
 .env.*
 !.env.example
 
+# Dados reais da implantação do dono (só o modelo fictício vai para o git)
+infra/implantacao/*.local.sql
+
 # Supabase CLI (arquivos locais)
 infra/supabase/.branches/
 infra/supabase/.temp/
@@ -33,3 +36,6 @@ infra/supabase/.temp/
 Thumbs.db
 npm-debug.log*
 pnpm-debug.log*
+
+# Certificado CA do Supabase baixado pelo dono (público, mas local)
+*.crt

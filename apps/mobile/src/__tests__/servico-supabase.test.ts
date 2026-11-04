@@ -15,6 +15,9 @@ function armazenamentoEmMemoria(): Armazenamento & { dados: Map<string, string> 
     setItem: async (chave, valor) => {
       dados.set(chave, valor);
     },
+    removeItem: async (chave) => {
+      dados.delete(chave);
+    },
   };
 }
 
@@ -26,6 +29,7 @@ function clienteFalso(sobrescrever: Partial<ClienteDeAutenticacao> = {}): Client
     })),
     getSession: jest.fn(async () => ({ data: { session: null } })),
     refreshSession: jest.fn(async () => ({ data: { session: { access_token: 'token-novo' } } })),
+    signOut: jest.fn(async () => ({ error: null })),
     ...sobrescrever,
   };
 }
@@ -123,5 +127,18 @@ describe('serviço de sessão com Supabase Auth (FIN-US-01.7)', () => {
     await servico.entrar('dono@exemplo.com', 'x');
     expect(await servico.obterTokenDeAcesso()).toBeNull();
     expect(await servico.carregar()).not.toBeNull();
+  });
+
+  it('sair apaga a sessão local mesmo sem internet', async () => {
+    const armazenamento = armazenamentoEmMemoria();
+    const cliente = clienteFalso({
+      signOut: async () => {
+        throw new TypeError('Network request failed');
+      },
+    });
+    const servico = criarServicoSupabase({ obterCliente: () => cliente, armazenamento });
+    await servico.entrar('dono@exemplo.com', 'x');
+    await servico.sair();
+    expect(await servico.carregar()).toBeNull();
   });
 });

@@ -1,13 +1,8 @@
 import { act, fireEvent, screen } from '@testing-library/react-native';
 import { renderRouter } from 'expo-router/testing-library';
 
-import LayoutAbas from '../app/(abas)/_layout';
-import Extrato from '../app/(abas)/extrato';
-import Inicio from '../app/(abas)/index';
-import Mais from '../app/(abas)/mais';
-import Resumo from '../app/(abas)/resumo';
-import LayoutRaiz from '../app/_layout';
-import TelaEntrar from '../app/entrar';
+import { ROTAS_DO_APP } from '../testes/apoio/rotas';
+
 import { MENSAGENS_AO_ENTRAR } from '../sessao/servico-de-sessao';
 import { SESSAO_DO_DONO, criarSessaoFalsa } from '../testes/apoio/sessao-falsa';
 
@@ -19,15 +14,7 @@ jest.mock('../sessao/servico-padrao', () => ({
   },
 }));
 
-const rotas = {
-  _layout: LayoutRaiz,
-  entrar: TelaEntrar,
-  '(abas)/_layout': LayoutAbas,
-  '(abas)/index': Inicio,
-  '(abas)/extrato': Extrato,
-  '(abas)/resumo': Resumo,
-  '(abas)/mais': Mais,
-};
+const rotas = ROTAS_DO_APP;
 
 async function preencherEEntrar(email: string, senha: string): Promise<void> {
   await fireEvent.changeText(await screen.findByLabelText('E-mail'), email);

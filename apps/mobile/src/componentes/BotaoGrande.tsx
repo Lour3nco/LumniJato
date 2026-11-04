@@ -15,6 +15,8 @@ type Props = {
   desabilitado?: boolean;
   /** Dica extra do leitor de tela, ex.: "Abre o formulário de nova saída". */
   dica?: string;
+  /** Altura mínima em dp; padrão 64. Os botões de lançamento da Início usam ~72 (CA-02.11.1). */
+  alturaMinima?: number;
 };
 
 const fundoPorVariante: Record<VarianteBotao, string> = {
@@ -37,6 +39,7 @@ export function BotaoGrande({
   icone,
   desabilitado = false,
   dica,
+  alturaMinima = medidas.botaoGrande,
 }: Props) {
   const corDoTexto = variante === 'neutro' ? cores.texto : cores.textoSobreCor;
   return (
@@ -49,7 +52,7 @@ export function BotaoGrande({
       onPress={aoTocar}
       style={({ pressed }) => [
         estilos.botao,
-        { backgroundColor: fundoPorVariante[variante] },
+        { backgroundColor: fundoPorVariante[variante], minHeight: alturaMinima },
         desabilitado && estilos.desabilitado,
         pressed && estilos.pressionado,
       ]}>

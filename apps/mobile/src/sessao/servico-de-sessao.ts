@@ -32,6 +32,12 @@ export interface ServicoDeSessao {
    * sessão na nuvem, devolve `null` (quem chama trata como "sem internet").
    */
   obterTokenDeAcesso(): Promise<string | null>;
+  /**
+   * Sai da conta neste aparelho: apaga a sessão local e encerra a sessão na nuvem se houver
+   * internet. A conferência de lançamentos pendentes e a limpeza do banco local são a
+   * FIN-US-09.1.
+   */
+  sair(): Promise<void>;
 }
 
 /** Mensagens em linguagem simples (02-design §5.1 e §5.6). */

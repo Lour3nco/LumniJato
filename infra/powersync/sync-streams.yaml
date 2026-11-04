@@ -1,0 +1,80 @@
+# Regras do que DESCE do Postgres para cada aparelho (03-arquitetura §2.2 e §3.5).
+# FIN-US-07.10 · RASCUNHO para a prova de conceito — a sintaxe é conferida no painel do
+# PowerSync (validação do "Sync Config") quando a conta existir. Pontos [A CONFERIR] abaixo.
+#
+# Formato: Sync Streams (edição 3). As "Sync Rules" antigas estão em descontinuação e não
+# aceitam JOIN, que é necessário aqui (histórico e cadastros não têm unidade_id/usuario_id).
+# Fonte: https://docs.powersync.com/sync/streams/queries.md (consultado em 04/11/2026).
+#
+# Tudo é filtrado pelo usuário do token (auth.user_id() = claim "sub" do JWT do Supabase Auth)
+# e pelos vínculos ATIVOS em identidade.usuario_unidade. Ninguém recebe dado de unidade em que
+# não tem vínculo (RNF-19, CA-07.1.2).
+#
+# [A CONFERIR] Tabelas fora do schema public: a documentação pede o schema entre aspas
+# ("financas"."lancamento"). O nome da tabela no aparelho deve ficar só "lancamento" (por
+# analogia com a documentação de schemas; conferir no Sync Diagnostics).
+# [A CONFERIR] Comparação de boolean (`ativo = true`): o PowerSync converte boolean em 1/0;
+# pode ser preciso escrever `ativo = 1`.
+
+config:
+  edition: 3
+
+streams:
+  # O próprio usuário: perfil, preferência Pessoal/Empresa (FIN-US-08.2), aparelhos e vínculos.
+  meu_perfil:
+    auto_subscribe: true
+    queries:
+      - SELECT * FROM "identidade"."usuario" WHERE id = auth.user_id()
+      # A tabela não tem coluna "id": o PowerSync exige uma [A CONFERIR o alias].
+      - SELECT usuario_id AS id, * FROM "financas"."preferencia_usuario" WHERE usuario_id = auth.user_id()
+      - SELECT * FROM "identidade"."dispositivo" WHERE usuario_id = auth.user_id()
+      - SELECT * FROM "identidade"."usuario_unidade" WHERE usuario_id = auth.user_id() AND ativo = true
+
+  # Unidades com vínculo ativo e os lançamentos delas (inclusive excluídos: a Lixeira é local).
+  minhas_unidades:
+    auto_subscribe: true
+    queries:
+      - |
+        SELECT * FROM "identidade"."unidade"
+        WHERE id IN (SELECT unidade_id FROM "identidade"."usuario_unidade"
+                     WHERE usuario_id = auth.user_id() AND ativo = true)
+      - |
+        SELECT * FROM "financas"."lancamento"
+        WHERE unidade_id IN (SELECT unidade_id FROM "identidade"."usuario_unidade"
+                             WHERE usuario_id = auth.user_id() AND ativo = true)
+      # Histórico só leitura no aparelho (F-09, FIN-US-06.4): pela unidade do lançamento.
+      - |
+        SELECT lancamento_historico.* FROM "financas"."lancamento_historico" AS lancamento_historico
+          INNER JOIN "financas"."lancamento" AS lancamento ON lancamento_historico.lancamento_id = lancamento.id
+          INNER JOIN "identidade"."usuario_unidade" AS usuario_unidade ON lancamento.unidade_id = usuario_unidade.unidade_id
+        WHERE usuario_unidade.usuario_id = auth.user_id() AND usuario_unidade.ativo = true
+
+  # Cadastros comuns da organização (S-03): de qualquer unidade em que o usuário tem vínculo.
+  cadastros_da_organizacao:
+    auto_subscribe: true
+    queries:
+      - |
+        SELECT organizacao.* FROM "identidade"."organizacao" AS organizacao
+          INNER JOIN "identidade"."unidade" AS unidade ON unidade.organizacao_id = organizacao.id
+          INNER JOIN "identidade"."usuario_unidade" AS usuario_unidade ON usuario_unidade.unidade_id = unidade.id
+        WHERE usuario_unidade.usuario_id = auth.user_id() AND usuario_unidade.ativo = true
+      - |
+        SELECT categoria.* FROM "financas"."categoria" AS categoria
+          INNER JOIN "identidade"."unidade" AS unidade ON unidade.organizacao_id = categoria.organizacao_id
+          INNER JOIN "identidade"."usuario_unidade" AS usuario_unidade ON usuario_unidade.unidade_id = unidade.id
+        WHERE usuario_unidade.usuario_id = auth.user_id() AND usuario_unidade.ativo = true
+      - |
+        SELECT tipo_servico.* FROM "financas"."tipo_servico" AS tipo_servico
+          INNER JOIN "identidade"."unidade" AS unidade ON unidade.organizacao_id = tipo_servico.organizacao_id
+          INNER JOIN "identidade"."usuario_unidade" AS usuario_unidade ON usuario_unidade.unidade_id = unidade.id
+        WHERE usuario_unidade.usuario_id = auth.user_id() AND usuario_unidade.ativo = true
+      - |
+        SELECT tipo_veiculo.* FROM "financas"."tipo_veiculo" AS tipo_veiculo
+          INNER JOIN "identidade"."unidade" AS unidade ON unidade.organizacao_id = tipo_veiculo.organizacao_id
+          INNER JOIN "identidade"."usuario_unidade" AS usuario_unidade ON usuario_unidade.unidade_id = unidade.id
+        WHERE usuario_unidade.usuario_id = auth.user_id() AND usuario_unidade.ativo = true
+      - |
+        SELECT forma_pagamento.* FROM "financas"."forma_pagamento" AS forma_pagamento
+          INNER JOIN "identidade"."unidade" AS unidade ON unidade.organizacao_id = forma_pagamento.organizacao_id
+          INNER JOIN "identidade"."usuario_unidade" AS usuario_unidade ON usuario_unidade.unidade_id = unidade.id
+        WHERE usuario_unidade.usuario_id = auth.user_id() AND usuario_unidade.ativo = true

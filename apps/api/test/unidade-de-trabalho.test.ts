@@ -87,6 +87,37 @@ describe('unidade de trabalho (Postgres)', () => {
     expect(recebidos).toEqual([]);
   });
 
+  // Preparação da FIN-US-01.5: histórico gravado "na transação"
+  it('manipulador na transação grava junto, antes do commit', async () => {
+    barramento.assinarNaTransacao('teste.algo_aconteceu', async () => {
+      await gravar(99, 'gravado pelo manipulador');
+    });
+    await uow.executar(async () => {
+      await gravar(1, 'x');
+      uow.registrarEventos([new AlgoAconteceu()]);
+    });
+    expect(await quantos()).toBe(2);
+  });
+
+  it('se o manipulador na transação falha, nada fica gravado e nada é despachado', async () => {
+    barramento.assinarNaTransacao('teste.algo_aconteceu', async () => {
+      throw new Error('falhou ao gravar o histórico');
+    });
+    await expect(
+      uow.executar(async () => {
+        await gravar(1, 'x');
+        uow.registrarEventos([new AlgoAconteceu()]);
+      }),
+    ).rejects.toThrow('falhou ao gravar o histórico');
+    expect(await quantos()).toBe(0);
+    expect(recebidos).toEqual([]);
+  });
+
+  it('bigint do banco volta como número seguro (centavos)', async () => {
+    const { rows } = await sql<{ valor: number }>`select 123456789012::bigint as valor`.execute(uow.banco());
+    expect(rows[0].valor).toBe(123456789012);
+  });
+
   it('uma unidade de trabalho dentro de outra participa da mesma transação', async () => {
     await expect(
       uow.executar(async () => {

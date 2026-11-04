@@ -9,6 +9,7 @@ type ValorDoContexto = {
   sessao: SessaoLocal | null;
   entrar: (email: string, senha: string) => Promise<ResultadoAoEntrar>;
   obterTokenDeAcesso: () => Promise<string | null>;
+  sair: () => Promise<void>;
 };
 
 const ContextoDaSessao = createContext<ValorDoContexto | null>(null);
@@ -42,14 +43,20 @@ export function ProvedorDeSessao({ servico, children }: { servico: ServicoDeSess
     [servico],
   );
 
+  const sair = useCallback(async () => {
+    await servico.sair();
+    setSessao(null);
+  }, [servico]);
+
   const valor = useMemo<ValorDoContexto>(
     () => ({
       estado: carregando ? 'carregando' : sessao ? 'conectado' : 'sem-sessao',
       sessao,
       entrar,
       obterTokenDeAcesso: () => servico.obterTokenDeAcesso(),
+      sair,
     }),
-    [carregando, sessao, entrar, servico],
+    [carregando, sessao, entrar, sair, servico],
   );
 
   return <ContextoDaSessao.Provider value={valor}>{children}</ContextoDaSessao.Provider>;

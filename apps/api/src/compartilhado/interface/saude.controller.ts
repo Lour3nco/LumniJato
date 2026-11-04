@@ -1,6 +1,7 @@
 import { Controller, Get, Inject } from '@nestjs/common';
 import { sql } from 'kysely';
 import { CONEXAO_BANCO, type ConexaoBanco } from '../infraestrutura/banco/conexao';
+import { RotaPublica } from './rota-publica';
 
 export interface EstadoDeSaude {
   status: 'ok';
@@ -11,6 +12,7 @@ export interface EstadoDeSaude {
  * Rota de saúde, sem token (CA-01.12.1): a hospedagem usa para saber se a API está de pé.
  * Responde 200 mesmo com o banco fora, informando o estado da conexão [nome da rota: SUPOSIÇÃO].
  */
+@RotaPublica()
 @Controller('saude')
 export class SaudeController {
   constructor(@Inject(CONEXAO_BANCO) private readonly conexao: ConexaoBanco) {}

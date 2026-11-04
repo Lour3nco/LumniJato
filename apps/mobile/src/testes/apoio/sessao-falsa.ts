@@ -21,6 +21,9 @@ export function criarSessaoFalsa(inicial: SessaoLocal | null = null) {
       return estado.proximoResultado;
     },
     obterTokenDeAcesso: async () => null,
+    sair: async () => {
+      estado.guardada = null;
+    },
   };
   return { servico, estado };
 }

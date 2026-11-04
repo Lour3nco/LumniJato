@@ -21,6 +21,13 @@ export class ErroDeDominio extends ErroEsperado {
   }
 }
 
+/** Sem token, token vencido ou com assinatura inválida (401, CA-01.13.1). */
+export class ErroDeAutenticacao extends ErroEsperado {
+  constructor(codigo = 'nao_autenticado', mensagem = 'Sua sessão expirou. Entre de novo.') {
+    super(codigo, mensagem);
+  }
+}
+
 /** O usuário não tem papel para a ação naquela unidade (§3.5). */
 export class ErroDeAutorizacao extends ErroEsperado {
   constructor(codigo = 'sem_permissao', mensagem = 'Você não tem permissão para fazer isso.') {

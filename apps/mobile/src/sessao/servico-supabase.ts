@@ -14,12 +14,14 @@ export interface ClienteDeAutenticacao {
   }>;
   getSession(): Promise<{ data: { session: { access_token: string; expires_at?: number } | null } }>;
   refreshSession(): Promise<{ data: { session: { access_token: string } | null } }>;
+  signOut(opcoes: { scope: 'local' }): Promise<unknown>;
 }
 
 /** Armazenamento chave → texto (AsyncStorage no app, memória nos testes). */
 export interface Armazenamento {
   getItem(chave: string): Promise<string | null>;
   setItem(chave: string, valor: string): Promise<void>;
+  removeItem(chave: string): Promise<void>;
 }
 
 export const CHAVE_SESSAO_LOCAL = 'lavajato.sessao-local';
@@ -92,6 +94,16 @@ export function criarServicoSupabase({ obterCliente, armazenamento, agora = Date
         return renovada.data.session?.access_token ?? null;
       } catch {
         return null;
+      }
+    },
+
+    async sair() {
+      await armazenamento.removeItem(CHAVE_SESSAO_LOCAL);
+      try {
+        // "local": encerra só neste aparelho, sem precisar de internet.
+        await obterCliente()?.signOut({ scope: 'local' });
+      } catch {
+        // Sem internet ou sem cliente: a sessão local já foi apagada.
       }
     },
   };

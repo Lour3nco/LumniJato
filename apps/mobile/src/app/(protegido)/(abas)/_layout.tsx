@@ -1,8 +1,8 @@
 import { Tabs } from 'expo-router';
 import type { ColorValue } from 'react-native';
 
-import { Icone } from '../../componentes';
-import { cores } from '../../tema';
+import { Icone } from '../../../componentes';
+import { cores } from '../../../tema';
 
 /** Ícone da barra: decorativo, o rótulo do item é o que o leitor de tela lê. */
 function iconeDaAba(nome: string) {

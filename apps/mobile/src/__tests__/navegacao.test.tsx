@@ -1,13 +1,8 @@
 import { act, fireEvent, screen } from '@testing-library/react-native';
 import { renderRouter } from 'expo-router/testing-library';
 
-import LayoutRaiz from '../app/_layout';
-import LayoutAbas from '../app/(abas)/_layout';
-import Extrato from '../app/(abas)/extrato';
-import Inicio from '../app/(abas)/index';
-import Mais from '../app/(abas)/mais';
-import Resumo from '../app/(abas)/resumo';
-import TelaEntrar from '../app/entrar';
+import { ROTAS_DO_APP } from '../testes/apoio/rotas';
+
 
 // O dono já entrou neste aparelho: as abas ficam acessíveis.
 jest.mock('../sessao/servico-padrao', () => {
@@ -15,15 +10,7 @@ jest.mock('../sessao/servico-padrao', () => {
   return { servicoDeSessao: apoio.criarSessaoFalsa(apoio.SESSAO_DO_DONO).servico };
 });
 
-const rotas = {
-  _layout: LayoutRaiz,
-  '(abas)/_layout': LayoutAbas,
-  '(abas)/index': Inicio,
-  '(abas)/extrato': Extrato,
-  '(abas)/resumo': Resumo,
-  '(abas)/mais': Mais,
-  entrar: TelaEntrar,
-};
+const rotas = ROTAS_DO_APP;
 
 const itensDaBarra = ['Início', 'Extrato', 'Resumo', 'Mais'];
 
@@ -72,18 +59,18 @@ describe('navegação pela barra inferior (FIN-US-01.1)', () => {
 
   // CA-01.1.2
   it.each([
-    ['/', 'Extrato', 'TELA-05', '/extrato'],
-    ['/extrato', 'Resumo', 'TELA-06', '/resumo'],
-    ['/resumo', 'Mais', 'TELA-09', '/mais'],
-    ['/mais', 'Início', 'TELA-01', '/'],
-  ])('de %s, tocar em %s abre a %s e marca o item', async (inicial, item, idTela, caminho) => {
+    ['/', 'Extrato', 'TELA-05', '/extrato', /TELA-05/],
+    ['/extrato', 'Resumo', 'TELA-06', '/resumo', /TELA-06/],
+    ['/resumo', 'Mais', 'TELA-09', '/mais', /^Categorias$/],
+    ['/mais', 'Início', 'TELA-01', '/', /TELA-01/],
+  ])('de %s, tocar em %s abre a %s e marca o item', async (inicial, item, _idTela, caminho, conteudo) => {
     await renderRouter(rotas, { initialUrl: inicial });
 
     await tocar(item);
 
     expect(screen).toHavePathname(caminho);
     expect(screen.getByRole('header', { name: item })).toBeOnTheScreen();
-    expect(screen.getByText(`${idTela} · em construção`)).toBeOnTheScreen();
+    expect(screen.getByText(conteudo)).toBeOnTheScreen();
     expect(itensMarcados()).toEqual([item]);
   });
 

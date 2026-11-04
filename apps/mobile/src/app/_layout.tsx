@@ -5,7 +5,8 @@ import { ProvedorDeSessao, useSessao } from '../sessao/ProvedorDeSessao';
 import { servicoDeSessao } from '../sessao/servico-padrao';
 
 /**
- * Sem sessão local, só a TELA-13 (Entrar) fica acessível; com sessão, as abas. Não há tela de
+ * Sem sessão local, só a TELA-13 (Entrar) fica acessível; com sessão, o grupo (protegido) —
+ * abas, lançamentos e ajustes. Toda tela nova vai DENTRO desse grupo. Não há tela de
  * criar conta (ST-07).
  */
 function Navegacao() {
@@ -16,7 +17,7 @@ function Navegacao() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={conectado}>
-        <Stack.Screen name="(abas)" />
+        <Stack.Screen name="(protegido)" />
       </Stack.Protected>
       <Stack.Protected guard={!conectado}>
         <Stack.Screen name="entrar" />

@@ -36,9 +36,17 @@ export class UnidadeDeTrabalhoPostgres extends UnidadeDeTrabalho {
       return trabalho();
     }
     const eventos: EventoDeDominio[] = [];
-    const resultado = await this.conexao
-      .transaction()
-      .execute((transacao) => this.contexto.run({ transacao, eventos }, trabalho));
+    const resultado = await this.conexao.transaction().execute((transacao) =>
+      this.contexto.run({ transacao, eventos }, async () => {
+        const valor = await trabalho();
+        // Manipuladores "na transação" (ex.: histórico, FIN-US-01.5): mesma conexão, antes do
+        // commit. Um evento registrado por eles também é tratado (o laço pega os novos).
+        for (let i = 0; i < eventos.length; i += 1) {
+          await this.barramento.publicarNaTransacao([eventos[i]]);
+        }
+        return valor;
+      }),
+    );
     // Só depois do commit (§9.4).
     if (eventos.length > 0) await this.barramento.publicar(eventos);
     return resultado;

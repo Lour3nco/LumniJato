@@ -1,5 +1,6 @@
 import { type ArgumentsHost, Catch, type ExceptionFilter, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import {
+  ErroDeAutenticacao,
   ErroDeAutorizacao,
   ErroDeConflito,
   ErroDeDominio,
@@ -23,6 +24,7 @@ const STATUS_VALIDACAO = HttpStatus.BAD_REQUEST;
 
 function statusDo(erro: ErroEsperado): number {
   if (erro instanceof ErroDeValidacao) return STATUS_VALIDACAO;
+  if (erro instanceof ErroDeAutenticacao) return HttpStatus.UNAUTHORIZED;
   if (erro instanceof ErroDeAutorizacao) return HttpStatus.FORBIDDEN;
   if (erro instanceof ErroDeConflito) return HttpStatus.CONFLICT;
   if (erro instanceof ErroDeDominio) return HttpStatus.UNPROCESSABLE_ENTITY;
@@ -30,7 +32,7 @@ function statusDo(erro: ErroEsperado): number {
 }
 
 /**
- * Traduz erros em respostas HTTP (CA-01.12.3): domínio 422, autorização 403, conflito 409,
+ * Traduz erros em respostas HTTP (CA-01.12.3): domínio 422, autenticação 401, autorização 403, conflito 409,
  * validação 400, sempre com `codigo` e `mensagem` simples. Erro inesperado vira 500 com
  * mensagem genérica: o rastreio de pilha e o SQL só vão para o log do servidor, nunca para
  * a resposta.
@@ -46,7 +48,12 @@ export class FiltroDeErros implements ExceptionFilter {
   }
 
   traduzir(erro: unknown): { status: number; corpo: CorpoDeErro } {
-    if (erro instanceof ErroDeDominio || erro instanceof ErroDeAutorizacao || erro instanceof ErroDeConflito) {
+    if (
+      erro instanceof ErroDeDominio ||
+      erro instanceof ErroDeAutenticacao ||
+      erro instanceof ErroDeAutorizacao ||
+      erro instanceof ErroDeConflito
+    ) {
       return { status: statusDo(erro), corpo: { codigo: erro.codigo, mensagem: erro.message } };
     }
     if (erro instanceof ErroDeValidacao) {

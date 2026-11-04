@@ -11,7 +11,11 @@ import { criarConexaoDeTeste } from './apoio/conexao-pglite';
 async function subirApi(conexao: ConexaoBanco): Promise<INestApplication> {
   const modulo = await Test.createTestingModule({ imports: [AppModule] })
     .overrideProvider(CONFIGURACAO)
-    .useValue({ PORTA: 3000, DATABASE_URL: 'postgresql://teste@localhost/teste' })
+    .useValue({
+      PORTA: 3000,
+      DATABASE_URL: 'postgresql://teste@localhost/teste',
+      SUPABASE_URL: 'https://projeto-de-teste.supabase.co',
+    })
     .overrideProvider(CONEXAO_BANCO)
     .useValue(conexao)
     .compile();

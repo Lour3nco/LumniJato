@@ -7,7 +7,7 @@ celular do dono, **sem Google Play** (F-04).
 
 | Peça | Onde | O que faz |
 |---|---|---|
-| `apps/mobile/app.config.ts` | `ID_PACOTE_ANDROID` no topo | **Único lugar** do id do pacote Android (hoje `br.com.lavajato.app`, ainda **não confirmado** pelo dono) |
+| `apps/mobile/app.config.ts` | `ID_PACOTE_ANDROID` no topo | **Único lugar** do id do pacote Android: `br.com.lavajato.app`, **confirmado pelo dono** (visão §9d, ST-09) e **congelado** a partir do primeiro APK |
 | `apps/mobile/eas.json` | perfil `teste` | APK da equipe: id `…app.teste`, nome "Lavajato (teste)", canal de atualização `teste` |
 | `apps/mobile/eas.json` | perfil `dono` | APK do dono: canal `dono`, número de versão (`versionCode`) sobe sozinho a cada APK |
 | EAS Update | `updates` e `runtimeVersion` no `app.config.ts` | Correções só de telas/JavaScript chegam pelo app ao abrir com internet |
@@ -18,9 +18,8 @@ O APK de teste tem id diferente: pode ficar no mesmo celular que o app do dono, 
 
 Estes passos usam a **conta do dono**. Ninguém da equipe cria a conta por ele.
 
-1. **Confirmar o id do pacote.** Depois do primeiro APK instalado ele não muda mais (um id
-   diferente vira outro app, sem os dados). Para trocar: editar só `ID_PACOTE_ANDROID` em
-   `apps/mobile/app.config.ts`.
+1. **Id do pacote: já confirmado** (`br.com.lavajato.app`, visão §9d, ST-09). Depois do
+   primeiro APK instalado ele **não muda mais**: um id diferente vira outro app, sem os dados.
 2. **Criar a conta Expo** (gratuita) em <https://expo.dev/signup>.
 3. No terminal, em `apps/mobile`:
 
@@ -64,7 +63,7 @@ Em `apps/mobile`:
 
 ```bash
 pnpm dlx eas-cli build -p android --profile teste   # APK de teste da equipe
-pnpm dlx eas-cli build -p android --profile dono    # APK do dono (só depois de confirmar o id)
+pnpm dlx eas-cli build -p android --profile dono    # APK do dono
 ```
 
 No fim, o EAS mostra um link e um QR code para baixar o `.apk`.

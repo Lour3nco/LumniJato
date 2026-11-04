@@ -3,10 +3,9 @@ import type { ConfigContext, ExpoConfig } from 'expo/config';
 /**
  * Configuração do app (substitui o app.json). FIN-US-09.6.
  *
- * ID DO PACOTE ANDROID — ÚNICO LUGAR PARA TROCAR.
- * [SUPOSIÇÃO, ainda não confirmado pelo dono.] Depois que o primeiro APK for instalado no
- * celular do dono, este id não pode mais mudar: um APK com outro id vira OUTRO app (sem os
- * dados do anterior). Confirme antes de gerar o APK definitivo.
+ * ID DO PACOTE ANDROID — único lugar onde ele aparece.
+ * [CONFIRMADO pelo dono — visão §9d, ST-09.] CONGELADO a partir do primeiro APK instalado no
+ * celular do dono: um APK com outro id vira OUTRO app (sem os dados do anterior). Não mudar.
  */
 export const ID_PACOTE_ANDROID = 'br.com.lavajato.app';
 
