@@ -1,7 +1,7 @@
 # Módulo 1 — Gestão de Finanças · Roadmap de entrega
 
 Projeto: Lavajato Sistema
-Documento: 06-roadmap.md · Autor: Agente de Roadmap (pedido do Orquestrador, Etapa 5) · Versão: 7 · Status: **rascunho para revisão** (v2: E2-04 decidida, opção a · v3: decisões F-06, F-12, F-13 e F-15; FIN-US-07.7 vai para a v1.1 · v4: decisões F-02 a F-10; MVP completo, só Android, APK direto, histórico e lixeira no MVP · v5: só plano gratuito e lista de serviços · v6: D-QA-04 resolvida · v7: **nova stack** — back-end NestJS com DDD, Clean Architecture e monólito modular, sincronização passando pelo NestJS, prova de conceito do PowerSync no M1, painel web Next.js de consulta como fase pós-MVP; totais do backlog v8)
+Documento: 06-roadmap.md · Autor: Agente de Roadmap (pedido do Orquestrador, Etapa 5) · Versão: 8 · Status: **rascunho para revisão** (v2: E2-04 decidida, opção a · v3: decisões F-06, F-12, F-13 e F-15; FIN-US-07.7 vai para a v1.1 · v4: decisões F-02 a F-10; MVP completo, só Android, APK direto, histórico e lixeira no MVP · v5: só plano gratuito e lista de serviços · v6: D-QA-04 resolvida · v7: **nova stack** — back-end NestJS com DDD, Clean Architecture e monólito modular, sincronização passando pelo NestJS, prova de conceito do PowerSync no M1, painel web Next.js de consulta como fase pós-MVP; totais do backlog v8 · v8: D-RM-06 resolvida — painel web e v1.1 em paralelo depois do MVP)
 Fontes: `01-visao.md` (v3, com as seções 9b, 9c e 9d), `03-arquitetura.md` (reescrito para a nova stack: §2.1, §2.2 e §9), `04-backlog.md` (v8), `05-criterios-aceite.md` (sendo atualizado pelo QA para a nova stack). Em caso de conflito, vale a visão; para pontos e dependências, vale o backlog.
 
 > Convenção: **[CONFIRMADO]** veio do dono · **[SUPOSIÇÃO]** não validado · **[DÚVIDA]** precisa de resposta antes de virar regra.
@@ -223,7 +223,7 @@ Primeiras candidatas a sair do MVP (vão para a v1.1), em ordem: FIN-US-03.5 reo
 
 **Objetivo:** o dono consulta no computador o que já vê no app (visão geral do mês, extrato em tabela, resumo, histórico e lixeira), **só leitura**, com a **mesma conta** do app, criada na implantação [CONFIRMADO ST-06, ST-07]. Não lança, não edita e não gerencia cadastros: para isso, o app.
 
-**Quando:** depois do MVP do app (ST-06). Tecnicamente, as dependências do painel estão todas no M1 (Identidade e Acesso e casos de uso de lançamento), mas a decisão do dono é fazê-lo depois do MVP.
+**Quando:** depois do MVP do app (ST-06), **em paralelo à v1.1** (D-RM-06). Tecnicamente, as dependências do painel estão todas no M1 (Identidade e Acesso e casos de uso de lançamento), mas a decisão do dono é fazê-lo depois do MVP.
 
 **Total: 8 histórias · 24 pontos.**
 
@@ -246,7 +246,7 @@ Primeiras candidatas a sair do MVP (vão para a v1.1), em ordem: FIN-US-03.5 reo
 
 ### 2.4 v1.1 — Ajustes depois do uso real
 
-**Objetivo:** atender o que o dono sentir falta nas primeiras semanas de uso, ainda como único usuário. Todas as histórias já estão no backlog como Pós-MVP; entram só se o dono pedir ou se a condição acontecer.
+**Objetivo:** atender o que o dono sentir falta nas primeiras semanas de uso, ainda como único usuário. Todas as histórias já estão no backlog como Pós-MVP; entram só se o dono pedir ou se a condição acontecer. **Anda em paralelo ao painel web** (D-RM-06).
 
 **Total: 5 histórias · 15 pontos** (+ candidatas sem história).
 
@@ -411,6 +411,7 @@ Nenhuma dúvida do dono bloqueia o início do M1. A decisão que mais mexe na ba
 | D-QA-04 | F-16: mesmo nome, ignorando maiúsculas, acentos e espaços nas pontas | `normalizarNome` (01.17) e `nome_chave` (01.3) no M1 |
 | Stack | ST-01 a ST-04: app Expo, painel Next.js, Supabase (Postgres), NestJS com DDD, Clean Architecture e monólito modular | +40 pontos no MVP, quase todos no M1 |
 | Painel web | ST-06 e ST-07: só consulta, pós-MVP, só o dono, mesma conta | Fase própria (§2.3), 24 pontos |
+| D-RM-06 (painel ou v1.1 primeiro) | ST-08: em paralelo, depois do MVP [CONFIRMADO] | §2.3 e §2.4 andam juntas; painel + v1.1 somam 39 pontos (§7.1) |
 
 Dúvidas 1, 2, 3, 4, 10 e 11 da visão não mudam o MVP; alimentam o PIF-03 e a expansão de usuários (v2). Dúvidas 6, 7 e 8 podem criar histórias na v1.1 ou na v2.
 
@@ -442,17 +443,18 @@ O que ainda pode **acrescentar** pontos ao MVP: a contingência 07.12, se a prov
 
 **Não é estimativa.** Não se sabe o tamanho nem a velocidade da equipe. A tabela só mostra quantas semanas seriam necessárias **se** a equipe entregasse, em média, a quantidade de pontos indicada por semana, arredondando para cima.
 
-| Pontos por semana [SUPOSIÇÃO] | M1 (118) | M1 + M2 (178) | MVP completo (215) | Painel web (24) | v1.1 (15) |
-|---|---|---|---|---|---|
-| 5 | 24 semanas | 36 semanas | 43 semanas | 5 semanas | 3 semanas |
-| 10 | 12 semanas | 18 semanas | 22 semanas | 3 semanas | 2 semanas |
-| 15 | 8 semanas | 12 semanas | 15 semanas | 2 semanas | 1 semana |
-| 20 | 6 semanas | 9 semanas | 11 semanas | 2 semanas | 1 semana |
+| Pontos por semana [SUPOSIÇÃO] | M1 (118) | M1 + M2 (178) | MVP completo (215) | Painel web (24) | v1.1 (15) | Painel + v1.1 em paralelo (39) |
+|---|---|---|---|---|---|---|
+| 5 | 24 semanas | 36 semanas | 43 semanas | 5 semanas | 3 semanas | 8 semanas |
+| 10 | 12 semanas | 18 semanas | 22 semanas | 3 semanas | 2 semanas | 4 semanas |
+| 15 | 8 semanas | 12 semanas | 15 semanas | 2 semanas | 1 semana | 3 semanas |
+| 20 | 6 semanas | 9 semanas | 11 semanas | 2 semanas | 1 semana | 2 semanas |
 
 Cuidados ao ler a tabela:
 
 - Não inclui espera por respostas do dono nem os até +6 pontos da §6.5 (a contingência sozinha soma +3).
 - A cadeia mais longa do MVP tem **69 pontos** em sequência (§1); acrescentar pessoas não encurta esse trecho, e boa parte dela está no back-end do M1.
+- Em paralelo, painel e v1.1 dividem a mesma capacidade da equipe; por isso a última coluna usa a soma dos dois (39 pontos), e não o maior deles. A v1.1 só chega a 15 pontos se todas as histórias dela forem pedidas.
 - A v2 não aparece porque seus épicos principais ainda não têm histórias nem pontos. O MVP mínimo saiu da tabela porque foi descartado (F-02).
 
 ---
@@ -470,7 +472,7 @@ Cuidados ao ler a tabela:
 | S-RM-07 | O protótipo de referência foi considerado pelo que o 04-backlog e o 02-design §8.3 descrevem dele. |
 | S-RM-10 | [SUPOSIÇÃO] O ponto de controle M1-A é uma divisão deste documento, não do backlog: as histórias e os pontos são os do backlog v8, só agrupados em duas partes para o dono ver progresso no meio do M1. |
 | S-RM-11 | [SUPOSIÇÃO] A hospedagem da API (09.9) fica no M1, e não no fim do MVP como sugere a ordem do backlog ("Fechar o MVP"), porque sem ela o APK de teste no celular do dono não sincroniza. As dependências do backlog (01.12, 07.10) permitem. |
-| S-RM-12 | [SUPOSIÇÃO] O painel web vem depois do MVP (ST-06), mas pode começar antes da v1.1 ou em paralelo a ela; a ordem entre painel e v1.1 depende do que o dono pedir primeiro (D-RM-06). |
+| S-RM-12 | [SUPOSIÇÃO] Com painel e v1.1 em paralelo (D-RM-06), quando a equipe não der conta das duas frentes ao mesmo tempo, passa à frente o que bloqueia o uso diário: a 07.7, se o dono for usar um segundo aparelho, e qualquer correção pedida no app; o painel não tem prazo próprio. Isso não foi dito pelo dono e pode ser revisto. |
 | S-RM-13 | [SUPOSIÇÃO] Os critérios por história citados na §3 seguem o 05 que o QA está atualizando; a contagem será a dele. |
 
 ### 8.2 Dúvidas novas para o dono
@@ -478,8 +480,7 @@ Cuidados ao ler a tabela:
 | # | Dúvida | Efeito no roadmap |
 |---|---|---|
 | D-RM-01 | Aceita usar as builds de teste (M1 e M2) **em paralelo** ao controle atual, até o MVP ficar pronto? | Se não, M1 e M2 ficam só como teste e o registro oficial espera o M3 |
-| D-RM-06 | Depois do MVP, prefere o **painel web** primeiro ou os ajustes da **v1.1**? | Ordem entre §2.3 e §2.4 |
 
 ### 8.3 Situação das dúvidas
 
-Nenhuma dúvida do dono bloqueia o início do M1. O que decide a base agora é técnico e está no próprio M1: a prova de conceito do PowerSync (07.10) e a hospedagem gratuita da API. Continuam abertas, sem bloquear o início: a dúvida 13 (antes do M3), as dúvidas de detalhe da §6.2 e §6.3, D-RM-01 e D-RM-06. Todas as demais estão resolvidas (§6.4).
+Nenhuma dúvida do dono bloqueia o início do M1. O que decide a base agora é técnico e está no próprio M1: a prova de conceito do PowerSync (07.10) e a hospedagem gratuita da API. Continuam abertas, sem bloquear o início: a dúvida 13 (antes do M3), as dúvidas de detalhe da §6.2 e §6.3 e D-RM-01. Todas as demais estão resolvidas (§6.4).

@@ -228,6 +228,7 @@ As tabelas abaixo registram as opções que foram apresentadas.
 | ST-05 | Referência visual | **Dribbble** como fonte de referência de design. |
 | ST-06 | Escopo do painel web (DU-13) | **Só consulta** (Extrato, Resumo e o que for leitura), sem lançar nem gerenciar cadastros. Entra **depois do MVP do app** (fase pós-MVP). |
 | ST-07 | Quem usa o painel web | **Só o dono**, com a mesma conta do app. A conta (login) do dono será criada depois, na implantação. |
+| ST-08 | Ordem depois do MVP (D-RM-06) | **Painel web e v1.1 em paralelo**, depois do MVP (decisão passada pelo dono ao Release). |
 
 ## 10. Decisões herdadas do levantamento anterior
 
