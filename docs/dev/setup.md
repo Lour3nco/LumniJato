@@ -1,0 +1,146 @@
+# Preparar o ambiente de desenvolvimento
+
+Guia para rodar o Lavajato Sistema no computador e para ligar o banco na nuvem.
+A estrutura do repositório segue o 03-arquitetura, §9.6.
+
+```
+apps/mobile                     app de celular (Expo / React Native) — Android, APK direto
+apps/api                        API NestJS (monólito modular, DDD)
+packages/dominio-compartilhado  regras puras usadas pelo app e pela API (ex.: normalizarNome, F-16)
+packages/contratos              esquemas (zod) trocados entre app e API
+infra/supabase                  configuração e migrações do banco (Supabase / Postgres)
+infra/powersync                 regras de sincronização (a partir da FIN-US-07.11)
+infra/backup                    rotina de backup (FIN-US-07.6)
+```
+
+## 1. O que instalar (uma vez)
+
+| O quê | Para quê | Obrigatório? |
+|---|---|---|
+| **Node.js 24** (LTS) | rodar tudo | sim |
+| **pnpm** | gerenciador de pacotes do monorepo | sim |
+| **Git** | versionar o código | sim |
+| **Docker Desktop** | subir o Supabase local (banco + autenticação) | só para usar o banco local |
+| **Expo Go** no celular Android, ou Android Studio com emulador | ver o app rodando | só para abrir o app |
+
+O pnpm vem junto com o Node, pelo *corepack*. Num terminal **aberto como administrador**, rode uma vez:
+
+```bash
+corepack enable
+```
+
+Depois disso, `pnpm --version` deve mostrar `10.34.9` (a versão fica fixada no `package.json`).
+
+> Dica: o repositório está hoje dentro do OneDrive. A pasta `node_modules` tem milhares de
+> arquivos e deixa a sincronização lenta. Se possível, mantenha o projeto numa pasta fora do
+> OneDrive (por exemplo `C:\projetos\sistema_lavajato`); o código já fica guardado no GitHub.
+
+## 2. Instalar as dependências
+
+Na raiz do repositório:
+
+```bash
+pnpm install
+```
+
+## 3. Verificar se está tudo certo
+
+```bash
+pnpm verificar   # lint (inclusive fronteiras entre módulos), tipos e testes de todos os pacotes
+pnpm build       # compila os pacotes e a API
+```
+
+Os mesmos comandos rodam no GitHub a cada push e pull request (`.github/workflows/ci.yml`).
+
+Comandos por pacote (rodar dentro da pasta do pacote):
+
+| Pasta | Comando | O que faz |
+|---|---|---|
+| `apps/mobile` | `pnpm start` | abre o Expo; leia o QR code com o Expo Go |
+| `apps/mobile` | `pnpm android` | abre no emulador/celular ligado por USB |
+| `apps/api` | `pnpm dev` | sobe a API em modo de desenvolvimento (porta do `.env`, padrão 3000) |
+| `apps/api` | `pnpm lint:fronteiras` | só a regra de fronteiras entre módulos |
+| qualquer um | `pnpm test` / `pnpm lint` / `pnpm typecheck` | testes, lint e tipos daquele pacote |
+
+Para conferir se a API subiu: abra `http://localhost:3000/saude` — deve responder `{"status":"ok"}`.
+
+## 4. Banco local (Supabase no Docker) — opcional
+
+Com o Docker Desktop aberto, na raiz:
+
+```bash
+pnpm db:iniciar    # sobe Postgres, Auth e o painel local (Studio em http://localhost:54323)
+pnpm db:resetar    # apaga o banco local e aplica de novo todas as migrações de infra/supabase/migrations
+pnpm db:parar      # desliga
+```
+
+O `pnpm db:iniciar` mostra no terminal as chaves **locais** (servem só para o seu computador).
+Mesmo assim, coloque-as apenas no `.env`, nunca no código.
+
+Sem Docker, as migrações continuam testadas: `pnpm test` dentro de `infra/` aplica todas elas
+num Postgres em memória.
+
+### Criar uma migração nova
+
+```bash
+pnpm supabase migration new nome_da_mudanca
+```
+
+Isso cria `infra/supabase/migrations/<AAAAMMDDHHMMSS>_nome_da_mudanca.sql`. Escreva o SQL ali.
+Migração já aplicada na nuvem **não se edita**: crie outra.
+
+## 5. Banco na nuvem — passo a passo do dono
+
+Estas etapas usam a **conta do dono** e só ele faz. Ninguém do time cria contas em nome dele.
+
+1. Entre em <https://supabase.com> e crie uma conta (pode usar a do GitHub).
+2. Clique em **New project**:
+   - **Organization:** a sua (plano **Free**).
+   - **Name:** `lavajato`.
+   - **Database password:** gere uma senha forte e **guarde num gerenciador de senhas**.
+     Ela não aparece de novo.
+   - **Region:** **South America (São Paulo)** — é a `sa-east-1`.
+3. Espere o projeto ficar pronto (1 a 2 minutos).
+4. Anote o **Project ref** — o código que aparece na URL do painel,
+   `https://supabase.com/dashboard/project/<project-ref>`.
+5. No terminal, na raiz do repositório:
+
+   ```bash
+   pnpm supabase login                           # abre o navegador para autorizar
+   pnpm supabase link --project-ref <project-ref> # pede a senha do banco do passo 2
+   pnpm supabase db push                         # aplica as migrações na nuvem
+   ```
+
+6. Confira no painel do Supabase, em **Database → Schemas**, que existem `identidade` e `financas`.
+7. **Desligue o autocadastro** (ST-07 / RNF-31): no painel, vá em
+   **Authentication → Sign In / Providers** e **desmarque "Allow new users to sign up"**.
+   Clique em **Save**. Assim ninguém cria conta sozinho pelo app; os usuários existentes
+   continuam entrando normalmente. (No banco local isso já vem desligado pelo
+   `infra/supabase/config.toml`, com `enable_signup = false`; o `db push` não muda essa
+   opção na nuvem, por isso o passo é manual.)
+
+### Onde colocar as chaves
+
+As chaves e senhas ficam **só** em arquivos `.env`, que o `.gitignore` já impede de ir para o git.
+Cada pacote que precisa de configuração tem um `.env.example` **sem valores** mostrando os nomes.
+
+```bash
+cp apps/api/.env.example apps/api/.env
+```
+
+Preencha `apps/api/.env`:
+
+| Variável | Onde achar no painel do Supabase | Quando passa a ser usada |
+|---|---|---|
+| `PORTA` | não vem do Supabase; deixe `3000` | já |
+| `SUPABASE_URL` | **Project Settings → API → Project URL** | FIN-US-01.13 (login) |
+| `DATABASE_URL` | **Connect → Connection string** (com o usuário próprio da API, criado na FIN-US-01.4) | FIN-US-01.12 |
+
+Regras:
+
+- **Nunca** cole chave, senha ou token em código, em mensagem de commit ou em issue.
+- A chave **service_role** do Supabase dá acesso total ao banco: não vai para o app de celular
+  em hipótese nenhuma.
+- Se uma chave vazar, gere outra no painel do Supabase na hora.
+- No GitHub, quando o deploy automático existir, as chaves vão em
+  **Settings → Secrets and variables → Actions**, nunca no `ci.yml`.

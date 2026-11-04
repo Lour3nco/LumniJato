@@ -1,0 +1,30 @@
+{
+  "name": "lavajato",
+  "private": true,
+  "description": "Lavajato Sistema — monorepo (app de celular, API NestJS e pacotes compartilhados)",
+  "packageManager": "pnpm@10.34.9",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "verificar": "turbo run lint typecheck test",
+    "supabase": "supabase --workdir infra",
+    "db:iniciar": "supabase --workdir infra start",
+    "db:parar": "supabase --workdir infra stop",
+    "db:resetar": "supabase --workdir infra db reset"
+  },
+  "devDependencies": {
+    "supabase": "^3.0.0",
+    "turbo": "^2.11.10",
+    "typescript": "~6.0.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "supabase"
+    ]
+  }
+}

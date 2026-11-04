@@ -1,0 +1,32 @@
+# Dependências e saídas de build
+node_modules/
+dist/
+build/
+coverage/
+.turbo/
+*.tsbuildinfo
+
+# Expo / React Native
+.expo/
+web-build/
+android/
+ios/
+*.apk
+*.aab
+*.jks
+*.keystore
+
+# Variáveis de ambiente (NUNCA versionar chaves): só o .env.example vai para o git
+.env
+.env.*
+!.env.example
+
+# Supabase CLI (arquivos locais)
+infra/supabase/.branches/
+infra/supabase/.temp/
+
+# Sistema
+.DS_Store
+Thumbs.db
+npm-debug.log*
+pnpm-debug.log*

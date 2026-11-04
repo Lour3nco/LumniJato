@@ -1,0 +1,44 @@
+# FIN-US-01.11 · CA-01.11.2: a cada push e pull request, roda lint (inclusive o de fronteiras
+# entre módulos), verificação de tipos, testes e build de todos os pacotes do monorepo.
+# Não usa segredos: as migrações são testadas num Postgres em memória (PGlite).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verificar:
+    name: Lint, tipos, testes e build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v4
+
+      - name: Instalar o pnpm (versão do campo packageManager)
+        uses: pnpm/action-setup@v4
+
+      - name: Instalar o Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Instalar dependências
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint, verificação de tipos e testes
+        run: pnpm verificar
+        env:
+          TURBO_TELEMETRY_DISABLED: '1'
+
+      - name: Build
+        run: pnpm build
+        env:
+          TURBO_TELEMETRY_DISABLED: '1'
