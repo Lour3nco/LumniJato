@@ -138,7 +138,7 @@ Registrados apenas como contrato de alto nível, sem especificação detalhada.
 9. Como o estoque e o dinheiro são controlados hoje (nada, caderno, planilha)?
 10. **Pessoal/Empresa:** a interpretação "separar o dinheiro pessoal do dono do dinheiro do lava-jato" está correta?
 11. Quando outros usuários entrarem (D-02), quem poderá ver os itens **Pessoais**? No MVP só o dono usa, então a questão fica para a expansão.
-12. Um lançamento **Pessoal** pertence a uma unidade, ou fica fora das unidades?
+12. ~~Um lançamento **Pessoal** pertence a uma unidade, ou fica fora das unidades?~~ Respondida (F-05): pertence a uma unidade.
 14. ~~**Serviço x veículo (E2-04):** qual é a regra?~~ Respondida: opção a (veículo obrigatório, tipo de serviço opcional).
 13. As categorias são as mesmas para Pessoal e Empresa, ou cada um tem a sua lista (ex.: "Água" da empresa e "Mercado" pessoal)?
 
@@ -206,8 +206,30 @@ As tabelas abaixo registram as opções que foram apresentadas.
 | F-12 | Formas de pagamento (D-QA-02) | **Todas ficam disponíveis:** Dinheiro, Pix, Cartão de débito e Cartão de crédito. No primeiro lançamento vem marcado **Pix**; nos seguintes, a última usada. |
 | F-13 | Editar pode trocar o tipo (D-QA-05) | **Não.** Para mudar entre saída, entrada e serviço, exclui e lança de novo. |
 | F-15 | Quantos celulares (D-RM-04) | **Um celular.** |
+| F-02 | MVP completo ou mínimo (D-RM-02) | **MVP completo** (marcos M1 → M2 → M3). O MVP mínimo fica registrado só como alternativa descartada. |
+| F-03 | Plataformas (D-BL-07, parte 1) | **Só Android.** iPhone fica fora do MVP. [DÚVIDA, parte 2 da D-BL-07: aceita plano pago do Supabase/PowerSync se o gratuito não bastar?] |
+| F-05 | Lançamento Pessoal e unidade (dúvida 12, D-BL-09) | **Sim:** todo lançamento, inclusive o Pessoal, pertence a uma unidade (unidade obrigatória). |
+| F-04 | Onde publicar (D-RM-05) | **APK com instalação direta** no celular do dono (sem Google Play). Atualizações por novo APK e/ou atualização pelo próprio app. Publicação em loja fica como evolução. |
+| F-09 | Histórico e lixeira no app (D-BL-05, DU-04) | **Sim:** o dono vê no app o histórico de alterações de cada lançamento e uma lixeira para recuperar lançamentos excluídos. Itens ficam na lixeira por **90 dias**; depois saem da lixeira (o registro continua no servidor, com exclusão lógica e histórico). |
+| F-08 | Unidades e formas de pagamento (D-BL-04) | **Cadastradas pela equipe na implantação** (dados iniciais). Sem telas para isso no MVP; ficam como evolução. |
+| F-10 | PIN ou biometria ao abrir (D-BL-06) | **Não.** O app abre direto, sem bloqueio próprio (vale o bloqueio de tela do celular). |
+| F-03b | Custo dos serviços (D-BL-07, parte 2) | **Só planos gratuitos.** Sincronização com PowerSync se o plano gratuito atender (prova de conceito no início do M1); senão, sincronização própria. Backup próprio semanal, guardado fora do Supabase. |
+| F-14 | Lista de serviços (dúvida 5a) | **Manter a lista atual:** Lavagem rápida, Lavagem completa, Polimento, Higienização interna, Cristalização. |
+| F-16 | Nome repetido (D-QA-04) | **Mesmo nome:** a comparação de nomes de categoria, tipo de serviço e tipo de veículo ignora maiúsculas, acentos e espaços nas pontas ("água" = "Água" = "Agua"), ao criar e ao renomear. |
+
+## 9d. Stack e arquitetura definidas pelo dono (2026-11-03)
+
+| # | Tema | Decisão |
+|---|---|---|
+| ST-01 | Front-end | **Opção b:** o app de celular continua (Android, APK, funciona sem internet, dados no aparelho) e é feito em React Native/Expo; **Next.js** é usado para um **painel web** (no computador). |
+| ST-02 | Sincronização | **Mantida como decidido antes:** dados no aparelho, sincronização automática quando há internet + botão "Sincronizar", banco central no Supabase. |
+| ST-03 | Banco de dados | **Supabase (PostgreSQL).** MongoDB descartado. |
+| ST-04 | Back-end | **NestJS**, com **DDD**, **Clean Architecture** e **monólito modular** (cada módulo do sistema — Finanças agora; Estoque, Atendimento, Clientes, Equipe depois — é um módulo isolado do back-end). As regras de domínio ficam no back-end. |
+| ST-05 | Referência visual | **Dribbble** como fonte de referência de design. |
+| ST-06 | Escopo do painel web (DU-13) | **Só consulta** (Extrato, Resumo e o que for leitura), sem lançar nem gerenciar cadastros. Entra **depois do MVP do app** (fase pós-MVP). |
+| ST-07 | Quem usa o painel web | **Só o dono**, com a mesma conta do app. A conta (login) do dono será criada depois, na implantação. |
 
 ## 10. Decisões herdadas do levantamento anterior
 
-- **Tipo de aplicativo e armazenamento (antiga D-03 do estoque):** app de celular com dados locais no aparelho, banco em nuvem Supabase, sincronização automática quando há internet e botão "Sincronizar". Vale para este módulo e para o sistema todo.
+- **Tipo de aplicativo e armazenamento (antiga D-03 do estoque):** app de celular com dados locais no aparelho, banco em nuvem Supabase, sincronização automática quando há internet e botão "Sincronizar". Vale para este módulo e para o sistema todo. Complementada pela seção 9d (NestJS, Next.js para painel web).
 - **Multiunidade com papel por unidade:** vale para o sistema todo.

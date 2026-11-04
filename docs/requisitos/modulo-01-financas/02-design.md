@@ -1,7 +1,7 @@
 # Módulo 1 — Gestão de Finanças · Design (UX)
 
 Projeto: Lavajato Sistema
-Documento: 02-design.md · Autor: Design · Versão: 4 · Status: **rascunho para revisão** (DU-01 a DU-03 e DU-07 a DU-11 respondidas pelo dono; v3 incluiu o **tipo de veículo**; v4 aplica as decisões E2-01 a E2-10 da visão §9b)
+Documento: 02-design.md · Autor: Design · Versão: 8 · Status: **rascunho para revisão** (DU-01 a DU-03 e DU-07 a DU-12 respondidas pelo dono; v3 incluiu o **tipo de veículo**; v4 aplica as decisões E2-01 a E2-10 da visão §9b; v5 aplica F-06, F-12, F-13 e F-15 da visão §9c; v6 aplica F-02, F-03 e F-05. F-02 (MVP completo, M1 → M2 → M3) não muda telas: todas as telas deste documento valem para o MVP; v7 aplica F-04, F-08, F-09 (TELA-15 Histórico e TELA-16 Lixeira) e F-10; v8 aplica a nova stack: referências do Dribbble (§5.9, ST-05), painel web (§9, ST-01: só consulta, depois do MVP) e serviços iniciais (F-14))
 Fonte da verdade: `01-visao.md` (versão 3). Em caso de conflito, vale a visão. Modelo de dados e regras técnicas: `03-arquitetura.md`.
 
 > Convenção: **[CONFIRMADO]** veio do dono (via 01-visao.md) · **[SUPOSIÇÃO]** decisão de design ainda não validada · **[DÚVIDA]** precisa de resposta do dono.
@@ -17,7 +17,7 @@ Fonte da verdade: `01-visao.md` (versão 3). Em caso de conflito, vale a visão.
 | Item | Descrição |
 |---|---|
 | Quem é | Dono do lava-jato, com **mais de uma unidade**. Trabalha no meio da operação: recebe de cliente, paga lavador, compra produto, paga almoço e passagem. |
-| Aparelho | Celular próprio, Android ou iPhone [SUPOSIÇÃO], muitas vezes com uma mão só, mãos molhadas ou sujas, sob sol forte. |
+| Aparelho | Celular próprio, **só Android** no MVP [CONFIRMADO, F-03]; um celular só [CONFIRMADO, F-15]. Muitas vezes com uma mão só, mãos molhadas ou sujas, sob sol forte. |
 | Conexão | Internet instável no pátio; o app precisa funcionar sem internet [CONFIRMADO]. |
 | Relação com tecnologia | Usa WhatsApp e app de banco no dia a dia; **não quer planilha** [CONFIRMADO]. Não conhece termos contábeis. |
 | Hoje | Controle em caderno, planilha ou nenhum [SUPOSIÇÃO, visão §2]. Gastos se perdem em papel, mensagens e memória. |
@@ -44,7 +44,7 @@ Premissas comuns a todas as jornadas de lançamento [CONFIRMADO, visão §5.2]:
 - O padrão Pessoal/Empresa é sempre **Empresa**, trocável em Ajustes (TELA-09) [CONFIRMADO, DU-02]. A preferência é sincronizada entre os aparelhos do dono (`preferencia_usuario` em 03-arquitetura.md).
 - O seletor de data **não permite dias depois de hoje** (no fuso da unidade), porque o módulo só registra o que já aconteceu (D-01) [SUPOSIÇÃO, 03-arquitetura §5.2]. Datas passadas são permitidas.
 - O teclado numérico abre sozinho no campo de valor, com digitação estilo caixa registradora (§5.4) [CONFIRMADO, DU-03].
-- **Forma de pagamento** vem pré-selecionada com a última usada naquele tipo de lançamento [SUPOSIÇÃO]; só toca se for diferente.
+- **Forma de pagamento** [CONFIRMADO, F-12]: quatro opções, **Dinheiro, Pix, Cartão de débito e Cartão de crédito** (nos botões: Dinheiro · Pix · Débito · Crédito). No **primeiro lançamento vem marcado Pix**; nos seguintes, **a última usada**; só toca se for diferente. [SUPOSIÇÃO] A "última usada" é guardada por tipo de lançamento (serviço, outra entrada, saída).
 - **Tipo de veículo** (só nas entradas de serviço) vem pré-selecionado com o **último veículo usado** num serviço [CONFIRMADO, E2-06]; só toca se for diferente. No primeiro uso, nada vem marcado e o app pede "Escolha o veículo".
 
 ### Resumo de toques
@@ -58,7 +58,7 @@ Premissas comuns a todas as jornadas de lançamento [CONFIRMADO, visão §5.2]:
 | JOR-e | Ver saldo do dia e do mês | 0 (dia) · 1 (mês) · +1 a 2 por filtro | — |
 | JOR-f | Extrato com filtros | 1 para abrir + 2 por filtro (período: 2 com atalho · 3 um dia · 4 intervalo no calendário) | — |
 | JOR-g | Gastos por categoria / entradas por serviço | 2 a 3 | — |
-| JOR-h | Corrigir ou excluir lançamento | 3 a 5 | — |
+| JOR-h | Corrigir, excluir, ver histórico ou restaurar lançamento | 3 a 5 (histórico 2; restaurar 3) | — |
 | JOR-i | Gerenciar categorias, tipos de serviço e tipos de veículo | 4 a 6 | — |
 | JOR-j | Trocar de unidade | 2 | — |
 | JOR-k | Usar sem internet e sincronizar | 0 (automático) · 1 (botão Sincronizar) | — |
@@ -217,16 +217,24 @@ Filtros ativos aparecem como chips preenchidos com "×" para limpar; botão "Lim
 
 | Passo | Ação do dono | O que o app faz | Toques |
 |---|---|---|---|
-| 0 | **Logo após salvar:** toca **Desfazer** no aviso (fica ~5 s) | Remove o lançamento | 1 |
+| 0 | **Logo após salvar:** toca **Desfazer** no aviso (fica ~5 s) | Remove o lançamento da lista e dos saldos. É correção imediata de engano: **não vai para a Lixeira** (TELA-16) [SUPOSIÇÃO, D-QA-18]; o registro continua no servidor com exclusão lógica e histórico | 1 |
 | 1 | Caso contrário: na TELA-01 (últimos lançamentos) ou na TELA-05, toca o lançamento | Abre TELA-07 (Detalhe) | 1 |
-| 2a | **Corrigir:** toca **Editar** | Abre o mesmo formulário do lançamento (TELA-02/03/04) preenchido | 1 |
+| 2a | **Corrigir:** toca **Editar** | Abre o mesmo formulário do lançamento (TELA-02/03/04) preenchido. O **tipo** (saída, entrada ou serviço) aparece **fixo** no topo, sem opção de troca, com a explicação curta: "Para mudar de saída para entrada (ou para serviço), exclua e lance de novo." [CONFIRMADO, F-13; texto SUPOSIÇÃO] | 1 |
 | 3a | Altera o campo e toca **Salvar alterações** | Salva, registra quem alterou e quando [CONFIRMADO, visão item 7]; mostra "Alterado" no detalhe. Na edição, a data também não pode ir para depois de hoje [SUPOSIÇÃO, 03-arquitetura §5.2] | 1 + edição |
-| 2b | **Excluir:** toca **Excluir** | Pergunta "Excluir esta saída de R$ 25,00 (Alimentação, hoje)? Não dá para desfazer depois." | 1 |
-| 3b | Toca **Excluir** na confirmação | Remove, volta à lista, aviso "Lançamento excluído" | 1 |
+| 2b | **Excluir:** toca **Excluir** | Pergunta "Excluir esta saída de R$ 25,00 (Alimentação, hoje)? Ela fica na **Lixeira por 90 dias** e pode ser recuperada." [CONFIRMADO, F-09; texto SUPOSIÇÃO] | 1 |
+| 3b | Toca **Excluir** na confirmação | Tira o lançamento da lista e dos saldos, manda para a Lixeira (TELA-16) e mostra o aviso "Lançamento excluído · **Desfazer**" | 1 |
+| 2c | **Ver histórico:** no Detalhe, toca **Ver histórico**, que aparece **sempre** (todo lançamento tem ao menos a criação) [CONFIRMADO, F-09; D-QA-17] | Abre TELA-15 (Histórico de alterações), só leitura | 1 |
+| 4 | **Recuperar um excluído:** Mais → **Lixeira** → toca **Restaurar** no item | O lançamento volta para o extrato e os saldos, com a data e a unidade originais; aviso "Lançamento restaurado" | 3 |
 
-**Total: 3 a 4 toques** (+ edição). No detalhe aparece "Criado por Dono em 03/11 14:32 · Alterado em 03/11 15:10".
+**Total: 3 a 4 toques** (+ edição); ver histórico 2; restaurar da Lixeira 3. Na edição dá para mudar valor, categoria (dentro do mesmo tipo), tipo de serviço, veículo, forma de pagamento, Empresa/Pessoal, data e unidade; o tipo não muda [CONFIRMADO, F-13]. No detalhe aparece "Criado por Dono em 03/11 14:32 · Alterado em 03/11 15:10".
 
-[SUPOSIÇÃO] A exclusão é "lógica" (o registro fica guardado com a marca de excluído) para manter o histórico; isso é decisão da Arquitetura. Ver DU-04 sobre exibir esse histórico ao dono.
+[CONFIRMADO, F-09] A exclusão é "lógica": o registro fica guardado no servidor com a marca de excluído e com o histórico. Na **Lixeira**, o item fica **90 dias**; depois some da Lixeira, mas continua guardado no servidor (o dono não o vê mais no app). O dono **vê o histórico de alterações** de cada lançamento (TELA-15) e **recupera excluídos** pela Lixeira (TELA-16).
+
+Regras de tela [SUPOSIÇÃO]:
+- Restaurar devolve o lançamento como estava na hora da exclusão e registra no histórico "Restaurado por Dono em …".
+- Se a categoria, o tipo de serviço ou o veículo do item tiver sido desativado depois, o lançamento é restaurado assim mesmo (como nos lançamentos antigos, §JOR-i).
+- Não há "excluir de vez" no app: depois dos 90 dias o item sai sozinho da Lixeira.
+- Restaurar também funciona sem internet (fica pendente, como qualquer alteração, JOR-k).
 
 ### JOR-i — Gerenciar categorias, tipos de serviço e tipos de veículo
 
@@ -243,7 +251,7 @@ Filtros ativos aparecem como chips preenchidos com "×" para limpar; botão "Lim
 
 - **Tipos de veículo (TELA-14)** [SUPOSIÇÃO]: mesmo padrão da TELA-11 (criar, renomear, desativar, reordenar). A ordem define a posição na fileira de veículos da TELA-02. Desativar um veículo o tira da fileira, mas ele continua no extrato e no resumo antigos. Se o veículo desativado era o "último usado", a TELA-02 abre sem veículo marcado.
 - **Atalho para criar tipo de serviço:** o caminho mais rápido é o botão **+ Novo serviço** dentro da TELA-02, no meio do lançamento (JOR-b, variação). A TELA-11 continua sendo o lugar para **criar, renomear, desativar e reordenar** [CONFIRMADO]. Do mesmo jeito, o **+ Novo veículo** da TELA-02 é o atalho, e a TELA-14 é o lugar de gerenciar [SUPOSIÇÃO].
-- **Categorias de sistema** — são **quatro**: **Serviços, Produtos, Mão de obra e Reembolso** [CONFIRMADO, E2-02; 03-arquitetura `categoria.sistema`]. O dono **pode criar categorias novas** [CONFIRMADO, E2-02]. As quatro fixas **podem** ser renomeadas e ter ícone e cor trocados, mas **não podem** ser desativadas [SUPOSIÇÃO: interpretação do Orquestrador, a confirmar com o dono], porque os lançamentos e os módulos futuros apontam para elas pelo identificador. Na TELA-10, a chave **Ativa** dessas categorias aparece ligada e travada, com um cadeado e o texto curto: "Categoria usada pelo sistema. Pode mudar o nome, mas não pode ser desativada."
+- **Categorias de sistema** — são **quatro**: **Serviços, Produtos, Mão de obra e Reembolso** [CONFIRMADO, E2-02; 03-arquitetura `categoria.sistema`]. O dono **pode criar categorias novas** [CONFIRMADO, E2-02]. As quatro fixas **podem** ser renomeadas e ter ícone e cor trocados, mas **não podem** ser desativadas [CONFIRMADO, F-06], porque os lançamentos e os módulos futuros apontam para elas pelo identificador. Na TELA-10, a chave **Ativa** dessas categorias aparece ligada e travada, com um cadeado e o texto curto: "Categoria usada pelo sistema. Pode mudar o nome, mas não pode ser desativada."
 
 ### JOR-j — Trocar de unidade
 
@@ -255,6 +263,8 @@ Filtros ativos aparecem como chips preenchidos com "×" para limpar; botão "Lim
 **Total: 2 toques.** A unidade escolhida fica salva até o dono trocar de novo [SUPOSIÇÃO].
 
 Regra de segurança: com "Todas as unidades" selecionado, ao tocar **+ Carro / + Entrou / − Saiu**, o formulário pede para escolher a unidade (fica no topo, destacado, sem valor padrão) [SUPOSIÇÃO] — para nunca lançar na unidade errada sem querer. Dentro de qualquer formulário, a unidade pode ser trocada pelo campo "Unidade" (+2 toques).
+
+**Unidade obrigatória em todo lançamento, inclusive Pessoal** [CONFIRMADO, F-05]: trocar para "Pessoal" não tira a unidade nem a deixa opcional. Sem unidade, o Salvar fica desabilitado com "Escolha a unidade antes de salvar." Nos saldos, um gasto Pessoal entra na unidade em que foi lançado (no filtro Pessoal ou Tudo) e no consolidado de "Todas as unidades".
 
 ### JOR-k — Usar sem internet e sincronizar [CONFIRMADO, visão §1 e §10]
 
@@ -276,7 +286,7 @@ O que o dono vê:
 | 3 | (Opcional) Toca o ícone da nuvem | Abre TELA-12 (Sincronização): última sincronização, pendentes, erros e botão **Sincronizar agora** | 1 |
 | 4 | Toca **Sincronizar agora** | Tenta enviar e receber; mostra resultado | 1 |
 
-[SUPOSIÇÃO] Mensagens de erro nunca usam termos técnicos ("timeout", "409"). Conflitos (o mesmo lançamento alterado em dois aparelhos) não devem ocorrer no MVP com um só usuário, mas a regra de resolução é da Arquitetura (`03-arquitetura.md`).
+[SUPOSIÇÃO] Mensagens de erro nunca usam termos técnicos ("timeout", "409"). Conflitos (o mesmo lançamento alterado em dois aparelhos) não ocorrem no MVP: o dono usa **um celular só** [CONFIRMADO, F-15]. Qualquer aviso ou tela de conflito entre aparelhos fica para a **v1.1** (FIN-US-07.7); a regra de resolução é da Arquitetura (`03-arquitetura.md`).
 
 ---
 
@@ -287,19 +297,21 @@ Navegação [SUPOSIÇÃO]: barra inferior com 4 itens — **Início · Extrato �
 | ID | Nome | Objetivo | Elementos-chave | Jornadas |
 |---|---|---|---|---|
 | TELA-01 | Início | Lançar em 1 toque e ver o saldo de hoje/mês | Seletor de unidade; status de sincronização; cartão Entrou/Saiu/Sobrou com abas Hoje/Mês e filtro Empresa/Pessoal/Tudo; atalho "Repetir último serviço" (serviço · veículo · forma); últimos 5 lançamentos (serviços mostram o veículo); botões grandes **+ Carro**, **+ Entrou**, **− Saiu**; barra inferior | a, b, c, d, e, h, j, k |
-| TELA-02 | Novo serviço (carro) | Lançar a entrada de um veículo em ≤ 4 toques (caminho comum) | **Obrigatórios: veículo e valor; tipo de serviço opcional** [CONFIRMADO, E2-04 a)]. Grade de tipos de serviço "Qual serviço? (opcional)" (botões grandes; tocar de novo desmarca) terminando no botão **+ Novo serviço** (abre folha só com o campo Nome; ao salvar, o serviço novo fica selecionado); **fileira de tipos de veículo** com ícones (Carro, Moto, SUV, Caminhonete/Picape, Van) terminando em **+ Novo veículo** (folha só com o Nome; ao salvar, fica selecionado), último veículo usado pré-selecionado [CONFIRMADO, E2-06], obrigatório [CONFIRMADO, E2-04 a)]; valor com teclado numérico aberto (caixa registradora); forma de pagamento (4 botões); Pessoal/Empresa (dropdown, padrão Empresa); data (hoje; sem dias futuros) e unidade preenchidas; descrição opcional recolhida; Salvar | b, c, h, i |
-| TELA-03 | Nova saída | Lançar um gasto em ≤ 3 toques | Valor com teclado aberto (caixa registradora); grade de ícones de categorias de saída; forma de pagamento; Pessoal/Empresa (padrão Empresa); data (sem dias futuros); unidade; descrição opcional; Salvar | a, h |
+| TELA-02 | Novo serviço (carro) | Lançar a entrada de um veículo em ≤ 4 toques (caminho comum) | **Obrigatórios: veículo e valor; tipo de serviço opcional** [CONFIRMADO, E2-04 a)]. Grade de tipos de serviço "Qual serviço? (opcional)" (botões grandes; tocar de novo desmarca) terminando no botão **+ Novo serviço** (abre folha só com o campo Nome; ao salvar, o serviço novo fica selecionado); **fileira de tipos de veículo** com ícones (Carro, Moto, SUV, Caminhonete/Picape, Van) terminando em **+ Novo veículo** (folha só com o Nome; ao salvar, fica selecionado), último veículo usado pré-selecionado [CONFIRMADO, E2-06], obrigatório [CONFIRMADO, E2-04 a)]; valor com teclado numérico aberto (caixa registradora); forma de pagamento (4 botões: Dinheiro, Pix, Débito, Crédito; Pix no primeiro lançamento, depois a última usada [CONFIRMADO, F-12]); Pessoal/Empresa (dropdown, padrão Empresa); data (hoje; sem dias futuros) e unidade preenchidas (unidade obrigatória, também no Pessoal [CONFIRMADO, F-05]); descrição opcional recolhida; Salvar | b, c, h, i |
+| TELA-03 | Nova saída | Lançar um gasto em ≤ 3 toques | Valor com teclado aberto (caixa registradora); grade de ícones de categorias de saída; forma de pagamento (os mesmos 4 botões e a mesma regra de pré-seleção da TELA-02 [CONFIRMADO, F-12]); Pessoal/Empresa (padrão Empresa); data (sem dias futuros); unidade **obrigatória, também no Pessoal** [CONFIRMADO, F-05]; descrição opcional; Salvar | a, h |
 | TELA-04 | Nova entrada (outras) | Lançar entrada que não é serviço | Igual à TELA-03, com categorias de entrada e cor verde; data sem dias futuros | d, h |
 | TELA-05 | Extrato | Ver e filtrar todos os lançamentos | Totais do filtro (Entrou/Saiu/Sobrou); chip **Período** (folha com atalhos Hoje/Semana/Mês/Mês passado + **calendário** de um dia ou intervalo, dias futuros desabilitados, Aplicar; o chip mostra o período, ex.: "27/10 a 02/11") [CONFIRMADO: calendário; detalhes SUPOSIÇÃO]; chips Unidade, Categoria, **Serviço** (tipos de serviço + opção **"Sem tipo de serviço"**) [SUPOSIÇÃO, E2-04 a)], **Veículo** [SUPOSIÇÃO], Empresa/Pessoal; lista agrupada por dia, com ícone, categoria/serviço, **tipo de veículo** (nos serviços), unidade, forma, valor colorido, marca de pendente | f, h, k |
 | TELA-06 | Resumo | Ver onde o dinheiro vai e o que vende mais | Abas **Gastos** (barras por categoria, valor e %) e **Serviços** (quantidade e valor, Dia/Mês, com seletor **Por serviço · Por veículo**: separados no MVP [CONFIRMADO, E2-08]; em Por serviço, linha **"Sem tipo de serviço"** quando houver entradas de serviço sem tipo [SUPOSIÇÃO, E2-04 a)]); chips de filtro iguais aos do Extrato, inclusive o **calendário** no chip Período, com o **mesmo período do Extrato** [CONFIRMADO, E2-10] (o Dia/Mês da aba Serviços usa os atalhos Hoje e Mês do mesmo chip [SUPOSIÇÃO]); "Por unidade" quando "Todas" | e, g |
-| TELA-07 | Detalhe do lançamento | Conferir, corrigir ou excluir | Todos os campos (nos serviços, inclui o tipo de veículo); "Criado por / Alterado em"; situação de sincronização; botões Editar e Excluir | h |
+| TELA-07 | Detalhe do lançamento | Conferir, corrigir ou excluir | Todos os campos (nos serviços, inclui o tipo de veículo); "Criado por / Alterado em"; link **Ver histórico**, **sempre visível** (abre a TELA-15) [CONFIRMADO, F-09; D-QA-17]; situação de sincronização; botões Editar e Excluir (excluir manda para a Lixeira, TELA-16). Ao editar, o tipo (saída / entrada / serviço) aparece fixo, com o texto "Para mudar o tipo, exclua e lance de novo." [CONFIRMADO, F-13; texto SUPOSIÇÃO] | h |
 | TELA-08 | Seletor de unidade (folha inferior) | Trocar a unidade ativa | Lista de unidades com marca na atual; "Todas as unidades" | e, f, j |
-| TELA-09 | Mais / Ajustes | Acesso às configurações | Categorias; Tipos de serviço; **Tipos de veículo** (TELA-14) [SUPOSIÇÃO]; Formas de pagamento [SUPOSIÇÃO]; **Padrão Pessoal/Empresa** (Empresa, trocável; vale em todos os aparelhos) [CONFIRMADO]; Sincronização; Unidades [DÚVIDA DU-05]; Sobre/Sair | i, k |
-| TELA-10 | Categorias | Criar, renomear, desativar, reordenar categorias | Abas Saídas/Entradas; lista com ícone e cor; chave Ativa; + Nova; editor (nome, ícone, cor). O dono pode criar categorias novas [CONFIRMADO, E2-02]. As **4 categorias de sistema** (Serviços, Produtos, Mão de obra, Reembolso) [CONFIRMADO, E2-02] com chave Ativa **travada** (cadeado) e explicação curta; nome, ícone e cor editáveis [SUPOSIÇÃO: renomear sim, desativar não, a confirmar] | i |
-| TELA-11 | Tipos de serviço | Criar, renomear, desativar, reordenar serviços | Lista só com nomes; chave Ativo; + Novo. Serviços criados pelo atalho da TELA-02 aparecem aqui normalmente | i |
+| TELA-09 | Mais / Ajustes | Acesso às configurações | Categorias; Tipos de serviço; **Tipos de veículo** (TELA-14) [SUPOSIÇÃO]; **Padrão Pessoal/Empresa** (Empresa, trocável; vale em todos os aparelhos) [CONFIRMADO]; **Lixeira** (TELA-16) [CONFIRMADO, F-09]; Sincronização; Sobre/Sair. **Unidades e Formas de pagamento não aparecem** no MVP: são cadastradas pela equipe na implantação [CONFIRMADO, F-08] | h, i, k |
+| TELA-10 | Categorias | Criar, renomear, desativar, reordenar categorias | Abas Saídas/Entradas; lista com ícone e cor; chave Ativa; + Nova; editor (nome, ícone, cor). O dono pode criar categorias novas [CONFIRMADO, E2-02]. As **4 categorias de sistema** (Serviços, Produtos, Mão de obra, Reembolso) [CONFIRMADO, E2-02] com chave Ativa **travada** (cadeado) e explicação curta; nome, ícone e cor editáveis; não podem ser desativadas [CONFIRMADO, F-06] | i |
+| TELA-11 | Tipos de serviço | Criar, renomear, desativar, reordenar serviços | Lista só com nomes; chave Ativo; + Novo. Serviços iniciais: **Lavagem rápida, Lavagem completa, Polimento, Higienização interna, Cristalização** [CONFIRMADO, F-14]. Serviços criados pelo atalho da TELA-02 aparecem aqui normalmente | i |
 | TELA-12 | Sincronização | Ver o estado da nuvem e forçar envio | Última sincronização; pendentes; erros em linguagem simples; botão **Sincronizar agora** | k |
 | TELA-13 | Entrar | Acesso do dono à conta (necessário para a nuvem) | Login simples; "manter conectado" [SUPOSIÇÃO: método de login definido pela Arquitetura] | — (primeiro uso) |
 | TELA-14 | Tipos de veículo | Criar, renomear, desativar, reordenar tipos de veículo [SUPOSIÇÃO, visão 3b-1] | Mesmo padrão da TELA-11: lista com ícone e nome; chave Ativo; arrastar para reordenar (define a ordem da fileira na TELA-02); + Novo (só nome, ícone genérico). Iniciais: Carro, Moto, SUV, Caminhonete/Picape, Van [CONFIRMADO, E2-07]; mesma lista em todas as unidades [CONFIRMADO, E2-05]. Veículos criados pelo atalho da TELA-02 aparecem aqui normalmente. Acesso por Mais / Ajustes (TELA-09) | i |
+| TELA-15 | Histórico de alterações | Ver o que mudou num lançamento, quando e por quem [CONFIRMADO, F-09] | Acesso pelo botão **Ver histórico** da TELA-07. Linha do tempo, mais recente em cima: "Criado", cada "Alterado" com o campo, o valor antigo riscado e o novo ("Valor: ~~R$ 25,00~~ → R$ 35,00"), "Excluído" e "Restaurado", sempre com **data, hora, quem fez** ("por Dono") **e o que mudou**. Todo lançamento tem ao menos o "Criado", por isso **não há estado vazio** [D-QA-17]. **Só leitura**: não há "voltar a valores anteriores"; para corrigir, usa-se o Editar da TELA-07 [D-QA-15]. Aparelho e conflito entre aparelhos não aparecem no MVP (v1.1, com a FIN-US-07.7) [D-QA-16, F-15]. [layout SUPOSIÇÃO] | h |
+| TELA-16 | Lixeira | Ver e recuperar lançamentos excluídos [CONFIRMADO, F-09] | Acesso por Mais / Ajustes (TELA-09). Aviso no topo: "Os lançamentos excluídos ficam aqui por 90 dias. Depois disso, saem da Lixeira." Lista dos excluídos, mais recente em cima, igual ao item do extrato (ícone, título, veículo/forma, unidade, valor), com "Excluído em 03/11 · some em 01/02" e botão **Restaurar** em cada item. Itens com menos de 7 dias para sumir mostram o prazo em âmbar ("some em 5 dias") [SUPOSIÇÃO]. Estado vazio: "A Lixeira está vazia. O que você excluir fica aqui por 90 dias." | h |
 
 ---
 
@@ -414,6 +426,8 @@ Ao salvar, a folha fecha, "Lavagem de motor" entra na grade (antes do "+ Novo se
 
 Estado "+ Novo veículo" aberto: mesma folha inferior, com o título **Novo veículo**, um único campo **Nome** (ex.: "Ônibus") e o botão **SALVAR VEÍCULO**, sem o texto sobre o valor. Ao salvar, a folha fecha, o veículo novo entra na fileira (antes do "+ Novo") **já selecionado**, com ícone genérico, e o foco volta ao valor [SUPOSIÇÃO].
 
+Os cinco serviços da grade são os iniciais confirmados: Lavagem rápida, Lavagem completa, Polimento, Higienização interna e Cristalização [CONFIRMADO, F-14].
+
 Notas: o teclado numérico do sistema abre já focado no valor; o botão Salvar fica **acima** do teclado para não precisar fechá-lo. Valor digitado como caixa registradora: `6` `0` `0` `0` = R$ 60,00 [CONFIRMADO, DU-03]. Com mais de 6 tipos, a grade rola ou mostra "Ver mais"; o "+ Novo serviço" fica sempre no fim.
 
 Fileira de veículos [SUPOSIÇÃO]: uma linha só, com botões de ícone + nome curto de ~52 × 64 dp (acima do mínimo de 48 dp), para não empurrar o valor e o Salvar para fora da tela. Os 5 iniciais + "+ Novo" cabem em 360 px; com mais veículos, a fileira rola para o lado e o "+ Novo" fica sempre no fim. O veículo marcado tem fundo verde, borda e nome em negrito (não só a cor). Sem veículo marcado, a fileira mostra "Escolha o veículo" e o Salvar fica desabilitado.
@@ -482,6 +496,49 @@ Exemplo: hoje é terça, 03/11; o dono marcou de 01/11 a 03/11. `[n]` = ponta do
 ```
 
 Notas [SUPOSIÇÃO]: cada dia tem área de toque de pelo menos 44 × 44 dp (7 colunas em 360 px); quando hoje não está marcado, aparece como `(3)`, com contorno. Os atalhos aplicam e fecham na hora; o calendário precisa de **Aplicar**. Depois de aplicar, o chip do Extrato mostra "01/11 a 03/11 ×".
+
+### 4.5 TELA-15 — Histórico de alterações [CONFIRMADO, F-09; layout SUPOSIÇÃO]
+
+```
+┌──────────────────────────────────────┐
+│ ‹  Histórico                         │
+├──────────────────────────────────────┤
+│  Alimentação · R$ 35,00 · Hoje       │
+│                                      │
+│  ● Alterado · 03/11 15:10 · Dono     │
+│  │  Valor: R$ 25,00 → R$ 35,00       │  (antigo riscado)
+│  │  Pagou com: Dinheiro → Pix        │
+│  │                                   │
+│  ● Criado · 03/11 12:10 · Dono       │
+│     R$ 25,00 · Dinheiro · Centro     │
+│                                      │
+└──────────────────────────────────────┘
+```
+
+Notas: tela **só de leitura**, sem botões de reverter (para corrigir, Editar na TELA-07) [D-QA-15]. Sempre há pelo menos a linha "Criado", então não existe estado vazio [D-QA-17]. Um lançamento excluído e depois restaurado mostra também "● Excluído · … · Dono" e "● Restaurado · … · Dono". Sem informação de aparelho no MVP [D-QA-16].
+
+### 4.6 TELA-16 — Lixeira [CONFIRMADO, F-09; layout SUPOSIÇÃO]
+
+```
+┌──────────────────────────────────────┐
+│ ‹  Lixeira                           │
+├──────────────────────────────────────┤
+│ ┌──────────────────────────────────┐ │
+│ │ ⓘ Os lançamentos excluídos ficam │ │
+│ │   aqui por 90 dias. Depois disso,│ │
+│ │   saem da Lixeira.               │ │
+│ └──────────────────────────────────┘ │
+│  🍽 Alimentação · Din. · Centro −25,00│
+│     Excluído 03/11 · some em 01/02   │
+│                        [ Restaurar ] │
+│  ──────────────────────────────────  │
+│  🚗 L. rápida · Carro · Pix   +30,00 │
+│     Excluído 08/08 · some em 3 dias  │  (âmbar)
+│                        [ Restaurar ] │
+└──────────────────────────────────────┘
+```
+
+Estado vazio: ícone de lixeira e "A Lixeira está vazia. O que você excluir fica aqui por 90 dias." Ao tocar **Restaurar**, o item sai da lista e aparece o aviso "Lançamento restaurado · **Ver**" (Ver abre o Detalhe) [SUPOSIÇÃO].
 
 ---
 
@@ -553,15 +610,18 @@ Notas [SUPOSIÇÃO]: cada dia tem área de toque de pelo menos 44 × 44 dp (7 co
 | TELA-05 sem resultados no filtro | "Nenhum lançamento com esses filtros." | Botão "Limpar filtros" |
 | TELA-06 sem gastos no período | "Sem gastos neste período." | — |
 | TELA-06 aba Serviços vazia | "Nenhum carro lançado neste período." | Botão "+ Carro" |
+| TELA-16 Lixeira vazia | "A Lixeira está vazia. O que você excluir fica aqui por 90 dias." | — |
 | Primeiro uso | Tela curta: "Lance o que entra e o que sai. A gente soma tudo para você." + escolher unidade inicial | "Começar" |
 
 ### 5.6 Mensagens de confirmação e erro
 
-- **Após salvar:** aviso inferior por ~5 s, sem bloquear: "Saída de R$ 25,00 salva · **Desfazer**". Para serviço: "Lavagem completa · R$ 60,00 salva · **Desfazer** · **Mais um igual**". Vibração curta [SUPOSIÇÃO].
-- **Excluir:** sempre pede confirmação, mostrando o que será excluído (valor, categoria, data). Botão de excluir em vermelho, botão "Cancelar" à esquerda.
+- **Após salvar:** aviso inferior por ~5 s, sem bloquear: "Saída de R$ 25,00 salva · **Desfazer**". Para serviço: "Lavagem completa · R$ 60,00 salva · **Desfazer** · **Mais um igual**". Vibração curta [SUPOSIÇÃO]. O **Desfazer** logo após salvar tira o lançamento da tela e **não o manda para a Lixeira** (é correção de engano; o registro fica no servidor com exclusão lógica e histórico) [SUPOSIÇÃO, D-QA-18]. Já o Desfazer depois de **Excluir** devolve o lançamento e o tira da Lixeira.
+- **Excluir:** sempre pede confirmação, mostrando o que será excluído (valor, categoria, data) e avisando "Fica na Lixeira por 90 dias e pode ser recuperado." [CONFIRMADO, F-09]. Botão de excluir em vermelho, botão "Cancelar" à esquerda. Depois de excluir, o aviso inferior oferece **Desfazer** por ~5 s.
+- **Restaurar (TELA-16):** sem confirmação, porque não perde nada; aviso "Lançamento restaurado · Ver" [SUPOSIÇÃO].
 - **Sair do formulário com dados preenchidos (✕):** "Descartar este lançamento?" [Continuar lançando] [Descartar].
 - **Campos faltando:** mensagem junto ao campo ("Escolha a categoria"), nunca em janela pop-up.
 - **Data futura** [SUPOSIÇÃO, 03-arquitetura §5.2]: no calendário, os dias depois de hoje aparecem apagados e não podem ser tocados. Se, por algum motivo, a data ficar no futuro (ex.: relógio do aparelho adiantado), o campo mostra "Só dá para lançar o que já aconteceu. Escolha hoje ou um dia anterior." e o Salvar fica desabilitado.
+- **Nome repetido (serviço, veículo, categoria) [CONFIRMADO, D-QA-04]:** a comparação **ignora maiúsculas/minúsculas, acentos e espaços sobrando**: "água", "Água", "Agua" e " AGUA " são o mesmo nome. Quando o nome digitado difere só na escrita, a mensagem mostra o existente: "Já existe uma categoria com esse nome: 'Água'." [texto SUPOSIÇÃO]. Vale ao criar e ao renomear.
 - **Novo serviço com nome repetido:** "Já existe um serviço com esse nome." Se o nome for de um serviço desativado: "'Lavagem de motor' está desativado. [Reativar e usar]" [SUPOSIÇÃO].
 - **Novo veículo com nome repetido:** "Já existe um veículo com esse nome." Se for de um veículo desativado: "'Ônibus' está desativado. [Reativar e usar]" [SUPOSIÇÃO].
 - **Serviço sem veículo:** junto à fileira, "Escolha o veículo"; Salvar desabilitado [CONFIRMADO, E2-04 a): veículo obrigatório; texto SUPOSIÇÃO]. Sem tipo de serviço, nenhum aviso: é opcional.
@@ -575,7 +635,37 @@ Notas [SUPOSIÇÃO]: cada dia tem área de toque de pelo menos 44 × 44 dp (7 co
 - Leitores de tela: cada botão com rótulo ("Adicionar carro", "Registrar saída").
 - Modo escuro [SUPOSIÇÃO] opcional, seguindo o sistema; prioridade baixa no MVP.
 
+### 5.8 Plataforma: só Android [CONFIRMADO, F-03]
+
+O MVP é feito só para Android. iPhone fica para depois (§7). Padrões de Android adotados [SUPOSIÇÃO, salvo indicação]:
+- **Botão/gesto Voltar do sistema:** fecha primeiro o que estiver por cima (folha inferior, calendário, teclado de texto). Num formulário com valor digitado, abre "Descartar este lançamento?" (o mesmo do ✕, §5.6). Nas telas da barra inferior (Extrato, Resumo, Mais), volta para a Início. Na Início, sai do app sem perder nada.
+- **Teclado do valor:** é o teclado numérico **do próprio app** (caixa registradora, §5.4), igual em todos os aparelhos; não depende do teclado do Android. Os campos de texto (nome de serviço, veículo, categoria, observação) usam o teclado do sistema.
+- **Tamanhos:** em **dp/sp** (§5.3), com o tamanho de fonte do sistema respeitado. Telas de referência: 360 × 800 dp, funcionando de 320 dp de largura em diante.
+- **Barra de navegação do sistema e barra de status:** o conteúdo não fica escondido atrás delas (botões de lançamento e Salvar sempre acima da barra de gestos).
+- **Componentes:** folha inferior, aviso inferior (com Desfazer) e chaves liga/desliga seguem o jeito de Material Design, com as cores deste documento.
+- **Vibração** curta ao salvar (§5.6), se o aparelho permitir.
+
 ---
+
+### 5.9 Referências visuais (Dribbble) [CONFIRMADO, ST-05: Dribbble como referência]
+
+**Limitação desta pesquisa (03/11/2026):** os links abaixo vieram de uma busca na web restrita a dribbble.com. **Não consegui abrir as páginas do Dribbble**: o site devolveu resposta vazia ao acesso automático. Por isso **não vi as imagens** e não confirmei se cada página abre sem login. O que está em "Tema" vem só do título e do resumo que a busca mostrou. Em "O que conferir" está **o que vale olhar** em cada uma, e não uma avaliação do visual. Antes de adotar qualquer coisa, o dono ou o Design deve abrir os links no navegador.
+
+| # | Referência (link da busca) | Tema, segundo o resumo da busca | O que conferir / possível aproveitamento |
+|---|---|---|---|
+| 1 | [Expense Tracker App — Anastasiia Naumets / eleken](https://dribbble.com/shots/6037420-Expense-Tracker-App) | Visão geral de gastos e estatísticas; gastos por categoria e por período, em lista e em gráfico | Como alterna lista e gráfico por categoria (TELA-06) e o seletor de período (§4.4) |
+| 2 | [Expense tracker app — Ajay Sivan](https://dribbble.com/shots/14401316-Expense-tracker-app) | Cartões personalizados para acompanhar entradas e saídas | Estilo dos cartões, para o cartão Entrou/Saiu/Sobrou da TELA-01 |
+| 3 | [Expense Tracker App, Shot 2 — Priyanka Mandal](https://dribbble.com/shots/11487733-Expense-Tracker-App-Shot-2) | App "SafeSpend" para categorizar e acompanhar gastos | Grade de categorias com ícones (TELA-03) e cores por categoria (§5.2) |
+| 4 | [Family expense tracker app — Aksha Rakra](https://dribbble.com/shots/18276626-Family-expense-tracker-app) | Gastos de uma casa, com orçamento e aviso de gasto alto | Separação visual de grupos (para Empresa × Pessoal) e o tom dos avisos (§5.6) |
+| 5 | [Home Budget App: Dashboard — tubik](https://dribbble.com/shots/3329597-Home-Budget-App-Dashboard) | Painel de orçamento organizado em cartões | Hierarquia de números grandes e cartões, para a Início e o painel web de consulta (§9) |
+| 6 | [Expense Tracker Mobile App UI Design — Devignedge](https://dribbble.com/shots/17402861-Expense-Tracker-Mobile-App-UI-Design) | Interface de app de controle de gastos | Tipografia dos valores (R$ grande) e o item de extrato (TELA-05) |
+| 7 | [Expense Tracker app (DailyUI) — Nathan de la Torre](https://dribbble.com/shots/6290548-DailyUI-Expense-Tracker-app) | Exercício DailyUI de controle de gastos | Solução enxuta de tela única, para comparar com a TELA-01 |
+| 8 | [Tag "expense_tracker"](https://dribbble.com/tags/expense_tracker) e [busca "finance mobile dashboard"](https://dribbble.com/search/finance-mobile-dashboard) | Listas de muitos trabalhos | Garimpo de gráficos de barras horizontais (SUP-D07) e de modo escuro (§5.7) |
+
+Regras ao usar as referências [SUPOSIÇÃO]:
+- Aproveitar só ideias de layout, ritmo e hierarquia. As cores continuam as do §5.2: verde entra, vermelho sai, âmbar avisa, roxo para Pessoal.
+- O contraste mínimo de 4,5:1 e os toques de pelo menos 48 dp (§5.3) valem mais que o efeito visual. Muitos trabalhos do Dribbble usam cinza claro sobre branco e textos pequenos, o que não funciona sob sol forte.
+- Não copiar telas, marcas ou ilustrações de terceiros.
 
 ## 6. Suposições e dúvidas
 
@@ -584,19 +674,25 @@ Notas [SUPOSIÇÃO]: cada dia tem área de toque de pelo menos 44 × 44 dp (7 co
 | ID | Suposição |
 |---|---|
 | SUP-D01 | ~~Suposição~~ → **[CONFIRMADO, DU-01]** 3 botões de lançamento na Início: **+ Carro** (serviço, separado), **+ Entrou** (outras entradas) e **− Saiu**. |
-| SUP-D02 | Forma de pagamento vem pré-selecionada com a última usada naquele tipo de lançamento. |
+| SUP-D02 | ~~Suposição~~ → **[CONFIRMADO, F-12]** Quatro formas de pagamento (Dinheiro, Pix, Cartão de débito, Cartão de crédito); Pix marcado no primeiro lançamento, depois a última usada. [SUPOSIÇÃO] "Última usada" guardada por tipo de lançamento. |
+| SUP-D20 | **[CONFIRMADO, F-13]** Na edição, o tipo do lançamento (saída / entrada / serviço) é fixo; para mudar, exclui e lança de novo. |
+| SUP-D21 | **[CONFIRMADO, F-15]** O dono usa um celular só no MVP: nenhuma tela de conflito entre aparelhos no MVP (fica para a v1.1, FIN-US-07.7). |
 | SUP-D03 | ~~Valor em reais inteiros, vírgula opcional~~ → **[CONFIRMADO, DU-03]** substituída pela regra da caixa registradora: os dígitos entram pela direita, nos centavos (`2` `5` = R$ 0,25), §5.4. |
 | SUP-D04 | "Repetir último serviço" considera o último serviço de hoje na unidade atual e nunca copia o valor. |
-| SUP-D05 | Com "Todas as unidades" ativo, o lançamento exige escolher a unidade (sem padrão). |
-| SUP-D06 | Categoria/tipo usado em lançamentos não pode ser excluído, só desativado. **[CONFIRMADO, E2-02]** As categorias de sistema são **quatro**: Serviços, Produtos, Mão de obra e Reembolso, e o dono pode criar categorias novas. [SUPOSIÇÃO, interpretação do Orquestrador a confirmar com o dono] As quatro **podem ser renomeadas** (nome, ícone, cor), mas **não podem ser desativadas** (chave travada na TELA-10), alinhado a 03-arquitetura. |
+| SUP-D05 | Com "Todas as unidades" ativo, o lançamento exige escolher a unidade (sem padrão). A unidade é obrigatória em todo lançamento, inclusive Pessoal [CONFIRMADO, F-05]; a forma de pedir (campo destacado, sem padrão) continua SUPOSIÇÃO. |
+| SUP-D06 | Categoria/tipo usado em lançamentos não pode ser excluído, só desativado. **[CONFIRMADO, E2-02]** As categorias de sistema são **quatro**: Serviços, Produtos, Mão de obra e Reembolso, e o dono pode criar categorias novas. **[CONFIRMADO, F-06]** As quatro **podem ser renomeadas** (nome, ícone, cor), mas **não podem ser desativadas** (chave travada na TELA-10), alinhado a 03-arquitetura. |
 | SUP-D07 | Gráfico de categorias em barras horizontais, não pizza. |
 | SUP-D08 | Navegação com barra inferior de 4 itens (Início, Extrato, Resumo, Mais). |
 | SUP-D09 | Tela inicial mostra só Hoje e Mês; semana e outros períodos ficam no Extrato/Resumo. |
 | SUP-D10 | Lançamento com valor acima de um limite pede confirmação extra. |
 | SUP-D11 | ~~Suposição~~ → **[CONFIRMADO, DU-02]** Padrão Pessoal/Empresa = sempre "Empresa", trocável em Ajustes (TELA-09); guardado em `preferencia_usuario` e sincronizado. |
-| SUP-D12 | Lançamentos Pessoais pertencem a uma unidade como os demais (depende da dúvida 12 da visão). |
+| SUP-D12 | ~~Suposição~~ → **[CONFIRMADO, F-05]** Todo lançamento, **inclusive o Pessoal**, pertence a uma unidade (unidade obrigatória). |
+| SUP-D22 | **[CONFIRMADO, F-03]** MVP só para Android; padrões de Android em §5.8; iPhone como evolução (§7). |
+| SUP-D23 | **[CONFIRMADO, F-09]** Histórico de alterações (TELA-15, pelo Detalhe) e Lixeira de 90 dias com Restaurar (TELA-16, por Mais). [SUPOSIÇÃO] Layout em linha do tempo; prazo em âmbar nos últimos 7 dias; restaurar sem confirmação; sem "excluir de vez". Resolução do Orquestrador: "Ver histórico" sempre visível e TELA-15 sem estado vazio (D-QA-17); só leitura, sem reverter (D-QA-15); sem aparelho/conflito no MVP (D-QA-16); Desfazer pós-salvar não vai para a Lixeira [SUPOSIÇÃO, D-QA-18]. |
+| SUP-D24 | **[CONFIRMADO, F-10]** Sem PIN nem biometria: o app abre direto (vale o bloqueio de tela do celular). Nenhuma tela de bloqueio no app. |
+| SUP-D25 | **[CONFIRMADO, F-04]** Distribuição por APK instalado direto no celular do dono, sem loja; atualização por novo APK ou pelo próprio app. [SUPOSIÇÃO] Quando houver atualização pelo app, ela é aplicada ao reabrir, sem tela própria no MVP. |
 | SUP-D13 | O seletor de data das TELA-02/03/04 (e na edição) bloqueia dias depois de hoje no fuso da unidade (03-arquitetura §5.2, derivado de D-01). |
-| SUP-D14 | Tipo de serviço criado pelo "+ Novo serviço" da TELA-02 entra no fim da ordem da grade; nome repetido é recusado e nome de serviço desativado oferece reativação. |
+| SUP-D14 | Tipo de serviço criado pelo "+ Novo serviço" da TELA-02 entra no fim da ordem da grade; nome repetido é recusado e nome de serviço desativado oferece reativação. **[CONFIRMADO, D-QA-04]** "Repetido" ignora maiúsculas, acentos e espaços sobrando (vale também para veículos e categorias, §5.6). |
 | SUP-D15 | Tipo de veículo na TELA-02: ordem dos campos Serviço → Veículo → Valor → Pagou com; fileira única de ícones terminando em "+ Novo veículo" (só nome, ícone genérico, já selecionado ao salvar). **[CONFIRMADO, E2-04 a)]** veículo obrigatório e tipo de serviço opcional nas entradas de serviço; serviço sem tipo aparece como "Serviço" e no Resumo como "Sem tipo de serviço" [SUPOSIÇÃO]. |
 | SUP-D16 | **[CONFIRMADO, E2-06]** O último veículo usado num serviço já vem marcado na TELA-02. [SUPOSIÇÃO] No primeiro uso, nada marcado; "Mais um igual" / "Repetir" copiam também o veículo. |
 | SUP-D17 | Extrato com chip "Veículo" e veículo visível no item de serviço; Resumo › Serviços com seletor "Por serviço · Por veículo". **[CONFIRMADO, E2-08]** serviço e veículo separados no MVP; cruzamento serviço × veículo fica para depois (§7). |
@@ -610,17 +706,18 @@ Notas [SUPOSIÇÃO]: cada dia tem área de toque de pelo menos 44 × 44 dp (7 co
 | DU-01 | ~~Botão separado + Carro ou único + Entrou?~~ **Respondida:** botão **+ Carro** separado. | TELA-01 com 3 botões |
 | DU-02 | ~~Padrão sempre "Empresa" ou "o último usado"?~~ **Respondida:** sempre **Empresa**, trocável em Ajustes. | TELA-02/03/04 e TELA-09 |
 | DU-03 | ~~`2` `5` = R$ 25,00 ou R$ 0,25?~~ **Respondida:** **R$ 0,25** (caixa registradora). | §5.4 |
-| DU-04 | Quer ver o histórico de alterações e os lançamentos excluídos no app, ou basta o sistema guardar? | Tela extra de histórico na TELA-07 |
-| DU-05 | Quem cadastra as unidades (nome, endereço)? O dono pelo app ou é feito uma vez na implantação? | TELA-09 ganha "Unidades" ou não |
+| DU-04 | ~~Quer ver o histórico de alterações e os lançamentos excluídos no app?~~ **Respondida (F-09):** sim; histórico de cada lançamento (TELA-15) e Lixeira por 90 dias (TELA-16). | TELA-07, TELA-09, TELA-15, TELA-16 |
+| DU-05 | ~~Quem cadastra as unidades?~~ **Respondida (F-08):** a equipe, na implantação (unidades e formas de pagamento); sem telas no MVP. | TELA-09 sem "Unidades" e "Formas de pagamento" |
 | DU-06 | Na tela inicial, quer ver o saldo de "Hoje" ou de "Mês" primeiro? | Aba padrão do cartão |
 | DU-07 | ~~Veículo já marcado com o último usado, sempre "Carro" ou nada marcado?~~ **Respondida (E2-06):** o **último veículo usado** já vem marcado. | Toques da JOR-b e JOR-c |
 | DU-08 | ~~Quais tipos de veículo iniciais?~~ **Respondida (E2-07):** Carro · Moto · SUV · Caminhonete/Picape · Van; mesma lista em todas as unidades (E2-05). | Fileira da TELA-02 |
 | DU-09 | ~~Resumo por serviço ou por veículo, ou o cruzamento?~~ **Respondida (E2-08):** separados no MVP; cruzamento fica para depois (§7). | TELA-06, aba Serviços |
 | DU-10 | ~~"Semana" = semana atual ou últimos 7 dias?~~ **Respondida (E2-09):** semana atual, de **segunda-feira até hoje**. | Atalhos da folha de período |
 | DU-11 | ~~O período vale junto para Extrato e Resumo?~~ **Respondida (E2-10):** **vale junto** para as duas telas. | TELA-05 e TELA-06 |
+| DU-13 | ~~(ST-01) Escopo do painel web: MVP ou depois? Só consultar, cadastros ou lançar?~~ **Respondida (ST-06 e ST-07):** **só consulta, depois do MVP** (ST-06); só o dono usa, com o mesmo login do app (ST-07). | §9 (WEB-01 a WEB-06) |
 | DU-12 | ~~(E2-04) Regra de obrigatoriedade de serviço e veículo~~ **Respondida pelo dono (opção a):** **veículo obrigatório, tipo de serviço opcional**. Aplicada na TELA-02 e na JOR-b. Ainda falta o Orquestrador registrar no 01-visao.md. | TELA-02, JOR-b, validação do Salvar |
 
-Dúvidas da visão que afetam diretamente o design (não repetidas aqui): 6 (foto do comprovante → botão de câmera nos formulários), 8 (exportar para o contador → ação no Extrato), 12 (Pessoal pertence a unidade?) e 13 (categorias separadas para Pessoal e Empresa → grade de ícones muda conforme o dropdown).
+Dúvidas da visão que afetam diretamente o design (não repetidas aqui): 6 (foto do comprovante → botão de câmera nos formulários), 8 (exportar para o contador → ação no Extrato), ~~12 (Pessoal pertence a unidade?)~~ respondida em F-05: sim, sempre, e 13 (categorias separadas para Pessoal e Empresa → grade de ícones muda conforme o dropdown).
 
 ---
 
@@ -636,6 +733,10 @@ Dúvidas da visão que afetam diretamente o design (não repetidas aqui): 6 (fot
 | Gerentes lançando pela sua unidade; convite e permissões | Usuários/unidades (PIF-05) | Seletor de unidade já preparado para "só as minhas" |
 | Contas a pagar e receber com vencimento | Evolução do módulo (PIF-06) | Abas "Já pago / A pagar" no Extrato |
 | Resumo cruzado serviço × veículo (ex.: quantas "Lavagem completa" em SUV) [CONFIRMADO, E2-08: fica para depois] | Evolução do módulo (Resumo) | Na TELA-06, aba Serviços, uma tabela ou um filtro de veículo dentro de cada serviço |
+| Publicação em loja (Google Play) [CONFIRMADO, F-04: no MVP é APK instalado direto] | Evolução da distribuição | Página da loja, ícone e capturas de tela; o app em si não muda |
+| Cadastro de unidades e de formas de pagamento pelo dono [CONFIRMADO, F-08: na implantação, pela equipe] | Usuários/unidades (PIF-05) | Itens "Unidades" e "Formas de pagamento" em Mais / Ajustes |
+| PIN ou biometria ao abrir [CONFIRMADO, F-10: não terá] | — (fora do roadmap) | — |
+| App para **iPhone (iOS)** [CONFIRMADO, F-03: fora do MVP] | Evolução da plataforma | Rever o "Voltar" (iPhone não tem botão Voltar do sistema: usar a seta ‹ e o gesto de arrastar da borda), áreas seguras da tela e componentes no padrão iOS; as telas e jornadas deste documento continuam valendo |
 | Agendamento de clientes | Agendamento | — |
 | Gastos recorrentes lançados sozinhos (aluguel, internet) | Depende da dúvida 7 da visão | — |
 | Exportação para o contador (planilha/PDF) | Depende da dúvida 8 da visão | Ação "Exportar" no Extrato |
@@ -690,6 +791,7 @@ Não é necessário para seguir o projeto (E2-01). Fica como plano, caso o dono 
 | TELA-12 / 12b | Sincronização com erro e pendentes · sucesso "Tudo enviado" |
 | TELA-13 | Entrar |
 | TELA-14 | Tipos de veículo (lista com ícone, chave Ativo, + Novo, arrastar) |
+| TELA-15 / TELA-16 / 16b | Histórico de alterações · Lixeira com aviso dos 90 dias e Restaurar · Lixeira vazia |
 | TELA-05b / 05c / 05d | Folha de período: atalhos + calendário do mês atual com dias futuros apagados · intervalo marcado ("De 01/11 a 03/11 · 3 dias") · Extrato com chip "01/11 a 03/11 ×" (o mesmo componente vale para a TELA-06) |
 
 Componente que falta para o calendário: **Dia do calendário** (Normal · Hoje · Ponta do intervalo · Meio do intervalo · Futuro desabilitado), mais o cabeçalho do mês com ‹ ›.
@@ -721,4 +823,31 @@ O dono escolheu o protótipo clicável em HTML como protótipo oficial. Ele abre
 - **Mão de obra, Reembolso, Serviços e Produtos aparecem travadas**, como no documento (E2-02).
 - **Não incluído:** reordenar categorias e serviços, e escolher ícone e cor de categoria nova (a categoria nova usa um ícone padrão).
 - **Tipo de veículo (versão 6 do protótipo):** fileira de veículos na TELA-02 com o último usado já marcado, "+ Novo veículo", veículo obrigatório e tipo de serviço opcional (E2-04 a)), veículo no extrato, no detalhe e no "Mais um igual", filtros Serviço (com "Sem tipo de serviço") e Veículo no Extrato, Resumo "Por serviço · Por veículo" com a linha "Sem tipo de serviço", e a TELA-14 (reordenar com botões ↑ ↓ no lugar de arrastar).
+- **Histórico e Lixeira (versão 7 do protótipo, F-09):** "Ver histórico" no Detalhe (TELA-15, linha do tempo com valor antigo riscado → novo; desde a versão 8, o link aparece sempre, a tela é só leitura e não há estado vazio, como em D-QA-15 a 17; o Desfazer pós-salvar não manda para a Lixeira, D-QA-18); desde a versão 9, nomes que diferem só em maiúsculas, acentos ou espaços contam como repetidos (D-QA-04); excluir manda para a Lixeira com Desfazer; Mais › Lixeira (TELA-16) com aviso dos 90 dias, prazo em âmbar nos últimos 7 dias, Restaurar (aviso com "Ver") e estado vazio. Também entraram: Pix marcado quando ainda não há lançamento anterior (F-12) e, na edição, o tipo fixo com "Para mudar o tipo, exclua e lance de novo." (F-13).
 - **Calendário do filtro de período (§4.4):** atalhos Hoje / Semana / Mês / Mês passado, calendário com um dia ou intervalo, dias futuros desabilitados, Aplicar; o período vale junto para Extrato e Resumo (E2-10). Os dados de exemplo agora vão de 01/10 a 03/11.
+
+---
+
+## 9. Painel web (Next.js) — só consulta, depois do MVP
+
+> **Escopo respondido pelo dono** (ST-01, DU-13): o painel é **só de consulta** e vem **depois do MVP** [CONFIRMADO, ST-06]. Quem usa: **só o dono, com o mesmo login do app** [CONFIRMADO, ST-07]. No painel não se lança, não se edita, não se exclui, não se restaura e não se mexe em cadastros: tudo isso continua no app de celular. O desenho das telas abaixo é PROPOSTA [SUPOSIÇÃO]. **Nada aqui muda as telas do app** (seções 3 e 4).
+
+Princípios [SUPOSIÇÃO]:
+- O painel é para o **computador**: tela larga, mouse e teclado, sempre com internet. Ele **só lê** o banco central (Supabase), pelo back-end (NestJS, ST-04). Não grava nada e não guarda dados no navegador.
+- Usa a **mesma linguagem, as mesmas cores e as mesmas regras** do app (§5.1, §5.2 e F-16 para nomes). Um lançamento feito no celular aparece no painel depois da sincronização.
+- Layout: menu lateral fixo (Início, Extrato, Resumo, Lixeira) e, no topo, os mesmos filtros do app: unidade (com "Todas"), período com calendário (§4.4) e Empresa / Pessoal / Tudo.
+
+| ID | Tela (proposta) | Para quê | Elementos principais |
+|---|---|---|---|
+| WEB-01 | Início / visão geral | Ver o mês de relance | Cartões Entrou / Saiu / Sobrou por unidade e consolidado; gráfico de barras por dia do mês; os 5 maiores gastos por categoria |
+| WEB-02 | Extrato em tabela | Conferir e procurar lançamentos | Tabela com Data, Unidade, Tipo, Categoria/Serviço, Veículo, Pagou com, Empresa/Pessoal, Valor; ordenar por coluna; busca por texto; filtros iguais aos do app (período, unidade, categoria, serviço com "Sem tipo de serviço", veículo, Empresa/Pessoal); totais no rodapé. Exportar planilha depende da dúvida 8 da visão |
+| WEB-03 | Detalhe e histórico | Ver um lançamento por inteiro | Painel lateral ao clicar numa linha: todos os campos e o histórico (TELA-15, só leitura). **Sem** Editar ou Excluir; aviso curto: "Para corrigir, use o app no celular." |
+| WEB-04 | Resumo | Analisar o período | Gastos por categoria (barras horizontais, SUP-D07); serviços por tipo e por veículo, com "Sem tipo de serviço"; comparação entre unidades lado a lado |
+| WEB-05 | Lixeira (consulta) | Ver o que foi excluído | Lista da TELA-16 em tabela, com "excluído em" e "some em". **Sem** Restaurar; aviso: "Para recuperar, use a Lixeira do app." |
+| WEB-06 | Entrar | Acesso com a mesma conta do app | E-mail e senha; sem PIN nem biometria (F-10) |
+
+Ficam **fora do painel** [CONFIRMADO: só consulta]: lançar, editar, excluir, restaurar e cadastros (categorias, tipos de serviço, tipos de veículo). Se o dono quiser alguma dessas ações no computador no futuro, é uma evolução (§7).
+
+Sugestão de ordem quando o painel entrar, depois do MVP [SUPOSIÇÃO]: WEB-06, WEB-01, WEB-02 e WEB-04 primeiro; depois WEB-03 e WEB-05.
+
+Quem usa o painel: só o dono, com o mesmo login do app [CONFIRMADO, ST-07]. Gerentes ou contador entram com a expansão de usuários (D-02).
