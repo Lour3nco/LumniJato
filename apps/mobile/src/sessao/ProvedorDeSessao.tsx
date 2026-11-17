@@ -1,14 +1,18 @@
 import { type ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-import type { ResultadoAoEntrar, ServicoDeSessao, SessaoLocal } from './servico-de-sessao';
+import type { ResultadoAoEntrar, ResultadoDoToken, ServicoDeSessao, SessaoLocal } from './servico-de-sessao';
 
-type EstadoDaSessao = 'carregando' | 'sem-sessao' | 'conectado';
+/**
+ * - `reautenticar`: o Supabase recusou a sessão (§4.6). O app pede para entrar de novo, mas a
+ *   sessão local, os dados e a fila continuam no celular.
+ */
+type EstadoDaSessao = 'carregando' | 'sem-sessao' | 'conectado' | 'reautenticar';
 
 type ValorDoContexto = {
   estado: EstadoDaSessao;
   sessao: SessaoLocal | null;
   entrar: (email: string, senha: string) => Promise<ResultadoAoEntrar>;
-  obterTokenDeAcesso: () => Promise<string | null>;
+  obterTokenDeAcesso: (opcoes?: { forcarRenovacao?: boolean }) => Promise<ResultadoDoToken>;
   sair: () => Promise<void>;
 };
 
@@ -18,6 +22,7 @@ const ContextoDaSessao = createContext<ValorDoContexto | null>(null);
 export function ProvedorDeSessao({ servico, children }: { servico: ServicoDeSessao; children: ReactNode }) {
   const [sessao, setSessao] = useState<SessaoLocal | null>(null);
   const [carregando, setCarregando] = useState(true);
+  const [sessaoRecusada, setSessaoRecusada] = useState(false);
 
   useEffect(() => {
     let ativo = true;
@@ -37,7 +42,10 @@ export function ProvedorDeSessao({ servico, children }: { servico: ServicoDeSess
   const entrar = useCallback(
     async (email: string, senha: string) => {
       const resultado = await servico.entrar(email, senha);
-      if (resultado.ok) setSessao(resultado.sessao);
+      if (resultado.ok) {
+        setSessao(resultado.sessao);
+        setSessaoRecusada(false);
+      }
       return resultado;
     },
     [servico],
@@ -46,17 +54,27 @@ export function ProvedorDeSessao({ servico, children }: { servico: ServicoDeSess
   const sair = useCallback(async () => {
     await servico.sair();
     setSessao(null);
+    setSessaoRecusada(false);
   }, [servico]);
+
+  const obterTokenDeAcesso = useCallback(
+    async (opcoes?: { forcarRenovacao?: boolean }) => {
+      const resultado = await servico.obterTokenDeAcesso(opcoes);
+      if (resultado.situacao === 'sessao_recusada') setSessaoRecusada(true);
+      return resultado;
+    },
+    [servico],
+  );
 
   const valor = useMemo<ValorDoContexto>(
     () => ({
-      estado: carregando ? 'carregando' : sessao ? 'conectado' : 'sem-sessao',
+      estado: carregando ? 'carregando' : !sessao ? 'sem-sessao' : sessaoRecusada ? 'reautenticar' : 'conectado',
       sessao,
       entrar,
-      obterTokenDeAcesso: () => servico.obterTokenDeAcesso(),
+      obterTokenDeAcesso,
       sair,
     }),
-    [carregando, sessao, entrar, sair, servico],
+    [carregando, sessao, sessaoRecusada, entrar, obterTokenDeAcesso, sair],
   );
 
   return <ContextoDaSessao.Provider value={valor}>{children}</ContextoDaSessao.Provider>;

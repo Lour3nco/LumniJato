@@ -2,21 +2,23 @@ import { useRouter } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { BotaoGrande } from '../../../componentes';
+import { BotaoGrande, SeletorDeUnidade } from '../../../componentes';
 import { cores, fontes, medidas } from '../../../tema';
 
 /** Altura dos botões de lançamento na zona do polegar (02-design §4.1, CA-02.11.1). */
 const ALTURA_BOTOES_DE_LANCAMENTO = 72;
 
 /**
- * TELA-01 · Início. Por ora, só os três botões de lançamento (FIN-US-02.11), fixos embaixo,
- * acima da barra. Cartão Entrou/Saiu/Sobrou, últimos lançamentos e seletor de unidade entram
- * nas próximas histórias (FIN-US-05.x, 08.3).
+ * TELA-01 · Início. Por ora: a unidade atual no topo (FIN-US-08.3) e os três botões de
+ * lançamento (FIN-US-02.11), fixos embaixo, acima da barra. Cartão Entrou/Saiu/Sobrou e últimos
+ * lançamentos entram nas próximas histórias (FIN-US-05.x).
  */
 export default function Inicio() {
   const router = useRouter();
   return (
     <SafeAreaView style={estilos.tela} edges={['top']}>
+      {/* Topo com a unidade atual e o seletor (TELA-08, FIN-US-08.3). */}
+      <SeletorDeUnidade />
       <View style={estilos.conteudo}>
         <Text accessibilityRole="header" style={estilos.titulo}>
           Início

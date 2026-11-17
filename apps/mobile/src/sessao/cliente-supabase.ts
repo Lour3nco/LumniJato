@@ -1,6 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { type SupabaseClient, createClient } from '@supabase/supabase-js';
+import { getRandomBytes } from 'expo-crypto';
+import * as SecureStore from 'expo-secure-store';
 import { AppState } from 'react-native';
+
+import { criarArmazenamentoCifrado } from './armazenamento-cifrado';
 
 /**
  * Cliente do Supabase Auth no app. A URL e a chave pública (anon/publishable) vêm do
@@ -20,8 +24,8 @@ export function obterClienteSupabase(): SupabaseClient | null {
   }
   cliente = createClient(url, chavePublica, {
     auth: {
-      // [SUPOSIÇÃO] AsyncStorage: o app não tem PIN (F-10); vale o bloqueio de tela do celular (RNF-25).
-      storage: AsyncStorage,
+      // Tokens guardados cifrados: chave no cofre do Android, dados no AsyncStorage.
+      storage: criarArmazenamentoCifrado({ cofre: SecureStore, armazenamento: AsyncStorage, bytesAleatorios: getRandomBytes }),
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: false,

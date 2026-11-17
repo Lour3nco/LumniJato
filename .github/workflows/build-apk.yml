@@ -1,0 +1,81 @@
+# Gera o APK no EAS e avisa no Discord (início, sucesso com link do APK, ou falha).
+# Só roda à mão: Actions → "Build do APK" → Run workflow → escolha o perfil.
+#
+# Segredos esperados em Settings → Secrets and variables → Actions (valores só no GitHub):
+#   EXPO_TOKEN           → token de acesso da conta Expo (expo.dev → Account settings → Access tokens)
+#   DISCORD_WEBHOOK_URL  → URL do webhook do canal do Discord
+# Variável (aba "Variables"):
+#   EAS_PROJECT_ID       → id do projeto no EAS (o mesmo do apps/mobile/.env)
+#
+# Atenção: o PRIMEIRO build do perfil "dono" deve ser feito à mão no terminal, porque o EAS
+# pergunta se pode gerar a chave de assinatura (docs/dev/apk.md). Depois disso este workflow serve.
+name: Build do APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      perfil:
+        description: Perfil do eas.json
+        type: choice
+        options: [teste, dono]
+        default: teste
+
+concurrency:
+  group: build-apk-${{ inputs.perfil }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      PERFIL: ${{ inputs.perfil }}
+      DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+      EAS_PROJECT_ID: ${{ vars.EAS_PROJECT_ID }}
+      APP_VARIANTE: ${{ inputs.perfil }}
+      EXECUCAO: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - name: Avisar no Discord que o build começou
+        run: |
+          jq -n --arg p "$PERFIL" --arg c "${GITHUB_SHA::7}" --arg u "$EXECUCAO" --arg a "$GITHUB_ACTOR" \
+            '{embeds:[{title:"🔨 Build do APK iniciado", color:3447003,
+              description:"Perfil **\($p)** · commit `\($c)` · por \($a)\n[Acompanhar no GitHub](\($u))"}]}' \
+          | curl -sS --fail -H 'Content-Type: application/json' -d @- "$DISCORD_WEBHOOK_URL"
+
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Instalar o EAS CLI
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Build no EAS (espera terminar)
+        working-directory: apps/mobile
+        run: eas build -p android --profile "$PERFIL" --non-interactive --wait --json > "$RUNNER_TEMP/build.json"
+
+      - name: Avisar no Discord que o APK está pronto
+        run: |
+          B="$RUNNER_TEMP/build.json"
+          jq -n --arg p "$PERFIL" --arg u "$EXECUCAO" \
+            --arg apk "$(jq -r '.[0].artifacts.buildUrl // .[0].artifacts.applicationArchiveUrl' "$B")" \
+            --arg v "$(jq -r '.[0].appVersion // "?"' "$B")" \
+            --arg vc "$(jq -r '.[0].appBuildVersion // "?"' "$B")" \
+            --arg c "${GITHUB_SHA::7}" \
+            '{embeds:[{title:"✅ APK pronto", color:5763719, url:$apk,
+              description:"Perfil **\($p)** · versão \($v) (\($vc)) · commit `\($c)`\n[⬇️ Baixar o APK](\($apk)) · [Execução no GitHub](\($u))"}]}' \
+          | curl -sS --fail -H 'Content-Type: application/json' -d @- "$DISCORD_WEBHOOK_URL"
+
+      - name: Avisar no Discord que o build falhou
+        if: failure()
+        run: |
+          jq -n --arg p "$PERFIL" --arg u "$EXECUCAO" --arg c "${GITHUB_SHA::7}" \
+            '{embeds:[{title:"❌ Build do APK falhou", color:15548997,
+              description:"Perfil **\($p)** · commit `\($c)`\n[Ver o erro no GitHub](\($u))"}]}' \
+          | curl -sS --fail -H 'Content-Type: application/json' -d @- "$DISCORD_WEBHOOK_URL"

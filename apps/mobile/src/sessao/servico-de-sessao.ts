@@ -23,15 +23,29 @@ export type ResultadoAoEntrar =
   | { ok: true; sessao: SessaoLocal }
   | { ok: false; motivo: MotivoFalhaAoEntrar; mensagem: string };
 
+/**
+ * Resultado de pedir o token para falar com a nuvem (§4.6, sugestão da Arquitetura no passo 5):
+ * - `ok`: token válido (renovado antes de vencer, se preciso);
+ * - `sem_internet`: não deu para falar com o Supabase — tenta depois, nada muda;
+ * - `sessao_recusada`: o Supabase RECUSOU a sessão (renovação negada, conta desativada):
+ *   o app pede para entrar de novo, SEM apagar a fila nem os dados do celular;
+ * - `sem_configuracao`: app gerado sem a URL/chave do Supabase.
+ */
+export type ResultadoDoToken =
+  | { situacao: 'ok'; token: string }
+  | { situacao: 'sem_internet' }
+  | { situacao: 'sessao_recusada' }
+  | { situacao: 'sem_configuracao' };
+
 export interface ServicoDeSessao {
   /** Lê a sessão local guardada no aparelho (funciona sem internet). */
   carregar(): Promise<SessaoLocal | null>;
   entrar(email: string, senha: string): Promise<ResultadoAoEntrar>;
   /**
-   * Token para chamar a API NestJS e o PowerSync. Renova antes de vencer; sem internet ou sem
-   * sessão na nuvem, devolve `null` (quem chama trata como "sem internet").
+   * Token para chamar a API NestJS e o PowerSync. Renova antes de vencer, ou sempre que
+   * `forcarRenovacao` (ex.: a API respondeu 401).
    */
-  obterTokenDeAcesso(): Promise<string | null>;
+  obterTokenDeAcesso(opcoes?: { forcarRenovacao?: boolean }): Promise<ResultadoDoToken>;
   /**
    * Sai da conta neste aparelho: apaga a sessão local e encerra a sessão na nuvem se houver
    * internet. A conferência de lançamentos pendentes e a limpeza do banco local são a

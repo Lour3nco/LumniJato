@@ -2,9 +2,12 @@ import {
   MENSAGENS_AO_ENTRAR,
   type MotivoFalhaAoEntrar,
   type ResultadoAoEntrar,
+  type ResultadoDoToken,
   type ServicoDeSessao,
   type SessaoLocal,
 } from './servico-de-sessao';
+
+type ErroDoSupabase = { name?: string; code?: string; status?: number; message: string };
 
 /** Parte do cliente de autenticação do Supabase que o app usa (facilita testar sem rede). */
 export interface ClienteDeAutenticacao {
@@ -12,8 +15,11 @@ export interface ClienteDeAutenticacao {
     data: { user: { id: string; email?: string } | null; session: unknown };
     error: { name?: string; code?: string; status?: number; message: string } | null;
   }>;
-  getSession(): Promise<{ data: { session: { access_token: string; expires_at?: number } | null } }>;
-  refreshSession(): Promise<{ data: { session: { access_token: string } | null } }>;
+  getSession(): Promise<{
+    data: { session: { access_token: string; expires_at?: number } | null };
+    error?: ErroDoSupabase | null;
+  }>;
+  refreshSession(): Promise<{ data: { session: { access_token: string } | null }; error?: ErroDoSupabase | null }>;
   signOut(opcoes: { scope: 'local' }): Promise<unknown>;
 }
 
@@ -41,6 +47,15 @@ function motivoDoErro(erro: { name?: string; code?: string; status?: number }): 
   // Falha de rede: o supabase-js usa AuthRetryableFetchError (status 0 ou 5xx).
   if (erro.name === 'AuthRetryableFetchError' || erro.status === 0) return 'sem_internet';
   return 'desconhecido';
+}
+
+/** Falha de rede (vale tentar de novo) × recusa do Supabase (precisa entrar de novo). */
+function ehFalhaDeRede(erro: ErroDoSupabase): boolean {
+  return erro.name === 'AuthRetryableFetchError' || erro.status === 0 || (erro.status ?? 0) >= 500;
+}
+
+function situacaoDoErro(erro: ErroDoSupabase): ResultadoDoToken {
+  return ehFalhaDeRede(erro) ? { situacao: 'sem_internet' } : { situacao: 'sessao_recusada' };
 }
 
 function falha(motivo: MotivoFalhaAoEntrar): ResultadoAoEntrar {
@@ -81,19 +96,26 @@ export function criarServicoSupabase({ obterCliente, armazenamento, agora = Date
       return { ok: true, sessao };
     },
 
-    async obterTokenDeAcesso() {
+    async obterTokenDeAcesso(opcoes = {}) {
       const cliente = obterCliente();
-      if (!cliente) return null;
+      if (!cliente) return { situacao: 'sem_configuracao' };
       try {
-        const { data } = await cliente.getSession();
+        const { data, error } = await cliente.getSession();
+        if (error) return situacaoDoErro(error);
         const sessao = data.session;
-        if (!sessao) return null;
+        // Sem sessão guardada no aparelho para a nuvem: precisa entrar de novo.
+        if (!sessao) return { situacao: 'sessao_recusada' };
         const venceEmMs = (sessao.expires_at ?? 0) * 1000;
-        if (venceEmMs - agora() > MARGEM_DE_RENOVACAO_MS) return sessao.access_token;
+        if (!opcoes.forcarRenovacao && venceEmMs - agora() > MARGEM_DE_RENOVACAO_MS) {
+          return { situacao: 'ok', token: sessao.access_token };
+        }
         const renovada = await cliente.refreshSession();
-        return renovada.data.session?.access_token ?? null;
+        if (renovada.error) return situacaoDoErro(renovada.error);
+        const token = renovada.data.session?.access_token;
+        return token ? { situacao: 'ok', token } : { situacao: 'sessao_recusada' };
       } catch {
-        return null;
+        // fetch rejeitado antes de chegar ao Supabase.
+        return { situacao: 'sem_internet' };
       }
     },
 

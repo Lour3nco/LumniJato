@@ -6,6 +6,8 @@ export type Papel = (typeof PAPEIS)[number];
 
 export interface Vinculo {
   readonly unidadeId: string;
+  /** Organização da unidade: os cadastros (categorias, tipos…) são da organização (S-03). */
+  readonly organizacaoId: string;
   readonly unidadeNome: string;
   readonly papel: Papel;
 }
@@ -41,6 +43,18 @@ export class UsuarioAutenticado {
   exigirMesmoAutor(autorInformado: string): void {
     if (autorInformado !== this.id) {
       throw new ErroDeAutorizacao('autor_diferente', 'O lançamento não pode ser gravado em nome de outra pessoa.');
+    }
+  }
+
+  /** Tem o papel em alguma unidade da organização? (cadastros comuns, §3.5) */
+  temPapelNaOrganizacao(organizacaoId: string, papeis: readonly Papel[]): boolean {
+    return this.vinculos.some((v) => v.organizacaoId === organizacaoId && papeis.includes(v.papel));
+  }
+
+  /** Lança 403 se o usuário não tem o papel em nenhuma unidade da organização. */
+  exigirPapelNaOrganizacao(organizacaoId: string, papeis: readonly Papel[]): void {
+    if (!this.temPapelNaOrganizacao(organizacaoId, papeis)) {
+      throw new ErroDeAutorizacao('sem_permissao_na_organizacao', 'Você não tem permissão para mudar estes cadastros.');
     }
   }
 

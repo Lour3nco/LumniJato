@@ -8,5 +8,6 @@ export { GradeDeIcones, type ItemDaGrade } from './GradeDeIcones';
 export { Icone } from './Icone';
 export { ItemDeLista } from './ItemDeLista';
 export { ItemDeMenu } from './ItemDeMenu';
+export { SeletorDeUnidade } from './SeletorDeUnidade';
 export { TecladoNumerico } from './TecladoNumerico';
 export { ValorEmReais } from './ValorEmReais';

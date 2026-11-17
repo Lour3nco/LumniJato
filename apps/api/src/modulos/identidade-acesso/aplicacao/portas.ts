@@ -11,7 +11,7 @@ export interface PerfilComVinculos {
   email: string | null;
   ativo: boolean;
   /** Só vínculos ativos de unidades ativas. */
-  vinculos: { unidadeId: string; unidadeNome: string; papel: Papel }[];
+  vinculos: { unidadeId: string; organizacaoId: string; unidadeNome: string; papel: Papel }[];
 }
 
 export interface RegistroDeDispositivo {

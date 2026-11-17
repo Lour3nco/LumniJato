@@ -1,7 +1,7 @@
 # Módulo 1 — Gestão de Finanças · Critérios de aceite e plano de qualidade
 
 Projeto: Lavajato Sistema
-Documento: 05-criterios-aceite.md · Autor: Agente QA · Versão: 13 · Status: **rascunho para revisão** (v2: critérios da nova FIN-US-04.7, filtro por tipo de serviço; D-QA-03 resolvida e D-QA-01 respondida pelo 04-backlog v2 · v3: critérios da FIN-US-02.12 com a regra do dono para E2-04/D-BL-01 — opção a), veículo obrigatório e tipo de serviço opcional · v4: D-QA-13 e D-QA-14 respondidas pelo Orquestrador; opção "Sem tipo de serviço" no filtro do Extrato e abertura da linha correspondente do Resumo · v5: decisões finais do dono (01-visao §9c): F-06 categorias de sistema, F-12 formas de pagamento e Pix no primeiro lançamento, F-13 edição sem troca de tipo, F-15 um celular — FIN-US-07.7 vai para a v1.1 · v6: F-02 MVP completo (M1 → M2 → M3, sem efeito nos critérios), F-03 só Android, F-05 unidade obrigatória também no Pessoal · v7: F-04 APK sem loja, F-08 unidades e formas na implantação, F-09 histórico e lixeira de 90 dias no MVP (FIN-US-06.4 e 06.5), F-10 sem PIN/biometria · v8: histórico, lixeira e exclusão conferidos com o 02-design v7 (TELA-07, TELA-09, TELA-15, TELA-16) · v9: D-QA-15 a D-QA-18 respondidas — histórico só leitura e sempre visível, aparelho/conflito para a v1.1, Desfazer pós-salvar fora da Lixeira · v10: D-QA-04 respondida pelo dono — nomes iguais sem diferença de maiúsculas, acentos e espaços nas pontas · v11: nova stack (NestJS com DDD e monólito modular, sincronização pelo NestJS, só planos gratuitos) — critérios das histórias novas e reescritas do 04-backlog v8, F-03b, F-14, F-16; painel web registrado como Pós-MVP · v12: redação do CA-01.2.2 ajustada após a verificação do M1, passos 1 e 2 — as migrações criam a estrutura definida nelas, ou seja, os schemas e, a partir da FIN-US-01.3, as tabelas · v13: redação do CA-01.3.2 ajustada depois da verificação do passo 3 do M1 (valor com casas decimais gravado por parâmetro ou texto); o arredondamento de um literal SQL fica registrado como limitação conhecida)
+Documento: 05-criterios-aceite.md · Autor: Agente QA · Versão: 14 · Status: **rascunho para revisão** (v2: critérios da nova FIN-US-04.7, filtro por tipo de serviço; D-QA-03 resolvida e D-QA-01 respondida pelo 04-backlog v2 · v3: critérios da FIN-US-02.12 com a regra do dono para E2-04/D-BL-01 — opção a), veículo obrigatório e tipo de serviço opcional · v4: D-QA-13 e D-QA-14 respondidas pelo Orquestrador; opção "Sem tipo de serviço" no filtro do Extrato e abertura da linha correspondente do Resumo · v5: decisões finais do dono (01-visao §9c): F-06 categorias de sistema, F-12 formas de pagamento e Pix no primeiro lançamento, F-13 edição sem troca de tipo, F-15 um celular — FIN-US-07.7 vai para a v1.1 · v6: F-02 MVP completo (M1 → M2 → M3, sem efeito nos critérios), F-03 só Android, F-05 unidade obrigatória também no Pessoal · v7: F-04 APK sem loja, F-08 unidades e formas na implantação, F-09 histórico e lixeira de 90 dias no MVP (FIN-US-06.4 e 06.5), F-10 sem PIN/biometria · v8: histórico, lixeira e exclusão conferidos com o 02-design v7 (TELA-07, TELA-09, TELA-15, TELA-16) · v9: D-QA-15 a D-QA-18 respondidas — histórico só leitura e sempre visível, aparelho/conflito para a v1.1, Desfazer pós-salvar fora da Lixeira · v10: D-QA-04 respondida pelo dono — nomes iguais sem diferença de maiúsculas, acentos e espaços nas pontas · v11: nova stack (NestJS com DDD e monólito modular, sincronização pelo NestJS, só planos gratuitos) — critérios das histórias novas e reescritas do 04-backlog v8, F-03b, F-14, F-16; painel web registrado como Pós-MVP · v12: redação do CA-01.2.2 ajustada após a verificação do M1, passos 1 e 2 — as migrações criam a estrutura definida nelas, ou seja, os schemas e, a partir da FIN-US-01.3, as tabelas · v13: redação do CA-01.3.2 ajustada depois da verificação do passo 3 do M1 (valor com casas decimais gravado por parâmetro ou texto); o arredondamento de um literal SQL fica registrado como limitação conhecida · v14: ST-10 — o critério (a) de volume da prova de conceito é aprovado com a mitigação (histórico só com os campos alterados e, acima de ~250 MB hospedados, o celular baixa só os últimos 24 meses); CA-01.5.2, CA-07.10.1, 07.10.2 e 07.10.6 ajustados; novos CA-07.1.6, 07.1.7 e 07.1.8 (janela de 24 meses e aviso) e CA-09.2.7 (tamanho do banco e alerta); D-QA-20 e D-QA-21 com propostas do Orquestrador [SUPOSIÇÃO até o dono confirmar])
 Fontes: `04-backlog.md` (v8), `03-arquitetura.md` (v2, nova stack), `02-design.md` (v7), `01-visao.md` (v3, com as seções 9b, 9c e 9d). Em caso de conflito, vale a visão.
 
 > Convenção: **[CONFIRMADO]** veio do dono · **[SUPOSIÇÃO]** não validado (entre parênteses, a dúvida que pode mudar o critério) · **[DÚVIDA]** precisa de resposta antes de virar regra.
@@ -12,7 +12,7 @@ Fontes: `04-backlog.md` (v8), `03-arquitetura.md` (v2, nova stack), `02-design.m
 
 ## 1. Visão geral
 
-Este documento define **como saber que cada história MVP do 04-backlog está pronta**. Com a **nova stack** [CONFIRMADO ST-01 a ST-07] — app React Native/Expo, back-end **NestJS com DDD, Clean Architecture e monólito modular**, Supabase (Postgres) com a API pública fechada, toda escrita do celular passando pelo NestJS e **só planos gratuitos** (F-03b) — o 04-backlog v8 tem **73 histórias MVP**, e **todas as 73** têm critérios no formato **Dado / Quando / Então** (**354 critérios** no total), cobrindo o caminho feliz e as validações principais. As regras de domínio (E2-04, F-06, F-09, F-13, F-16) agora são verificadas **no back-end** (FIN-US-01.14 a 01.16) e por **testes de API** (FIN-US-01.18). A FIN-US-07.7 (conflito entre aparelhos) é da **v1.1** pela F-15: os critérios dela continuam neste documento, fora da contagem do MVP. O **painel web** Next.js (FIN-EP-10, 8 histórias, Pós-MVP, ST-06/ST-07) ainda **não tem critérios** (ver §7), e a FIN-US-07.12 (sincronização própria) é **contingência**: só ganha critérios se a prova de conceito do PowerSync reprovar.
+Este documento define **como saber que cada história MVP do 04-backlog está pronta**. Com a **nova stack** [CONFIRMADO ST-01 a ST-07] — app React Native/Expo, back-end **NestJS com DDD, Clean Architecture e monólito modular**, Supabase (Postgres) com a API pública fechada, toda escrita do celular passando pelo NestJS e **só planos gratuitos** (F-03b) — o 04-backlog v8 tem **73 histórias MVP**, e **todas as 73** têm critérios no formato **Dado / Quando / Então** (**358 critérios** no total), cobrindo o caminho feliz e as validações principais. As regras de domínio (E2-04, F-06, F-09, F-13, F-16) agora são verificadas **no back-end** (FIN-US-01.14 a 01.16) e por **testes de API** (FIN-US-01.18). A FIN-US-07.7 (conflito entre aparelhos) é da **v1.1** pela F-15: os critérios dela continuam neste documento, fora da contagem do MVP. O **painel web** Next.js (FIN-EP-10, 8 histórias, Pós-MVP, ST-06/ST-07) ainda **não tem critérios** (ver §7), e a FIN-US-07.12 (sincronização própria) é **contingência**: só ganha critérios se a prova de conceito do PowerSync reprovar.
 
 Depois vêm os **casos de borda** que atravessam várias histórias (valor, centavos, datas, duplicados, conflito, sincronização, cadastros, unidade, Pessoal/Empresa, período e segurança), os **riscos de qualidade**, a **estratégia de testes** (o que automatizar, o que testar à mão e o checklist no celular), as **suposições e dúvidas** e o que fica **fora do escopo**.
 
@@ -75,7 +75,7 @@ Regras de leitura:
 | ID | Dado | Quando | Então |
 |---|---|---|---|
 | CA-01.5.1 | um lançamento novo enviado pelo app | o NestJS o aceita | `recebido_servidor_em` tem a hora do servidor (mesmo que o app envie outro valor), `versao = 1` e o histórico ganha uma linha `criacao` com `dados_antes` nulo, gravada **na mesma transação** |
-| CA-01.5.2 | um lançamento na versão N | uma alteração é aceita | `versao` passa a N+1 e o histórico ganha uma linha `alteracao` com antes, depois, `campos_alterados`, quem, quando e aparelho |
+| CA-01.5.2 | um lançamento na versão N | uma alteração é aceita | `versao` passa a N+1 e o histórico ganha uma linha `alteracao` com `campos_alterados`, quem, quando e aparelho; `dados_antes` e `dados_depois` guardam **só os campos alterados**, não o registro inteiro [CONFIRMADO ST-10: mitigação de volume] |
 | CA-01.5.3 | um lançamento ativo / excluído | uma exclusão / restauração é aceita | o histórico ganha uma linha `exclusao` / `restauracao` |
 | CA-01.5.4 | uma falha simulada ao gravar a linha do histórico | o caso de uso tenta salvar a alteração | nada é gravado (nem o lançamento, nem o histórico); a operação volta como erro temporário e o app tenta de novo [SUPOSIÇÃO: erro 5xx tratado como temporário] |
 | CA-01.5.5 | o app ou qualquer cliente com token de usuário | tenta gravar, alterar ou apagar `lancamento_historico` (por upload de sincronização ou chamada à API) | é recusado e nada muda: não existe caso de uso que escreva histórico a pedido do cliente (RNF-14) |
@@ -586,6 +586,9 @@ Regra do dono [CONFIRMADO, E2-04 opção a)]: **numa entrada de serviço, o tipo
 | CA-07.1.3 | alterações feitas no aparelho | o conector de envio as manda | vão para `POST /sync/upload` do NestJS com o JWT; o app não tem credencial para gravar no Postgres e nunca grava direto nele; uma operação para unidade sem vínculo volta recusada (403) |
 | CA-07.1.4 | lançamentos salvos no aparelho | o app é fechado à força e o aparelho reiniciado | os lançamentos continuam lá |
 | CA-07.1.5 | as sync rules | a equipe procura e altera as regras | elas estão versionadas em `infra/powersync/`; uma mudança passa pelo repositório, nunca só pelo painel do serviço [SUPOSIÇÃO] |
+| CA-07.1.6 | a janela de 24 meses ativa (dado hospedado acima de ~250 MB) e, no servidor, lançamentos de hoje, de 23 meses atrás e de 30 meses atrás | o PowerSync baixa os dados para o celular | o banco local recebe os lançamentos (e o histórico deles) de hoje e de 23 meses atrás, mas não o de 30 meses atrás; os cadastros e a preferência vêm inteiros; no Postgres, os três continuam lá, sem nenhuma exclusão [CONFIRMADO ST-10; janela contada pela data do lançamento e ligada pela equipe, por mudança das sync rules versionadas (CA-07.1.5), depois do alerta de volume (CA-09.2.7): SUPOSIÇÃO até o dono confirmar, D-QA-20, D-QA-21] |
+| CA-07.1.7 | a janela de 24 meses ativa | o dono lança, edita, exclui ou restaura no celular (offline ou online) e toca "Sincronizar" | tudo o que foi feito no celular sobe para o Postgres pelo `POST /sync/upload`, como sem a janela; com a janela inativa (abaixo de ~250 MB), o celular baixa todos os lançamentos [CONFIRMADO ST-10] |
+| CA-07.1.8 | a janela de 24 meses ativa | o dono abre no Extrato ou no Resumo um período anterior à janela | em vez de zeros ou da lista vazia, aparece o aviso "Lançamentos com mais de 24 meses ficam guardados na nuvem" [SUPOSIÇÃO até o dono confirmar, D-QA-20] |
 
 **FIN-US-07.2 — IDs no aparelho e envio sem duplicar**
 
@@ -662,12 +665,12 @@ Regra do dono [CONFIRMADO, E2-04 opção a)]: **numa entrada de serviço, o tipo
 
 | ID | Dado | Quando | Então |
 |---|---|---|---|
-| CA-07.10.1 | o início do M1 | a prova de conceito termina | existe no repositório um registro da decisão com o resultado de cada critério (a) a (d), medições, data, a decisão (PowerSync ou sincronização própria) e a hospedagem gratuita escolhida para a API [CONFIRMADO F-03b] |
-| CA-07.10.2 | o volume do MVP simulado (S-01: até ~9.000 lançamentos/mês e o histórico) | a equipe compara com os limites do plano gratuito | o uso fica abaixo dos limites com folga registrada [critério (a); folga mínima: SUPOSIÇÃO de 50%] |
+| CA-07.10.1 | o início do M1 | a prova de conceito termina | existe no repositório um registro da decisão com o resultado de cada critério (a) a (d), medições, data, a decisão (PowerSync ou sincronização própria), a mitigação de volume adotada e a hospedagem gratuita escolhida para a API [CONFIRMADO F-03b, ST-10] |
+| CA-07.10.2 | o volume do MVP simulado (S-01: até ~9.000 lançamentos/mês e o histórico) | a equipe compara com os limites do plano gratuito | o registro mostra o uso estimado ou medido mês a mês e quando o dado hospedado passa de ~250 MB (50% do limite de 500 MB); o critério (a) é **aprovado com a mitigação da ST-10**: histórico só com os campos alterados (CA-01.5.2) e, acima de ~250 MB, o celular baixa só os últimos 24 meses (CA-07.1.6), sem apagar nada do banco. Passar de 50% no teto da S-01 não reprova por si só [CONFIRMADO ST-10; o gatilho de ~250 MB é SUPOSIÇÃO até o dono confirmar] |
 | CA-07.10.3 | as regras de inatividade do plano gratuito (PowerSync e Supabase) | a equipe as confere com o uso diário do dono | o uso diário não deixa o serviço pausar, ou a pausa não impede lançar e sincronizar depois [critério (b)] |
 | CA-07.10.4 | 50 lançamentos feitos em modo avião | o aparelho volta a ter internet | os 50 chegam ao Postgres passando por `POST /sync/upload`, sem perda nem duplicado [critério (c)] |
 | CA-07.10.5 | o mesmo JWT do Supabase Auth | ele é usado no PowerSync e no NestJS / um token vencido é usado | os dois aceitam / os dois recusam [critério (d)] |
-| CA-07.10.6 | qualquer critério (a) a (d) reprovado | a decisão é registrada | a decisão é "sincronização própria": a FIN-US-07.12 substitui a 07.1 e o backlog é atualizado (+3 pontos) |
+| CA-07.10.6 | qualquer critério (b) a (d) reprovado, ou o (a) reprovado **mesmo com** a mitigação da ST-10 (ex.: o volume não cabe no plano gratuito nem com a janela de 24 meses no celular) | a decisão é registrada | a decisão é "sincronização própria": a FIN-US-07.12 substitui a 07.1 e o backlog é atualizado (+3 pontos). Volume acima de 50% que cabe com a mitigação **não** leva à sincronização própria, porque o limite de 500 MB é do projeto todo e ela não o resolveria [CONFIRMADO ST-10] |
 
 **FIN-US-07.11 — Módulo Sincronização no NestJS** *(nova na v11)*
 
@@ -736,6 +739,7 @@ Regra do dono [CONFIRMADO, E2-04 opção a)]: **numa entrada de serviço, o tipo
 | CA-09.2.4 | uma falha da rotina (ex.: credencial errada ou destino cheio) | o agendador termina | a equipe recebe um aviso por e-mail [SUPOSIÇÃO] |
 | CA-09.2.5 | uma cópia recente | a equipe a restaura num banco de teste antes de ir para produção | a quantidade de lançamentos e a soma de `valor_centavos` por unidade batem com a origem, e o resultado é registrado |
 | CA-09.2.6 | a rotina de backup em produção | a equipe confere os serviços usados | todos estão em plano gratuito, sem custo [CONFIRMADO F-03b] |
+| CA-09.2.7 | a rotina de backup semanal | ela roda | registra também o tamanho do banco hospedado; acima de ~250 MB, a equipe recebe um alerta para ligar a janela de 24 meses (CA-07.1.6) [SUPOSIÇÃO até o dono confirmar, D-QA-21; ST-10] |
 
 **FIN-US-09.3 — Privacidade (LGPD)**
 
@@ -942,7 +946,7 @@ Escala: Probabilidade e Impacto em Baixa / Média / Alta.
 | R-16 | Restauração de backup não funciona quando precisar | Baixa | Alta | 09.2 | Restauração de teste antes de produção e depois a cada 3 meses [SUPOSIÇÃO] (CA-09.2.3) |
 | R-18 | O app e o banco normalizam nomes de forma diferente (acentos raros, ç, espaços), e um nome aceito no app é recusado no servidor ou o contrário | Média | Média | 01.16, 01.17, 03.x | Teste com a mesma tabela de nomes no `normalizarNome` e no `nome_chave` do Postgres (CA-01.17.2) |
 | R-19 | Backup só semanal: uma restauração volta o servidor até 7 dias, e o recebimento apaga do celular lançamentos já enviados | Baixa | Alta | 09.2, 07.1 | Ensaio de restauração com celular de teste (CB-f.8); procedimento definido antes de produção (D-QA-19) |
-| R-20 | Limites ou pausa por inatividade dos planos gratuitos (PowerSync, Supabase, hospedagem) interrompem a sincronização | Média | Média | 07.10, 09.9 | Prova de conceito com critérios medidos (CA-07.10.x); app continua salvando offline (RNF-03) |
+| R-20 | Limites ou pausa por inatividade dos planos gratuitos (PowerSync, Supabase, hospedagem) interrompem a sincronização | Média | Média | 07.10, 09.9 | Prova de conceito com critérios medidos (CA-07.10.x); app continua salvando offline (RNF-03); volume: histórico só com campos alterados e janela de 24 meses no celular acima de ~250 MB (ST-10, CA-01.5.2, CA-07.1.6) |
 | R-21 | Regra de domínio diferente entre o app (pacote compartilhado) e a API, gerando muitos erros 422 depois de salvar | Média | Média | 01.14, 01.17, 02.x | Os mesmos casos de teste de invariantes rodam no pacote compartilhado e no domínio da API; testes de contrato (CA-01.18.7) |
 
 ---
@@ -1152,6 +1156,8 @@ Ferramentas sugeridas [SUPOSIÇÃO, decisão da equipe]: Jest para unidade no ap
 | D-QA-17 | ~~Quando aparece "Ver histórico" e o estado vazio da TELA-15?~~ **Respondida pelo Orquestrador:** o link aparece sempre; o estado vazio saiu; excluídos e restaurados mostram essas ações. | CA-06.4.6 |
 | D-QA-18 | ~~O Desfazer pós-salvar vai para a Lixeira?~~ **Respondida pelo Orquestrador:** não [SUPOSIÇÃO]; o registro continua no servidor. | CA-02.8.3, CA-06.5.9 |
 | D-QA-19 | Com backup só semanal (F-03b), se o servidor for restaurado, como os lançamentos já enviados depois do backup voltam do celular ao servidor, sem que o recebimento os apague do aparelho? | CB-f.8, CA-09.2.x |
+| D-QA-20 | Com a janela de 24 meses ativa (ST-10), os lançamentos mais antigos só ficam consultáveis pelo painel web, que é Pós-MVP. No MVP, o que o app mostra ao navegar no Extrato/Resumo para um período anterior aos 24 meses (aviso "dados mais antigos ficam guardados na nuvem", ou nada)? E a janela é contada pela `data_lancamento` ou pela data de envio? **Proposta do Orquestrador (visão ST-10) [SUPOSIÇÃO até o dono confirmar]:** conta pela data do lançamento; num período anterior, Extrato e Resumo mostram o aviso "Lançamentos com mais de 24 meses ficam guardados na nuvem" (CA-07.1.8). | CA-07.1.6, CA-07.1.8 |
+| D-QA-21 | Quem ativa a janela de 24 meses e como: automática quando o dado hospedado passar de ~250 MB, ou uma mudança das sync rules feita pela equipe depois de um alerta de volume? E quem acompanha o volume (ninguém no MVP tem uma história de monitoramento)? **Proposta do Orquestrador (visão ST-10) [SUPOSIÇÃO até o dono confirmar]:** a equipe liga a janela mudando as sync rules, depois de um alerta; o volume é acompanhado pelo backup semanal, que registra o tamanho do banco (CA-09.2.7). | CA-07.1.6, CA-07.10.2, CA-09.2.7, R-20 |
 
 ---
 
@@ -1191,7 +1197,7 @@ Não recebem critérios neste documento:
 | FIN-US-01.14 *(nova na v11)* | 9 | | FIN-US-06.3 | 4 |
 | FIN-US-01.15 *(nova na v11)* | 6 | | FIN-US-06.4 *(MVP na v7, F-09)* | 6 |
 | FIN-US-01.16 *(nova na v11)* | 8 | | FIN-US-06.5 *(MVP na v7, F-09)* | 9 |
-| FIN-US-01.17 *(nova na v11)* | 4 | | FIN-US-07.1 | 5 |
+| FIN-US-01.17 *(nova na v11)* | 4 | | FIN-US-07.1 | 8 |
 | FIN-US-01.18 *(nova na v11)* | 7 | | FIN-US-07.2 | 3 |
 | FIN-US-02.1 | 8 | | FIN-US-07.3 | 4 |
 | FIN-US-02.2 | 8 | | FIN-US-07.4 | 4 |
@@ -1206,7 +1212,7 @@ Não recebem critérios neste documento:
 | FIN-US-02.11 | 2 | | FIN-US-08.3 | 3 |
 | FIN-US-02.12 *(desbloqueada na v3)* | 11 | | FIN-US-08.4 | 3 |
 | FIN-US-03.1 | 6 | | FIN-US-09.1 | 3 |
-| FIN-US-03.2 | 4 | | FIN-US-09.2 | 6 |
+| FIN-US-03.2 | 4 | | FIN-US-09.2 | 7 |
 | FIN-US-03.3 | 4 | | FIN-US-09.3 | 2 |
 | FIN-US-03.4 | 4 | | FIN-US-09.4 | 5 |
 | FIN-US-03.5 | 3 | | FIN-US-09.5 | 2 |
@@ -1214,6 +1220,6 @@ Não recebem critérios neste documento:
 | FIN-US-04.2 | 9 | | FIN-US-09.9 *(nova na v11)* | 5 |
 | FIN-US-04.3 | 5 | |  |  |
 
-**Totais do MVP:** 73 histórias MVP; **73 com critérios**, somando **354 critérios**, mais **68 casos de borda** que valem no MVP.
+**Totais do MVP:** 73 histórias MVP; **73 com critérios**, somando **358 critérios**, mais **68 casos de borda** que valem no MVP.
 **História MVP sem critério:** nenhuma.
-**Fora da contagem do MVP (v1.1, decisão F-15):** FIN-US-07.7, com 4 critérios (CA-07.7.1 a 07.7.4), e 4 casos de borda (CB-e.2, e.4, e.5, e.6). No documento inteiro: 358 critérios e 72 casos de borda.
+**Fora da contagem do MVP (v1.1, decisão F-15):** FIN-US-07.7, com 4 critérios (CA-07.7.1 a 07.7.4), e 4 casos de borda (CB-e.2, e.4, e.5, e.6). No documento inteiro: 362 critérios e 72 casos de borda.

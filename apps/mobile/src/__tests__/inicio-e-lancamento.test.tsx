@@ -4,10 +4,14 @@ import { StyleSheet } from 'react-native';
 
 import { ROTAS_DO_APP } from '../testes/apoio/rotas';
 
-// O dono já entrou neste aparelho.
+// O dono já entrou neste aparelho e tem a "Unidade Centro" escolhida.
 jest.mock('../sessao/servico-padrao', () => {
   const apoio = jest.requireActual('../testes/apoio/sessao-falsa');
   return { servicoDeSessao: apoio.criarSessaoFalsa(apoio.SESSAO_DO_DONO).servico };
+});
+jest.mock('../unidades/fonte-padrao', () => {
+  const apoio = jest.requireActual('../testes/apoio/unidades-falsas');
+  return { criarFonteDeUnidadesPadrao: () => apoio.criarFonteFalsa().fonte };
 });
 
 /** Avança os timers falsos do renderRouter para a navegação terminar. */
@@ -41,6 +45,7 @@ function valorNaTela(): string {
 async function abrirFormulario(botao: string): Promise<void> {
   await renderRouter(ROTAS_DO_APP, { initialUrl: '/' });
   await screen.findByRole('header', { name: 'Início' });
+  await esperarNavegacao(); // unidades carregadas
   await tocar(botao);
 }
 

@@ -154,6 +154,33 @@ describe('acesso direto ao banco fechado (FIN-US-01.4)', () => {
       await expect(comoPapel('api_lavajato', sql)).rejects.toThrow(/permission denied/);
     });
 
+    // Sugestão da Arquitetura (passo 5): mínimo privilégio no schema identidade
+    it('só lê organização, unidade, usuário e vínculo; grava só o dispositivo', async () => {
+      const { rows } = await banco.query<{ tabela: string; select: boolean; insert: boolean; update: boolean }>(
+        `select c.relname as tabela,
+                has_table_privilege('api_lavajato', c.oid, 'SELECT') as select,
+                has_table_privilege('api_lavajato', c.oid, 'INSERT') as insert,
+                has_table_privilege('api_lavajato', c.oid, 'UPDATE') as update
+           from pg_class c join pg_namespace n on n.oid = c.relnamespace
+          where n.nspname = 'identidade' and c.relkind = 'r' order by 1`,
+      );
+      expect(rows).toEqual([
+        { tabela: 'dispositivo', select: true, insert: true, update: true },
+        { tabela: 'organizacao', select: true, insert: false, update: false },
+        { tabela: 'unidade', select: true, insert: false, update: false },
+        { tabela: 'usuario', select: true, insert: false, update: false },
+        { tabela: 'usuario_unidade', select: true, insert: false, update: false },
+      ]);
+    });
+
+    it.each([
+      ['criar unidade', `insert into identidade.unidade (id, organizacao_id, nome) values ('00000000-0000-4000-8000-0000000000c1', '00000000-0000-4000-8000-000000000001', 'X')`],
+      ['mudar o próprio papel', `update identidade.usuario_unidade set papel = 'dono'`],
+      ['reativar usuário', `update identidade.usuario set ativo = true`],
+    ])('não consegue %s', async (_acao, sql) => {
+      await expect(comoPapel('api_lavajato', sql)).rejects.toThrow(/permission denied/);
+    });
+
     it('não tem privilégio em tabelas fora dos schemas dos módulos', async () => {
       const { rows } = await banco.query<{ tabela: string }>(
         `select n.nspname || '.' || c.relname as tabela

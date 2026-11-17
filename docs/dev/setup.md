@@ -175,6 +175,7 @@ Para o app de celular, copie também `apps/mobile/.env.example` para `apps/mobil
 |---|---|---|
 | `EXPO_PUBLIC_SUPABASE_URL` | **Project Settings → API → Project URL** | vai dentro do APK (é pública) |
 | `EXPO_PUBLIC_SUPABASE_ANON_KEY` | **Project Settings → API Keys → anon / publishable** | pública; **nunca** a service_role |
+| `EXPO_PUBLIC_API_URL` | endereço da API publicada ([adr-003-hospedagem-api.md](adr-003-hospedagem-api.md)) | o app busca as unidades em `/eu` até a sincronização existir |
 | `EAS_PROJECT_ID` | criado no `eas init` ([apk.md](apk.md)) | liga as atualizações pelo app |
 
 Regras:
@@ -191,4 +192,5 @@ Regras:
 - [apk.md](apk.md): gerar, instalar e atualizar o APK; guardar a chave de assinatura.
 - [adr-001-query-builder.md](adr-001-query-builder.md): por que a API usa o Kysely.
 - [adr-002-sincronizacao.md](adr-002-sincronizacao.md): PowerSync × sincronização própria (rascunho).
+- [adr-003-hospedagem-api.md](adr-003-hospedagem-api.md): hospedagem gratuita da API (rascunho).
 - [../../infra/powersync/prova-de-conceito.md](../../infra/powersync/prova-de-conceito.md): roteiro da prova do PowerSync.

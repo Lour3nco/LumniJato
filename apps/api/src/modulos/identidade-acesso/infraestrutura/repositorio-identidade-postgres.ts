@@ -40,7 +40,7 @@ export class RepositorioIdentidadePostgres extends RepositorioDeIdentidade {
     const vinculos = await this.banco()
       .selectFrom('identidade.usuario_unidade as uu')
       .innerJoin('identidade.unidade as u', 'u.id', 'uu.unidade_id')
-      .select(['uu.unidade_id as unidadeId', 'u.nome as unidadeNome', 'uu.papel as papel'])
+      .select(['uu.unidade_id as unidadeId', 'u.organizacao_id as organizacaoId', 'u.nome as unidadeNome', 'uu.papel as papel'])
       .where('uu.usuario_id', '=', usuarioId)
       .where('uu.ativo', '=', true)
       .where('u.ativa', '=', true)

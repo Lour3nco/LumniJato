@@ -1,10 +1,17 @@
 import { Stack } from 'expo-router';
+import { useMemo } from 'react';
 
+import { useSessao } from '../../sessao/ProvedorDeSessao';
 import { cores } from '../../tema';
+import { ProvedorDeUnidades } from '../../unidades/ProvedorDeUnidades';
+import { criarFonteDeUnidadesPadrao } from '../../unidades/fonte-padrao';
 
 /** Telas que só abrem com sessão (o layout raiz protege este grupo inteiro). */
 export default function LayoutProtegido() {
+  const { obterTokenDeAcesso } = useSessao();
+  const fonte = useMemo(() => criarFonteDeUnidadesPadrao(obterTokenDeAcesso), [obterTokenDeAcesso]);
   return (
+    <ProvedorDeUnidades fonte={fonte}>
     <Stack
       screenOptions={{
         headerShown: false,
@@ -22,5 +29,6 @@ export default function LayoutProtegido() {
       <Stack.Screen name="ajustes/sincronizacao" options={{ headerShown: true, title: 'Sincronização' }} />
       <Stack.Screen name="ajustes/sobre" options={{ headerShown: true, title: 'Sobre' }} />
     </Stack>
+    </ProvedorDeUnidades>
   );
 }

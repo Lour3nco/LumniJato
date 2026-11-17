@@ -1,6 +1,8 @@
+import type { ResultadoDoToken } from '../sessao/servico-de-sessao';
 import {
   type OperacaoDaFila,
   type TransacaoDaFila,
+  ErroDeSessaoRecusada,
   ErroTemporarioDeEnvio,
   criarConectorDeEnvio,
 } from '../sincronizacao/conector-envio';
@@ -64,7 +66,8 @@ function conector(servidor: ReturnType<typeof servidorFalso>, aoRecusar = jest.f
   return criarConectorDeEnvio({
     urlDaApi: 'https://api.exemplo.com/',
     urlDoPowerSync: 'https://instancia.powersync.exemplo',
-    obterToken: async () => 'token-do-supabase',
+    obterToken: async () => ({ situacao: 'ok' as const, token: 'token-do-supabase' }),
+    aoSessaoRecusada: jest.fn(),
     aoRecusar,
     fetch: servidor.buscar as unknown as typeof fetch,
   });
@@ -107,13 +110,14 @@ describe('conector de envio para POST /sync/upload (FIN-US-07.10)', () => {
     expect(servidor.gravados.size).toBe(1);
   });
 
-  it('servidor fora (5xx) ou sessão vencida (401) mantêm a operação na fila', async () => {
-    for (const status of [500, 503, 401]) {
+  it('servidor fora (5xx) mantém a operação na fila', async () => {
+    for (const status of [500, 503]) {
       const fila = filaFalsa([[lancamento()]]);
       const envio = criarConectorDeEnvio({
         urlDaApi: 'https://api.exemplo.com',
         urlDoPowerSync: 'x',
-        obterToken: async () => 't',
+        obterToken: async () => ({ situacao: 'ok' as const, token: 't' }),
+        aoSessaoRecusada: jest.fn(),
         aoRecusar: jest.fn(),
         fetch: (async () => new Response('{}', { status })) as unknown as typeof fetch,
       });
@@ -128,7 +132,8 @@ describe('conector de envio para POST /sync/upload (FIN-US-07.10)', () => {
     const envio = criarConectorDeEnvio({
       urlDaApi: 'https://api.exemplo.com',
       urlDoPowerSync: 'x',
-      obterToken: async () => 't',
+      obterToken: async () => ({ situacao: 'ok' as const, token: 't' }),
+      aoSessaoRecusada: jest.fn(),
       aoRecusar,
       fetch: (async () =>
         new Response(
@@ -157,9 +162,77 @@ describe('conector de envio para POST /sync/upload (FIN-US-07.10)', () => {
     const semSessao = criarConectorDeEnvio({
       urlDaApi: 'x',
       urlDoPowerSync: 'y',
-      obterToken: async () => null,
+      obterToken: async () => ({ situacao: 'sem_internet' as const }),
+      aoSessaoRecusada: jest.fn(),
       aoRecusar: jest.fn(),
     });
     expect(await semSessao.fetchCredentials()).toBeNull();
+  });
+
+  // Sugestão da Arquitetura (passo 5), §4.6
+  describe('sem internet × sessão recusada na nuvem', () => {
+    function conectorCom(tokens: ResultadoDoToken[], respostas: number[]) {
+      const aoSessaoRecusada = jest.fn();
+      const fila = filaFalsa([[lancamento()]]);
+      const envio = criarConectorDeEnvio({
+        urlDaApi: 'https://api.exemplo.com',
+        urlDoPowerSync: 'x',
+        obterToken: jest.fn(async () => tokens.shift() ?? { situacao: 'sem_internet' as const }),
+        aoSessaoRecusada,
+        aoRecusar: jest.fn(),
+        fetch: (async () =>
+          new Response(
+            JSON.stringify({ resultados: fila.fila[0]?.map((o) => ({ id: o.id, situacao: 'aceita' })) ?? [] }),
+            { status: respostas.shift() ?? 200 },
+          )) as unknown as typeof fetch,
+      });
+      return { envio, fila, aoSessaoRecusada };
+    }
+
+    it('sem internet: fica na fila e NÃO pede login', async () => {
+      const { envio, fila, aoSessaoRecusada } = conectorCom([{ situacao: 'sem_internet' }], []);
+      await expect(envio.uploadData(fila)).rejects.toBeInstanceOf(ErroTemporarioDeEnvio);
+      expect(fila.fila).toHaveLength(1);
+      expect(aoSessaoRecusada).not.toHaveBeenCalled();
+    });
+
+    it('sessão recusada pelo Supabase: pede login e NÃO apaga a fila', async () => {
+      const { envio, fila, aoSessaoRecusada } = conectorCom([{ situacao: 'sessao_recusada' }], []);
+      await expect(envio.uploadData(fila)).rejects.toBeInstanceOf(ErroDeSessaoRecusada);
+      expect(fila.fila).toHaveLength(1);
+      expect(aoSessaoRecusada).toHaveBeenCalledTimes(1);
+    });
+
+    it('401 da API: renova o token e tenta de novo; se passar, envia normalmente', async () => {
+      const { envio, fila, aoSessaoRecusada } = conectorCom(
+        [
+          { situacao: 'ok', token: 'velho' },
+          { situacao: 'ok', token: 'novo' },
+        ],
+        [401, 200],
+      );
+      await envio.uploadData(fila);
+      expect(fila.fila).toHaveLength(0);
+      expect(aoSessaoRecusada).not.toHaveBeenCalled();
+    });
+
+    it('401 de novo depois de renovar: sessão recusada, fila intacta', async () => {
+      const { envio, fila, aoSessaoRecusada } = conectorCom(
+        [
+          { situacao: 'ok', token: 'a' },
+          { situacao: 'ok', token: 'b' },
+        ],
+        [401, 401],
+      );
+      await expect(envio.uploadData(fila)).rejects.toBeInstanceOf(ErroDeSessaoRecusada);
+      expect(fila.fila).toHaveLength(1);
+      expect(aoSessaoRecusada).toHaveBeenCalledTimes(1);
+    });
+
+    it('PowerSync sem credenciais quando a sessão é recusada', async () => {
+      const { envio, aoSessaoRecusada } = conectorCom([{ situacao: 'sessao_recusada' }], []);
+      expect(await envio.fetchCredentials()).toBeNull();
+      expect(aoSessaoRecusada).toHaveBeenCalled();
+    });
   });
 });

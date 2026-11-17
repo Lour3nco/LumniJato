@@ -57,4 +57,9 @@ describe('configuração por variáveis de ambiente', () => {
     const local = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres';
     expect(carregarConfiguracao({ DATABASE_URL: local, SUPABASE_URL }).DATABASE_URL).toBe(local);
   });
+
+  it('usa a variável PORT da hospedagem quando PORTA não vem (Cloud Run)', () => {
+    expect(carregarConfiguracao({ PORT: '8080', DATABASE_URL: URL_API, SUPABASE_URL }).PORTA).toBe(8080);
+    expect(carregarConfiguracao({ PORT: '8080', PORTA: '3001', DATABASE_URL: URL_API, SUPABASE_URL }).PORTA).toBe(3001);
+  });
 });

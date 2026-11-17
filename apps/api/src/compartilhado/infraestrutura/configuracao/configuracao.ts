@@ -33,9 +33,13 @@ export class ErroDeConfiguracao extends Error {
  * errada, sem nunca mostrar o valor (que pode ter senha).
  */
 export function carregarConfiguracao(ambiente: NodeJS.ProcessEnv = process.env): Configuracao {
-  const vazioComoAusente = Object.fromEntries(
+  const vazioComoAusente: Record<string, string | undefined> = Object.fromEntries(
     Object.entries(ambiente).filter(([, valor]) => valor !== undefined && valor !== ''),
   );
+  // Hospedagens como o Cloud Run informam a porta em PORT; PORTA, se existir, tem prioridade.
+  if (vazioComoAusente.PORTA === undefined && vazioComoAusente.PORT !== undefined) {
+    vazioComoAusente.PORTA = vazioComoAusente.PORT;
+  }
   const resultado = esquema.safeParse(vazioComoAusente);
   if (!resultado.success) {
     throw new ErroDeConfiguracao(resultado.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`));

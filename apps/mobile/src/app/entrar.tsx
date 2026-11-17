@@ -11,8 +11,9 @@ import { cores, fontes, medidas } from '../tema';
  * há "criar conta" (ST-07). O app fica conectado até o dono sair (RNF-04).
  */
 export default function TelaEntrar() {
-  const { entrar } = useSessao();
-  const [email, setEmail] = useState('');
+  const { entrar, estado, sessao } = useSessao();
+  const reautenticando = estado === 'reautenticar';
+  const [email, setEmail] = useState(reautenticando ? (sessao?.email ?? '') : '');
   const [senha, setSenha] = useState('');
   const [erro, setErro] = useState<string | null>(null);
   const [entrando, setEntrando] = useState(false);
@@ -37,7 +38,14 @@ export default function TelaEntrar() {
           <Text accessibilityRole="header" style={estilos.titulo}>
             Entrar
           </Text>
-          <Text style={estilos.texto}>Use o e-mail e a senha que a equipe passou para você.</Text>
+          {reautenticando ? (
+            <Text accessibilityRole="alert" style={estilos.aviso}>
+              Sua sessão na nuvem expirou. Entre de novo para continuar enviando. Os lançamentos
+              guardados no celular continuam aqui.
+            </Text>
+          ) : (
+            <Text style={estilos.texto}>Use o e-mail e a senha que a equipe passou para você.</Text>
+          )}
 
           <View style={estilos.campo}>
             <Text nativeID="rotulo-email" style={estilos.rotulo}>
@@ -98,6 +106,13 @@ const estilos = StyleSheet.create({
   conteudo: { flexGrow: 1, justifyContent: 'center', padding: medidas.margemTela, gap: 16 },
   titulo: { fontSize: 28, fontWeight: 'bold', color: cores.texto },
   texto: { fontSize: fontes.corpo, color: cores.textoSecundario },
+  aviso: {
+    fontSize: fontes.corpo,
+    color: cores.ambar,
+    backgroundColor: cores.fundoAmbar,
+    padding: 12,
+    borderRadius: medidas.raio,
+  },
   campo: { gap: 4 },
   rotulo: { fontSize: fontes.corpo, color: cores.texto, fontWeight: 'bold' },
   entrada: {

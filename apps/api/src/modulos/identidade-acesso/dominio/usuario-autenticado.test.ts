@@ -3,7 +3,7 @@ import { ErroDeAutorizacao } from '../../../compartilhado/dominio/erros';
 import { UsuarioAutenticado } from './usuario-autenticado';
 
 const usuario = new UsuarioAutenticado('u-a', 'Dono A', 'a@exemplo.com', [
-  { unidadeId: 'U1', unidadeNome: 'Centro', papel: 'dono' },
+  { unidadeId: 'U1', organizacaoId: 'O1', unidadeNome: 'Centro', papel: 'dono' },
 ]);
 
 describe('política de acesso (temPapel)', () => {
@@ -27,9 +27,14 @@ describe('política de acesso (temPapel)', () => {
 
   it('papel novo entra como valor novo, sem mudar a regra (RNF-20)', () => {
     const gerente = new UsuarioAutenticado('u-g', 'Gerente', null, [
-      { unidadeId: 'U1', unidadeNome: 'Centro', papel: 'gerente' },
+      { unidadeId: 'U1', organizacaoId: 'O1', unidadeNome: 'Centro', papel: 'gerente' },
     ]);
     expect(gerente.temPapel('U1', ['dono', 'gerente'])).toBe(true);
     expect(gerente.temPapel('U1', ['dono'])).toBe(false);
+  });
+
+  it('papel na organização vale para os cadastros comuns', () => {
+    expect(usuario.temPapelNaOrganizacao('O1', ['dono'])).toBe(true);
+    expect(() => usuario.exigirPapelNaOrganizacao('O2', ['dono'])).toThrow(ErroDeAutorizacao);
   });
 });

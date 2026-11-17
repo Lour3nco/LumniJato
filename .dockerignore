@@ -1,0 +1,18 @@
+# Contexto do build da imagem da API (apps/api/Dockerfile): fora tudo o que não é necessário
+# e, principalmente, qualquer arquivo com segredo.
+**/node_modules
+**/dist
+**/.turbo
+**/coverage
+.git
+.github
+docs
+apps/mobile
+infra/supabase/.temp
+infra/supabase/.branches
+**/.env
+**/.env.*
+!**/.env.example
+**/*.crt
+**/*.local.sql
+*.pdf

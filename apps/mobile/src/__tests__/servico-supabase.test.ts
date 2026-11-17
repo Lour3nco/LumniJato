@@ -93,7 +93,7 @@ describe('serviço de sessão com Supabase Auth (FIN-US-01.7)', () => {
   it('app gerado sem a configuração do Supabase avisa em vez de travar', async () => {
     const servico = criarServicoSupabase({ obterCliente: () => null, armazenamento: armazenamentoEmMemoria() });
     expect(await servico.entrar('a@b.com', 'x')).toMatchObject({ ok: false, motivo: 'app_sem_configuracao' });
-    expect(await servico.obterTokenDeAcesso()).toBeNull();
+    expect(await servico.obterTokenDeAcesso()).toEqual({ situacao: 'sem_configuracao' });
   });
 
   // CA-01.7.6
@@ -102,7 +102,7 @@ describe('serviço de sessão com Supabase Auth (FIN-US-01.7)', () => {
       getSession: async () => ({ data: { session: { access_token: 'token-atual', expires_at: AGORA / 1000 + 3600 } } }),
     });
     const servico = criarServicoSupabase({ obterCliente: () => cliente, armazenamento: armazenamentoEmMemoria(), agora: () => AGORA });
-    expect(await servico.obterTokenDeAcesso()).toBe('token-atual');
+    expect(await servico.obterTokenDeAcesso()).toEqual({ situacao: 'ok', token: 'token-atual' });
     expect(cliente.refreshSession).not.toHaveBeenCalled();
   });
 
@@ -111,11 +111,11 @@ describe('serviço de sessão com Supabase Auth (FIN-US-01.7)', () => {
       getSession: async () => ({ data: { session: { access_token: 'token-velho', expires_at: AGORA / 1000 + 30 } } }),
     });
     const servico = criarServicoSupabase({ obterCliente: () => cliente, armazenamento: armazenamentoEmMemoria(), agora: () => AGORA });
-    expect(await servico.obterTokenDeAcesso()).toBe('token-novo');
+    expect(await servico.obterTokenDeAcesso()).toEqual({ situacao: 'ok', token: 'token-novo' });
     expect(cliente.refreshSession).toHaveBeenCalledTimes(1);
   });
 
-  it('sem internet para renovar, devolve null sem derrubar a sessão local', async () => {
+  it('sem internet para renovar: sem_internet, sem derrubar a sessão local', async () => {
     const armazenamento = armazenamentoEmMemoria();
     const cliente = clienteFalso({
       getSession: async () => ({ data: { session: { access_token: 'velho', expires_at: AGORA / 1000 - 10 } } }),
@@ -125,7 +125,7 @@ describe('serviço de sessão com Supabase Auth (FIN-US-01.7)', () => {
     });
     const servico = criarServicoSupabase({ obterCliente: () => cliente, armazenamento, agora: () => AGORA });
     await servico.entrar('dono@exemplo.com', 'x');
-    expect(await servico.obterTokenDeAcesso()).toBeNull();
+    expect(await servico.obterTokenDeAcesso()).toEqual({ situacao: 'sem_internet' });
     expect(await servico.carregar()).not.toBeNull();
   });
 
@@ -140,5 +140,41 @@ describe('serviço de sessão com Supabase Auth (FIN-US-01.7)', () => {
     await servico.entrar('dono@exemplo.com', 'x');
     await servico.sair();
     expect(await servico.carregar()).toBeNull();
+  });
+
+  // Sugestão da Arquitetura (passo 5), §4.6
+  it('renovação recusada pelo Supabase: sessao_recusada, sessão local mantida', async () => {
+    const armazenamento = armazenamentoEmMemoria();
+    const cliente = clienteFalso({
+      getSession: async () => ({ data: { session: { access_token: 'velho', expires_at: AGORA / 1000 - 10 } } }),
+      refreshSession: async () => ({
+        data: { session: null },
+        error: { name: 'AuthApiError', code: 'refresh_token_not_found', status: 400, message: 'Invalid Refresh Token' },
+      }),
+    });
+    const servico = criarServicoSupabase({ obterCliente: () => cliente, armazenamento, agora: () => AGORA });
+    await servico.entrar('dono@exemplo.com', 'x');
+    expect(await servico.obterTokenDeAcesso()).toEqual({ situacao: 'sessao_recusada' });
+    expect(await servico.carregar()).not.toBeNull();
+  });
+
+  it('erro de rede na renovação: sem_internet', async () => {
+    const cliente = clienteFalso({
+      getSession: async () => ({ data: { session: { access_token: 'velho', expires_at: AGORA / 1000 - 10 } } }),
+      refreshSession: async () => ({
+        data: { session: null },
+        error: { name: 'AuthRetryableFetchError', status: 0, message: 'Failed to fetch' },
+      }),
+    });
+    const servico = criarServicoSupabase({ obterCliente: () => cliente, armazenamento: armazenamentoEmMemoria(), agora: () => AGORA });
+    expect(await servico.obterTokenDeAcesso()).toEqual({ situacao: 'sem_internet' });
+  });
+
+  it('forcarRenovacao renova mesmo com o token ainda válido', async () => {
+    const cliente = clienteFalso({
+      getSession: async () => ({ data: { session: { access_token: 'atual', expires_at: AGORA / 1000 + 3600 } } }),
+    });
+    const servico = criarServicoSupabase({ obterCliente: () => cliente, armazenamento: armazenamentoEmMemoria(), agora: () => AGORA });
+    expect(await servico.obterTokenDeAcesso({ forcarRenovacao: true })).toEqual({ situacao: 'ok', token: 'token-novo' });
   });
 });

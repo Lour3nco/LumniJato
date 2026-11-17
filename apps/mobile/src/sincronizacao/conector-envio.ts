@@ -5,6 +5,8 @@ import {
   resultadoLoteSchema,
 } from '@lavajato/contratos';
 
+import type { ResultadoDoToken } from '../sessao/servico-de-sessao';
+
 /**
  * Conector de envio do PowerSync (03-arquitetura §2.2, prova de conceito FIN-US-07.10).
  *
@@ -50,13 +52,26 @@ export class ErroTemporarioDeEnvio extends Error {
   }
 }
 
+/**
+ * O Supabase (ou a API, com 401 mesmo depois de renovar) RECUSOU a sessão: o app pede para
+ * entrar de novo. A operação continua na fila — nada é apagado (§4.6).
+ */
+export class ErroDeSessaoRecusada extends Error {
+  constructor() {
+    super('sessão recusada na nuvem; entrar de novo');
+    this.name = 'ErroDeSessaoRecusada';
+  }
+}
+
 type Dependencias = {
   /** URL da API NestJS, ex.: https://api.exemplo.com */
   urlDaApi: string;
   /** URL da instância do PowerSync (vem da conta do dono). */
   urlDoPowerSync: string;
-  /** Token do Supabase Auth, renovado antes de vencer (FIN-US-01.7). `null` sem sessão/rede. */
-  obterToken: () => Promise<string | null>;
+  /** Token do Supabase Auth, renovado antes de vencer (FIN-US-01.7). */
+  obterToken: (opcoes?: { forcarRenovacao?: boolean }) => Promise<ResultadoDoToken>;
+  /** A nuvem recusou a sessão: o app mostra "entre de novo" (sem apagar a fila). */
+  aoSessaoRecusada: () => void;
   /**
    * Operação recusada de vez pelo servidor (regra de domínio ou permissão). Quem recebe guarda
    * o dado como erro para o dono ver e corrigir (§4.6, FIN-US-07.6); nunca é descartada sozinha.
@@ -65,12 +80,44 @@ type Dependencias = {
   fetch?: typeof fetch;
 };
 
-export function criarConectorDeEnvio({ urlDaApi, urlDoPowerSync, obterToken, aoRecusar, fetch: buscar = fetch }: Dependencias) {
+export function criarConectorDeEnvio({
+  urlDaApi,
+  urlDoPowerSync,
+  obterToken,
+  aoSessaoRecusada,
+  aoRecusar,
+  fetch: buscar = fetch,
+}: Dependencias) {
+  /** Token válido, ou erro que mantém a fila: sem internet (tenta depois) × sessão recusada. */
+  async function tokenOuErro(forcarRenovacao = false): Promise<string> {
+    const resultado = await obterToken({ forcarRenovacao });
+    if (resultado.situacao === 'ok') return resultado.token;
+    if (resultado.situacao === 'sessao_recusada') {
+      aoSessaoRecusada();
+      throw new ErroDeSessaoRecusada();
+    }
+    throw new ErroTemporarioDeEnvio(resultado.situacao === 'sem_internet' ? 'sem internet' : 'app sem configuração');
+  }
+
+  async function enviar(lote: LoteSincronizacao, token: string): Promise<Response> {
+    try {
+      return await buscar(`${urlDaApi.replace(/\/+$/, '')}/sync/upload`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
+        body: JSON.stringify(lote),
+      });
+    } catch {
+      throw new ErroTemporarioDeEnvio('sem internet');
+    }
+  }
+
   return {
     /** O PowerSync usa o MESMO token do Supabase Auth que o NestJS (CA-07.10.5). */
     async fetchCredentials(): Promise<CredenciaisPowerSync | null> {
-      const token = await obterToken();
-      return token ? { endpoint: urlDoPowerSync, token } : null;
+      const resultado = await obterToken();
+      if (resultado.situacao === 'ok') return { endpoint: urlDoPowerSync, token: resultado.token };
+      if (resultado.situacao === 'sessao_recusada') aoSessaoRecusada();
+      return null;
     },
 
     /**
@@ -83,24 +130,19 @@ export function criarConectorDeEnvio({ urlDaApi, urlDoPowerSync, obterToken, aoR
         const transacao = await banco.getNextCrudTransaction();
         if (!transacao) return;
 
-        const token = await obterToken();
-        if (!token) throw new ErroTemporarioDeEnvio('sem sessão ou sem internet');
-
         const lote: LoteSincronizacao = loteSincronizacaoSchema.parse({
           operacoes: transacao.crud.map((o) => ({ op: o.op, tabela: o.table, id: o.id, dados: o.opData })),
         });
 
-        let resposta: Response;
-        try {
-          resposta = await buscar(`${urlDaApi.replace(/\/+$/, '')}/sync/upload`, {
-            method: 'POST',
-            headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
-            body: JSON.stringify(lote),
-          });
-        } catch {
-          throw new ErroTemporarioDeEnvio('sem internet');
+        let resposta = await enviar(lote, await tokenOuErro());
+        if (resposta.status === 401) {
+          // Token vencido no caminho: renova e tenta uma vez; 401 de novo = sessão recusada.
+          resposta = await enviar(lote, await tokenOuErro(true));
+          if (resposta.status === 401) {
+            aoSessaoRecusada();
+            throw new ErroDeSessaoRecusada();
+          }
         }
-        if (resposta.status === 401) throw new ErroTemporarioDeEnvio('sessão vencida; renova e tenta de novo');
         if (!resposta.ok) throw new ErroTemporarioDeEnvio(`servidor respondeu ${resposta.status}`);
 
         const { resultados } = resultadoLoteSchema.parse(await resposta.json());

@@ -1,0 +1,77 @@
+# FIN-US-09.9 · Publicação da API — RASCUNHO (ADR-003). Só roda à mão ("Run workflow") e só
+# funciona depois que o DONO criar a conta da hospedagem e cadastrar os segredos abaixo em
+# Settings → Secrets and variables → Actions. Nenhum valor fica neste arquivo (CA-09.9.2).
+#
+# Ordem (CA-09.9.3): 1) testes; 2) migrações no Supabase; 3) nova versão da API. Se a migração
+# falha, o passo 3 não roda e a versão anterior continua no ar.
+#
+# Segredos esperados (nomes; valores só no GitHub):
+#   SUPABASE_ACCESS_TOKEN, SUPABASE_PROJECT_REF, SUPABASE_DB_PASSWORD  → migrações
+#   GCP_PROJECT_ID, GCP_REGIAO, GCP_WORKLOAD_IDENTITY_PROVIDER, GCP_CONTA_DE_SERVICO → Cloud Run
+#   (DATABASE_URL e SUPABASE_URL ficam como variáveis/segredos do próprio serviço no Cloud Run)
+name: Publicar API (rascunho)
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: publicar-api
+  cancel-in-progress: false
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm verificar
+
+  migrar:
+    needs: verificar
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Aplicar migrações no Supabase
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: |
+          pnpm supabase link --project-ref "${{ secrets.SUPABASE_PROJECT_REF }}"
+          pnpm supabase db push
+
+  publicar:
+    needs: migrar
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_CONTA_DE_SERVICO }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Construir a imagem e publicar no Cloud Run
+        env:
+          IMAGEM: ${{ secrets.GCP_REGIAO }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/lavajato/api:${{ github.sha }}
+        run: |
+          gcloud auth configure-docker "${{ secrets.GCP_REGIAO }}-docker.pkg.dev" --quiet
+          docker build -f apps/api/Dockerfile -t "$IMAGEM" .
+          docker push "$IMAGEM"
+          gcloud run deploy lavajato-api --project "${{ secrets.GCP_PROJECT_ID }}"             --region "${{ secrets.GCP_REGIAO }}" --image "$IMAGEM"             --min-instances 0 --max-instances 1 --allow-unauthenticated
+      - name: Conferir a rota de saúde (CA-09.9.1)
+        run: |
+          URL=$(gcloud run services describe lavajato-api --project "${{ secrets.GCP_PROJECT_ID }}" --region "${{ secrets.GCP_REGIAO }}" --format 'value(status.url)')
+          curl --fail --retry 5 --retry-delay 10 "$URL/saude"
